@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-末日生存日志 · Dead Days v0.2（画面重制版）
-俯视角僵尸生存 + 生存日志 单机游戏（Python + Pygame）
+末日生存日志 · Dead Days v0.3（2.5D 等距版）
+俯视角僵尸生存 + 生存日志 单机游戏（Python + Pygame，isometric 渲染）
 
 操作：
-  WASD/方向键 移动 | Shift 奔跑 | 空格 攻击 | E 搜刮/喝水
+  WASD/方向键 移动（W 屏幕上方） | Shift 奔跑 | 空格 攻击 | E 搜刮/喝水
   1 吃罐头 2 喝水 3 绷带 | T 睡觉到黎明 | J 日志 | Esc 存档并回主菜单
   日志界面：直接打字输入，←/→ 选心情，Enter 写下，滚轮翻页，F5 导出
 """
@@ -22,7 +22,10 @@ if SELFTEST:
 import pygame
 
 WIDTH, HEIGHT = 960, 600
-TILE = 32
+TILE = 32                  # 逻辑格宽（碰撞用）
+TILE_W, TILE_H = 64, 32    # 等距菱形尺寸
+WALL_H = 44                # 墙体高度
+TREE_H = 54                # 树高
 MAP_W, MAP_H = 120, 120
 DAY_LEN = 360.0
 DAWN = 360.0
@@ -83,110 +86,138 @@ def darkness(minutes):
         return 0.62
     return 0.62 * (1 - (h - 5) / 3)
 
-# ---------------------------------------------------------------- 程序化贴图
+def iso_sx(tx, ty):
+    """世界 tile 坐标 -> 屏幕 x（未减相机）"""
+    return (tx - ty) * (TILE_W // 2)
+
+def iso_sy(tx, ty):
+    return (tx + ty) * (TILE_H // 2)
+
+# ---------------------------------------------------------------- 程序化贴图（等距）
+
+def _diamond_path(top_y=0):
+    return [(TILE_W // 2, top_y), (TILE_W - 2, top_y + TILE_H // 2),
+            (TILE_W // 2, top_y + TILE_H - 1), (2, top_y + TILE_H // 2)]
+
+def _ground_base(color):
+    s = pygame.Surface((TILE_W, TILE_H), pygame.SRCALPHA)
+    pygame.draw.polygon(s, color, _diamond_path())
+    return s
+
+def _noise_in_diamond(s, rng, colors, n=8):
+    for _ in range(n):
+        x = rng.randint(6, TILE_W - 7)
+        y = rng.randint(3, TILE_H - 4)
+        pygame.draw.circle(s, rng.choice(colors), (x, y), rng.randint(1, 2))
 
 def build_tiles(map_data):
-    """生成每种地形的贴图变体 + 每格变体索引 + 道路标线方向"""
+    """返回 ground sprites / 高块（墙/门/树）/ 每格变体"""
     rng = random.Random(20261017)
-    surfs = {}
+    ground = {}      # t -> [Surface]
+    blocks = {}      # t -> Surface（带高度）
     variants = [0] * (MAP_W * MAP_H)
-    road_line = [0] * (MAP_W * MAP_H)
 
-    def base(color):
-        s = pygame.Surface((TILE, TILE))
-        s.fill(color)
-        return s
-
-    # 草地 ×3 变体
+    # 草地 ×3
     grass = []
     for v in range(3):
-        s = base((88 + v * 4, 126 + v * 3, 72 + v * 2))
-        for _ in range(7):
-            x, y = rng.randrange(TILE), rng.randrange(TILE)
-            c = rng.choice([(70, 105, 58), (105, 145, 85), (78, 116, 64)])
-            pygame.draw.circle(s, c, (x, y), rng.randint(1, 2))
-        for _ in range(2):  # 草叶
-            x, y = rng.randrange(4, 28), rng.randrange(4, 28)
-            pygame.draw.line(s, (60, 95, 52), (x, y), (x - 2, y - 4), 1)
-            pygame.draw.line(s, (96, 138, 80), (x, y), (x + 2, y - 4), 1)
-        grass.append(s)
-    surfs[GRASS] = grass
+        s = _ground_base((88 + v * 4, 126 + v * 3, 72 + v * 2))
+        _noise_in_diamond(s, rng, [(70, 105, 58), (105, 145, 85), (78, 116, 64)])
+        ground[GRASS] = ground.get(GRASS, []) + [s]
 
     # 道路
     road = []
     for v in range(2):
-        s = base((74, 74, 80))
-        for _ in range(10):
-            x, y = rng.randrange(TILE), rng.randrange(TILE)
-            c = rng.choice([(64, 64, 70), (84, 84, 90), (70, 70, 76)])
-            pygame.draw.circle(s, c, (x, y), 1)
-        road.append(s)
-    surfs[ROAD] = road
+        s = _ground_base((78 + v * 4, 78 + v * 4, 84 + v * 4))
+        _noise_in_diamond(s, rng, [(66, 66, 72), (88, 88, 94), (72, 72, 78)])
+        ground[ROAD] = ground.get(ROAD, []) + [s]
 
     # 木地板
-    floor_s = base((156, 136, 106))
-    for i in range(4):
-        y = i * 8 + 7
-        pygame.draw.line(floor_s, (130, 110, 84), (0, y), (TILE, y), 1)
-    for i in range(3):
-        x = rng.randrange(6, 26); y = rng.randrange(6, 26)
-        pygame.draw.circle(floor_s, (138, 117, 88), (x, y), 2)
-    pygame.draw.rect(floor_s, (120, 100, 76), (0, 0, TILE, TILE), 1)
-    surfs[FLOOR] = [floor_s]
+    fl = _ground_base((158, 138, 108))
+    for i in range(1, 4):
+        y = int(i * TILE_H / 4)
+        seg = _diamond_path()
+        pygame.draw.line(fl, (128, 108, 82), (14, y + 1), (50, y + 1), 1)
+    for _ in range(3):
+        x, y = rng.randint(20, 44), rng.randint(8, 24)
+        pygame.draw.circle(fl, (136, 115, 86), (x, y), 2)
+    pygame.draw.polygon(fl, (124, 104, 80), _diamond_path(), 1)
+    ground[FLOOR] = [fl]
 
-    # 砖墙
-    wall = base((118, 88, 60))
-    for row in range(4):
-        y = row * 8 + 7
-        pygame.draw.line(wall, (88, 62, 40), (0, y), (TILE, y), 1)
-        off = 8 if row % 2 else 0
-        for bx in range(off, TILE, 16):
-            pygame.draw.line(wall, (88, 62, 40), (bx, y - 7), (bx, y), 1)
-    pygame.draw.rect(wall, (142, 110, 78), (0, 0, TILE, 4))
-    pygame.draw.rect(wall, (70, 48, 32), (0, 0, TILE, TILE), 1)
-    surfs[WALL] = [wall]
+    # 水面
+    wa = _ground_base((58, 92, 168))
+    _noise_in_diamond(wa, rng, [(48, 78, 146)], 6)
+    ground[WATER] = [wa]
 
-    # 门
-    door = base((98, 66, 36))
-    pygame.draw.rect(door, (70, 46, 24), (2, 2, TILE - 4, TILE - 4), 2)
-    pygame.draw.rect(door, (112, 78, 44), (6, 6, TILE - 12, TILE - 12), 1)
-    pygame.draw.circle(door, (205, 175, 95), (24, 16), 2)
-    surfs[DOOR] = [door]
+    # 砖墙块（顶面 + 左右面）
+    H = WALL_H
+    wb = pygame.Surface((TILE_W, TILE_H + H), pygame.SRCALPHA)
+    top = (150, 118, 84)
+    left = (118, 90, 62)
+    right = (94, 70, 48)
+    # 左面
+    pygame.draw.polygon(wb, left, [(2, TILE_H // 2), (TILE_W // 2, TILE_H - 1),
+                                  (TILE_W // 2, TILE_H - 1 + H),
+                                  (2, TILE_H // 2 + H)])
+    # 右面
+    pygame.draw.polygon(wb, right, [(TILE_W // 2, TILE_H - 1),
+                                   (TILE_W - 2, TILE_H // 2),
+                                   (TILE_W - 2, TILE_H // 2 + H),
+                                   (TILE_W // 2, TILE_H - 1 + H)])
+    # 面上砖缝
+    for i in range(1, 4):
+        y = TILE_H // 2 + int(i * H / 4)
+        pygame.draw.line(wb, (70, 50, 34), (3, y), (TILE_W // 2 - 1, y + TILE_H // 2 - 1), 1)
+        pygame.draw.line(wb, (56, 40, 28), (TILE_W // 2, y + TILE_H // 2 - 1),
+                         (TILE_W - 3, y), 1)
+    # 顶面
+    pygame.draw.polygon(wb, top, _diamond_path())
+    pygame.draw.polygon(wb, (180, 146, 108), _diamond_path(), 1)
+    blocks[WALL] = wb
 
-    # 树
-    tree = grass[1].copy()
-    pygame.draw.rect(tree, (82, 58, 38), (14, 20, 4, 6))
-    pygame.draw.circle(tree, (40, 80, 40), (16, 14), 11)
-    pygame.draw.circle(tree, (52, 98, 50), (12, 11), 7)
-    pygame.draw.circle(tree, (66, 118, 62), (19, 9), 5)
-    pygame.draw.circle(tree, (30, 62, 30), (16, 14), 11, 1)
-    surfs[TREE] = [tree]
+    # 门块：墙 + 正面门板
+    db = wb.copy()
+    pygame.draw.polygon(db, (86, 56, 30),
+                        [(TILE_W // 2, TILE_H - 1), (TILE_W - 2, TILE_H // 2),
+                         (TILE_W - 2, TILE_H // 2 + 26), (TILE_W // 2, TILE_H + 25)])
+    pygame.draw.polygon(db, (104, 70, 40),
+                        [(TILE_W // 2 + 2, TILE_H + 2),
+                         (TILE_W - 4, TILE_H // 2 + 2),
+                         (TILE_W - 4, TILE_H // 2 + 22), (TILE_W // 2 + 2, TILE_H + 22)])
+    pygame.draw.circle(db, (210, 180, 100), (TILE_W - 10, TILE_H + 12), 2)
+    blocks[DOOR] = db
 
-    # 水
-    water = base((56, 88, 158))
-    for _ in range(6):
-        x, y = rng.randrange(TILE), rng.randrange(TILE)
-        pygame.draw.circle(water, (48, 76, 140), (x, y), rng.randint(1, 3))
-    surfs[WATER] = [water]
+    # 树块（底部 32 行 = 落脚菱形）
+    TH = TREE_H
+    tr = pygame.Surface((TILE_W, TILE_H + TH), pygame.SRCALPHA)
+    fy = TILE_H + TH // 2          # 落脚菱形中心 y
+    pygame.draw.rect(tr, (84, 60, 38), (TILE_W // 2 - 3, fy - TH + 16, 6, TH - 18))
+    cx, cy = TILE_W // 2, fy - TH + 18
+    pygame.draw.ellipse(tr, (36, 74, 38), (cx - 20, cy - 18, 40, 36))
+    pygame.draw.ellipse(tr, (48, 92, 48), (cx - 16, cy - 16, 32, 28))
+    pygame.draw.ellipse(tr, (62, 110, 58), (cx - 12, cy - 14, 22, 18))
+    blocks[TREE] = tr
 
-    # 每格变体 + 道路标线方向
+    # 木箱（容器）
+    cb = pygame.Surface((40, 32), pygame.SRCALPHA)
+    bw, bh = 24, 12
+    bx = 8
+    pygame.draw.polygon(cb, (150, 102, 46),
+                        [(bx + bw // 2, 2), (bx + bw, 8), (bx + bw // 2, 14), (bx, 8)])
+    pygame.draw.polygon(cb, (112, 74, 34),
+                        [(bx, 8), (bx + bw // 2, 14), (bx + bw // 2, 26), (bx, 20)])
+    pygame.draw.polygon(cb, (90, 58, 26),
+                        [(bx + bw // 2, 14), (bx + bw, 8), (bx + bw, 20),
+                         (bx + bw // 2, 26)])
+    pygame.draw.line(cb, (80, 52, 24), (bx + 3, 12), (bx + bw - 3, 18), 1)
+
     for y in range(MAP_H):
         for x in range(MAP_W):
             i = y * MAP_W + x
-            t = map_data[i]
-            if t == GRASS:
+            if map_data[i] == GRASS:
                 variants[i] = rng.randrange(3)
-            elif t == ROAD:
+            elif map_data[i] == ROAD:
                 variants[i] = rng.randrange(2)
-                up = map_data[i - MAP_W] if y > 0 else None
-                dn = map_data[i + MAP_W] if y < MAP_H - 1 else None
-                lf = map_data[i - 1] if x > 0 else None
-                rt = map_data[i + 1] if x < MAP_W - 1 else None
-                if up == ROAD and dn == ROAD and lf != ROAD and rt != ROAD:
-                    road_line[i] = 1
-                elif lf == ROAD and rt == ROAD and up != ROAD and dn != ROAD:
-                    road_line[i] = 2
-    return surfs, variants, road_line
+    return ground, blocks, variants, cb
 
 # ---------------------------------------------------------------- 世界生成
 
@@ -270,59 +301,57 @@ class Zombie:
         self.col = r.choice(ZOMBIE_SHIRTS)
         self.phase = r.uniform(0, math.tau)
 
-# ---------------------------------------------------------------- 角色绘制
+# ---------------------------------------------------------------- 等距小人
 
 def draw_actor(surf, sx, sy, facing, body_col, skin_col, t, phase=0.0,
                walking=True, zombie=False, weapon=0):
-    bob = math.sin(t * 11 + phase) * 1.6 if walking else 0.0
+    """sx, sy 是脚底位置；facing 是逻辑方向角"""
     fx, fy = math.cos(facing), math.sin(facing)
-    px, py = -fy, fx
+    wdx, wdy = (fx - fy) * (TILE_W // 2), (fx + fy) * (TILE_H // 2)
+    wl = math.hypot(wdx, wdy) or 1
+    wdx, wdy = wdx / wl, wdy / wl
+    bob = math.sin(t * 11 + phase) * 1.6 if walking else 0.0
+    step = math.sin(t * 11 + phase) * 3 if walking else 0
     # 影子
     sh = pygame.Surface((26, 12), pygame.SRCALPHA)
-    pygame.draw.ellipse(sh, (0, 0, 0, 60), (0, 0, 26, 12))
-    surf.blit(sh, (sx - 13, sy + 6))
-    # 腿（行走交替）
-    step = math.sin(t * 11 + phase) * 4 if walking else 0
+    pygame.draw.ellipse(sh, (0, 0, 0, 70), (0, 0, 26, 12))
+    surf.blit(sh, (sx - 13, sy - 8))
+    base_y = sy - 4 + bob
+    # 腿
     for s in (-1, 1):
-        lx = sx + px * 3.5 * s + fx * step * s
-        ly = sy + py * 3.5 * s + fy * step * s + 5
-        pygame.draw.circle(surf, (52, 52, 60), (int(lx), int(ly)), 3)
+        lx = sx + s * 3
+        ly = base_y + (step if s > 0 else -step) * 0.8
+        pygame.draw.line(surf, (52, 52, 60), (lx, base_y), (lx, ly + 5), 3)
     # 身体
-    pygame.draw.circle(surf, tuple(max(0, c - 40) for c in body_col),
-                       (int(sx), int(sy + bob)), 10)
-    pygame.draw.circle(surf, body_col, (int(sx), int(sy + bob - 1)), 9)
+    body = pygame.Rect(sx - 6, base_y - 16, 12, 14)
+    pygame.draw.rect(surf, tuple(max(0, c - 45) for c in body_col),
+                    (body.x + 1, body.y + 2, body.w, body.h), border_radius=4)
+    pygame.draw.rect(surf, body_col, body, border_radius=4)
     if zombie:
-        pygame.draw.circle(surf, (60, 48, 52),
-                           (int(sx - px * 4), int(sy + bob - py * 4)), 2)
         # 双臂前伸
         for s in (-1, 1):
-            ax = sx + fx * 13 + px * 4 * s
-            ay = sy + bob + fy * 13 + py * 4 * s
-            pygame.draw.line(surf, skin_col, (sx, sy + bob), (ax, ay), 3)
+            ax = sx + s * 4 + wdx * 12
+            ay = base_y - 12 + wdy * 6 + s * 1
+            pygame.draw.line(surf, skin_col, (sx, base_y - 12), (ax, ay), 3)
             pygame.draw.circle(surf, skin_col, (int(ax), int(ay)), 3)
     else:
-        ax = sx + fx * 10 + px * 5
-        ay = sy + bob + fy * 10 + py * 5
-        pygame.draw.line(surf, skin_col, (sx, sy + bob), (ax, ay), 3)
+        ax = sx + wdx * 10
+        ay = base_y - 11 + wdy * 5
+        pygame.draw.line(surf, skin_col, (sx, base_y - 11), (ax, ay), 3)
         if weapon > 0:
-            wl = 14 + weapon * 4
-            wx, wy = ax + fx * wl, ay + fy * wl
+            wx, wy = ax + wdx * (13 + weapon * 4), ay + wdy * (7 + weapon * 2)
             pygame.draw.line(surf, WEAPON_COLORS[weapon], (ax, ay), (wx, wy),
                              4 if weapon == 1 else 3)
             if weapon == 2:
-                pygame.draw.circle(surf, (220, 225, 235), (int(wx), int(wy)), 2)
+                pygame.draw.circle(surf, (225, 230, 240), (int(wx), int(wy)), 2)
     # 头
-    hx = sx + fx * 4
-    hy = sy + bob + fy * 4 - 2
-    pygame.draw.circle(surf, tuple(max(0, c - 30) for c in skin_col),
-                       (int(hx), int(hy)), 6)
-    pygame.draw.circle(surf, skin_col, (int(hx), int(hy - 1)), 5)
+    pygame.draw.circle(surf, tuple(max(0, c - 35) for c in skin_col),
+                       (int(sx), int(base_y - 19)), 6)
+    pygame.draw.circle(surf, skin_col, (int(sx), int(base_y - 20)), 5)
     if zombie:
-        ex, ey = hx + fx * 4, hy + fy * 4 - 1
-        pygame.draw.circle(surf, (215, 60, 60),
-                           (int(ex + px * 2), int(ey + py * 2)), 1)
-        pygame.draw.circle(surf, (215, 60, 60),
-                           (int(ex - px * 2), int(ey - py * 2)), 1)
+        ex, ey = sx + wdx * 3, base_y - 20 + wdy * 2
+        pygame.draw.circle(surf, (215, 60, 60), (int(ex + wdy * 2), int(ey - wdx * 2)), 1)
+        pygame.draw.circle(surf, (215, 60, 60), (int(ex - wdy * 2), int(ey + wdx * 2)), 1)
 
 # ---------------------------------------------------------------- 游戏主体
 
@@ -376,7 +405,8 @@ class Game:
 
     def _init_world(self):
         self.map, self.houses, self.containers = gen_world(self.seed)
-        self.tile_surfs, self.variants, self.road_line = build_tiles(self.map)
+        self.ground, self.blocks, self.variants, self.crate_img = \
+            build_tiles(self.map)
         self.minimap = pygame.Surface((MAP_W, MAP_H))
         mm_colors = {
             GRASS: (86, 125, 70), ROAD: (72, 72, 78), WALL: (112, 82, 54),
@@ -724,11 +754,12 @@ class Game:
         speed = 205 if running else 135
         if p["fatigue"] <= 0:
             speed *= 0.55
+        # 等距方向映射：W=屏上(-1,-1) S=屏下(1,1) A=屏左(-1,1) D=屏右(1,-1)
         mx = my = 0
-        if pygame.K_w in pressed or pygame.K_UP in pressed:    my -= 1
-        if pygame.K_s in pressed or pygame.K_DOWN in pressed:  my += 1
-        if pygame.K_a in pressed or pygame.K_LEFT in pressed:  mx -= 1
-        if pygame.K_d in pressed or pygame.K_RIGHT in pressed: mx += 1
+        if pygame.K_w in pressed or pygame.K_UP in pressed:    mx -= 1; my -= 1
+        if pygame.K_s in pressed or pygame.K_DOWN in pressed:  mx += 1; my += 1
+        if pygame.K_a in pressed or pygame.K_LEFT in pressed:  mx -= 1; my += 1
+        if pygame.K_d in pressed or pygame.K_RIGHT in pressed: mx += 1; my -= 1
         self.moving = bool(mx or my)
         if mx or my:
             n = math.hypot(mx, my)
@@ -840,10 +871,12 @@ class Game:
 
     # ---------- 渲染 ----------
 
-    def camera(self):
+    def cam_offset(self):
+        """相机：玩家投影居中，附震屏"""
         p = self.player
-        cx = clamp(p["x"] - WIDTH / 2, 0, MAP_W * TILE - WIDTH)
-        cy = clamp(p["y"] - HEIGHT / 2, 0, MAP_H * TILE - HEIGHT)
+        ptx, pty = p["x"] / TILE, p["y"] / TILE
+        cx = iso_sx(ptx, pty) - WIDTH // 2
+        cy = iso_sy(ptx, pty) - HEIGHT // 2 - 40
         if self.shake > 0:
             cx += random.uniform(-self.shake, self.shake)
             cy += random.uniform(-self.shake, self.shake)
@@ -876,95 +909,115 @@ class Game:
             self.render_menu(surf)
             return
         t = self.anim_t
-        cx, cy = self.camera()
-        x0, y0 = int(cx // TILE), int(cy // TILE)
-        x1, y1 = x0 + WIDTH // TILE + 2, y0 + HEIGHT // TILE + 2
-        for ty in range(max(0, y0), min(MAP_H, y1)):
-            for tx in range(max(0, x0), min(MAP_W, x1)):
+        p = self.player
+        cx, cy = self.cam_offset()
+        ptx, pty = p["x"] / TILE, p["y"] / TILE
+        surf.fill((22, 26, 20))
+
+        # ---- 地面层 + 物体收集 ----
+        objs = []   # (depth, draw_kind, args)
+        r = 24
+        for ty in range(max(0, int(pty) - r), min(MAP_H, int(pty) + r + 1)):
+            for tx in range(max(0, int(ptx) - r), min(MAP_W, int(ptx) + r + 1)):
                 i = ty * MAP_W + tx
                 tl = self.map[i]
-                rx, ry = tx * TILE - cx, ty * TILE - cy
-                surf.blit(self.tile_surfs[tl][self.variants[i]], (rx, ry))
-                if tl == ROAD and self.road_line[i]:
-                    if self.road_line[i] == 1:
-                        for yy in range(0, TILE, 10):
-                            pygame.draw.line(surf, (190, 170, 90),
-                                             (rx + 16, ry + yy),
-                                             (rx + 16, ry + yy + 5), 2)
+                sx = iso_sx(tx, ty) - cx
+                sy = iso_sy(tx, ty) - cy
+                if sx < -TILE_W or sx > WIDTH or sy < -90 or sy > HEIGHT:
+                    continue
+                if tl in self.ground:
+                    if tl == WATER:
+                        img = self.ground[WATER][0]
+                        sx_img = img.copy()
+                        off = math.sin(t * 2 + tx * 0.8 + ty) * 2
+                        pygame.draw.line(sx_img, (110, 150, 210), (10, 12 + off),
+                                         (26, 12 + off), 1)
+                        pygame.draw.line(sx_img, (110, 150, 210), (24, 22 - off),
+                                         (42, 22 - off), 1)
+                        surf.blit(sx_img, (sx, sy))
                     else:
-                        for xx in range(0, TILE, 10):
-                            pygame.draw.line(surf, (190, 170, 90),
-                                             (rx + xx, ry + 16),
-                                             (rx + xx + 5, ry + 16), 2)
-                elif tl == WATER:
-                    off = math.sin(t * 2 + tx * 0.8 + ty) * 3
-                    pygame.draw.line(surf, (110, 150, 210),
-                                     (rx + 5, ry + 10 + off),
-                                     (rx + 16, ry + 10 + off), 1)
-                    pygame.draw.line(surf, (110, 150, 210),
-                                     (rx + 14, ry + 22 - off),
-                                     (rx + 26, ry + 22 - off), 1)
-        # 血迹
+                        surf.blit(self.ground[tl][self.variants[i]], (sx, sy))
+                elif tl == TREE:
+                    surf.blit(self.ground[GRASS][self.variants[i]], (sx, sy))
+                if tl in (WALL, DOOR, TREE):
+                    block = self.blocks[tl]
+                    depth = tx + ty
+                    objs.append((depth, "block",
+                                 (block, sx, sy - (block.get_height() - TILE_H))))
+        # 血迹（地面）
         for dx_, dy_, r_ in self.decals:
-            rx, ry = dx_ - cx, dy_ - cy
-            if -16 < rx < WIDTH + 16 and -16 < ry < HEIGHT + 16:
-                pygame.draw.circle(surf, (118, 22, 22), (int(rx), int(ry)), r_)
+            tx, ty = dx_ / TILE, dy_ / TILE
+            sx = iso_sx(tx, ty) - cx
+            sy = iso_sy(tx, ty) - cy
+            if -16 < sx < WIDTH + 16 and -16 < sy < HEIGHT + 16:
+                pygame.draw.circle(surf, (118, 22, 22), (int(sx + 16), int(sy + 16)), r_)
                 pygame.draw.circle(surf, (90, 14, 14),
-                                   (int(rx + 3), int(ry + 2)), max(2, r_ - 3))
-        # 容器（木箱）
+                                   (int(sx + 19), int(sy + 18)), max(2, r_ - 3))
+        # 容器
         for c in self.containers:
-            rx, ry = c["x"] * TILE - cx, c["y"] * TILE - cy
-            if -32 < rx < WIDTH and -32 < ry < HEIGHT:
-                col = (105, 100, 92) if c["looted"] else (152, 104, 48)
-                dark = (70, 66, 60) if c["looted"] else (102, 68, 30)
-                pygame.draw.rect(surf, dark, (rx + 7, ry + 9, 18, 16))
-                pygame.draw.rect(surf, col, (rx + 7, ry + 7, 18, 16))
-                pygame.draw.line(surf, dark, (rx + 7, ry + 15),
-                                 (rx + 25, ry + 15), 1)
-                pygame.draw.rect(surf, dark, (rx + 7, ry + 7, 18, 16), 1)
-                if not c["looted"]:
-                    pygame.draw.rect(surf, (180, 132, 66),
-                                     (rx + 14, ry + 7, 4, 16))
+            sx = iso_sx(c["x"], c["y"]) - cx
+            sy = iso_sy(c["x"], c["y"]) - cy
+            if -64 < sx < WIDTH + 64 and -32 < sy < HEIGHT + 32:
+                img = self.crate_img
+                if c["looted"]:
+                    g = pygame.Surface(img.get_size(), pygame.SRCALPHA)
+                    g.blit(img, (0, 0))
+                    dark = pygame.Surface(img.get_size(), pygame.SRCALPHA)
+                    dark.fill((40, 40, 40, 120))
+                    g.blit(dark, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+                    img = g
+                objs.append((c["x"] + c["y"], "img", (img, sx, sy - 6)))
         # 僵尸
         for z in self.zombies:
-            rx, ry = z.x - cx, z.y - cy
-            if -32 < rx < WIDTH + 32 and -32 < ry < HEIGHT + 32:
-                chasing = math.hypot(z.x - self.player["x"],
-                                     z.y - self.player["y"]) < 240
-                draw_actor(surf, rx, ry, z.ang, z.col, (148, 172, 122),
-                           t, z.phase, walking=True, zombie=True)
-                if chasing:
-                    pygame.draw.circle(surf, (200, 60, 60),
-                                       (int(rx), int(ry - 18)), 2)
+            ztx, zty = z.x / TILE, z.y / TILE
+            sx = iso_sx(ztx, zty) - cx
+            sy = iso_sy(ztx, zty) - cy
+            if -64 < sx < WIDTH + 64 and -64 < sy < HEIGHT + 64:
+                objs.append((ztx + zty, "actor",
+                             (sx + 16, sy + 16, z.ang, z.col, (148, 172, 122),
+                              t, z.phase, True, True, 0)))
         # 玩家
-        p = self.player
-        draw_actor(surf, p["x"] - cx, p["y"] - cy, p["facing"],
-                   (74, 104, 142), (228, 198, 168), t, 0.0,
-                   walking=self.moving, zombie=False, weapon=p["weapon"])
+        psx = iso_sx(ptx, pty) - cx + 16
+        psy = iso_sy(ptx, pty) - cy + 16
+        objs.append((ptx + pty, "actor",
+                     (psx, psy, p["facing"], (74, 104, 142), (228, 198, 168),
+                      t, 0.0, self.moving, False, p["weapon"])))
+        # ---- 深度排序绘制 ----
+        objs.sort(key=lambda o: o[0])
+        for depth, kind, args in objs:
+            if kind == "block":
+                surf.blit(args[0], (args[1], args[2]))
+            elif kind == "img":
+                surf.blit(args[0], (args[1], args[2]))
+            else:
+                draw_actor(surf, *args)
+        # 挥砍残影
         if self.swing_t > 0:
-            rx, ry = p["x"] - cx, p["y"] - cy
             a = 1 - self.swing_t / 0.15
-            arc_s = pygame.Surface((90, 90), pygame.SRCALPHA)
-            pygame.draw.arc(arc_s, (245, 240, 200, max(0, int(220 * (1 - a)))),
-                            (15, 15, 60, 60),
-                            -p["facing"] - 1.1, -p["facing"] + 1.1, 4)
-            surf.blit(arc_s, (rx - 45, ry - 45))
+            fx, fy = math.cos(p["facing"]), math.sin(p["facing"])
+            wdx, wdy = (fx - fy) * 32, (fx + fy) * 16
+            wl = math.hypot(wdx, wdy) or 1
+            wdx, wdy = wdx / wl, wdy / wl
+            ex, ey = psx + wdx * (30 + p["weapon"] * 6), psy - 14 + wdy * 14
+            pygame.draw.line(surf, (245, 240, 200), (psx, psy - 14),
+                             (ex, ey), max(1, int(4 * (1 - a))))
         # 粒子
         for pt in self.particles:
-            pygame.draw.circle(surf, pt[5],
-                               (int(pt[0] - cx), int(pt[1] - cy)), 3)
-        # 黑夜 + 玩家光照
+            tx, ty = pt[0] / TILE, pt[1] / TILE
+            sx = iso_sx(tx, ty) - cx + 16
+            sy = iso_sy(tx, ty) - cy + 16
+            pygame.draw.circle(surf, pt[5], (int(sx), int(sy)), 3)
+        # 黑夜 + 光照
         dk = darkness(self.minutes)
         if dk > 0.02:
             ov = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             ov.fill((5, 5, 30, 255))
-            psx, psy = p["x"] - cx, p["y"] - cy
-            ov.blit(self._light, (psx - 300, psy - 300),
+            ov.blit(self._light, (psx - 300, psy - 330),
                     special_flags=pygame.BLEND_RGBA_MIN)
             ov.set_alpha(int(dk * 255))
             surf.blit(ov, (0, 0))
             if dk > 0.5:
-                surf.blit(self._glow, (psx - 300, psy - 300),
+                surf.blit(self._glow, (psx - 300, psy - 330),
                           special_flags=pygame.BLEND_RGB_ADD)
         surf.blit(self._vignette, (0, 0))
         self.render_hud(surf)
@@ -995,7 +1048,7 @@ class Game:
         ic = (120, 130, 190) if is_night else (240, 200, 80)
         pygame.draw.circle(surf, ic, (24, 24), 6)
         if is_night:
-            pygame.draw.circle(surf, (24, 24, 30), (27, 22), 5)
+            pygame.draw.circle(surf, (14, 14, 18), (27, 22), 5)
         self.draw_text(surf, f"第 {self.day} 天  {self.clock()}", 38, 14, 17)
         bars = [("生命", p["hp"], (205, 70, 70)),
                 ("饱食", p["hunger"], (215, 145, 55)),
@@ -1032,15 +1085,11 @@ class Game:
         mm = pygame.transform.scale(self.minimap, (120, 120))
         surf.blit(mm, (WIDTH - 132, 32))
         pygame.draw.rect(surf, (200, 200, 200), (WIDTH - 132, 32, 120, 120), 1)
-        cx, cy = self.camera()
-        vx = WIDTH - 132 + cx / (MAP_W * TILE) * 120
-        vy = 32 + cy / (MAP_H * TILE) * 120
+        mvx = WIDTH - 132 + p["x"] / TILE / MAP_W * 120
+        mvy = 32 + p["y"] / TILE / MAP_H * 120
         pygame.draw.rect(surf, (255, 255, 255),
-                         (vx, vy, WIDTH / (MAP_W * TILE) * 120,
-                          HEIGHT / (MAP_H * TILE) * 120), 1)
-        pxx = WIDTH - 132 + p["x"] / (MAP_W * TILE) * 120
-        pyy = 32 + p["y"] / (MAP_H * TILE) * 120
-        pygame.draw.circle(surf, (255, 80, 80), (int(pxx), int(pyy)), 2)
+                         (mvx - 4, mvy - 3, 8, 6), 1)
+        pygame.draw.circle(surf, (255, 80, 80), (int(mvx), int(mvy)), 2)
         for i, m in enumerate(self.msgs[-4:]):
             a = min(1.0, m[1])
             col = (int(255 * a), int(240 * a), int(180 * a))
@@ -1052,8 +1101,8 @@ class Game:
         rng = random.Random(7)
         for _ in range(26):
             x, y = rng.randrange(WIDTH), rng.randrange(HEIGHT)
-            r = rng.randint(18, 46)
-            pygame.draw.circle(surf, (22, 30, 22), (x, y), r)
+            r_ = rng.randint(18, 46)
+            pygame.draw.circle(surf, (22, 30, 22), (x, y), r_)
         surf.blit(self._vignette, (0, 0))
         self.draw_text(surf, "末日生存日志", WIDTH // 2, 150, 56,
                        (222, 212, 190), center=True)
@@ -1072,7 +1121,7 @@ class Game:
                        center=True)
         self.draw_text(surf, "活下去。然后把每一天写下来。",
                        WIDTH // 2, 462, 15, (172, 152, 132), center=True)
-        self.draw_text(surf, "v0.2 画面重制版", WIDTH - 100, HEIGHT - 24, 12,
+        self.draw_text(surf, "v0.3 2.5D 等距版", WIDTH - 110, HEIGHT - 24, 12,
                        (90, 90, 85))
 
     def render_dead(self, surf):
@@ -1167,8 +1216,12 @@ def selftest():
 
     x0 = g.player["x"]
     for _ in range(120):
-        g.update(dt, {pygame.K_d})
+        g.update(dt, {pygame.K_d})          # D = 屏幕右 = 逻辑 x+
     assert g.player["x"] > x0, "move failed"
+    y0 = g.player["y"]
+    for _ in range(60):
+        g.update(dt, {pygame.K_a})          # A = 屏幕左 = 逻辑 y+
+    assert g.player["y"] > y0, "iso move failed"
 
     c = g.containers[0]
     g.player["x"], g.player["y"] = c["x"] * TILE + 16, c["y"] * TILE + 16
@@ -1230,7 +1283,6 @@ def selftest():
     assert g.state == "DEAD", "death state wrong"
     assert "终章" in g.journal[-1]["text"], "no final entry"
 
-    # 渲染冒烟（白天+黑夜+全部界面）
     for mins in (600, 1320):
         g.minutes = mins
         for st in ("PLAY", "JOURNAL", "DEAD"):
