@@ -1,3 +1,26 @@
+# Dead Days 重构分支
+
+本分支新增 Godot 4 工程，完成阶段 A 和阶段 B 的搜刮/日志最小闭环。旧版 Pygame 文档保留在下方，**其中战斗、僵尸、睡眠、昼夜功能不代表新工程已经实现**。
+
+在仓库根目录运行（本机已验证路径）：
+
+```powershell
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --editor --import --quit
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot
+```
+
+新游戏后：走近住宅门按 E 开门，W 进入，靠近柜子按 E 搜刮；I 打开背包并点击使用；J 查看和手写日志；Esc 保存回主菜单后可继续。WASD 当前为世界方向移动，Shift 跑步。新旧存档隔离，新游戏不删除已有快照。
+
+- [启动、测试与真实验证结果](docs/testing.md)
+- [架构与旧版规则审计](docs/architecture.md)
+- [环境与旧版保护](docs/environment.md)
+- [Blender/GLB 管线](docs/assets.md)
+- [完成范围和缺失项](docs/status.md)
+
+---
+
+## 以下为原 Pygame v0.3 文档
+
 # 末日生存日志 · Dead Days
 
 俯视角 **2.5D 等距**僵尸生存 + 生存日志 单机游戏（Python + Pygame）。

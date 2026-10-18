@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "capacity": 5.0,
+  "walk_speed": 3.0,
+  "run_speed": 5.0,
+  "interaction_range": 1.65,
+  "items": {
+    "food": {
+      "name": "罐头",
+      "weight": 0.6,
+      "stat": "hunger",
+      "restore": 30.0
+    },
+    "water": {
+      "name": "饮用水",
+      "weight": 1.0,
+      "stat": "thirst",
+      "restore": 35.0
+    },
+    "bandage": {
+      "name": "绷带",
+      "weight": 0.1,
+      "stat": "health",
+      "restore": 25.0
+    }
+  },
+  "buildings": [
+    {
+      "id": "home",
+      "name": "住宅",
+      "x": -7.0,
+      "color": "9e8166",
+      "container": {
+        "food": 2,
+        "water": 1
+      }
+    },
+    {
+      "id": "clinic",
+      "name": "诊所",
+      "x": 0.0,
+      "color": "688b91",
+      "container": {
+        "bandage": 3
+      }
+    },
+    {
+      "id": "shop",
+      "name": "杂货店",
+      "x": 7.0,
+      "color": "a38d58",
+      "container": {
+        "food": 3,
+        "water": 3
+      }
+    }
+  ],
+  "stamina_run_cost": 18.0,
+  "stamina_recovery": 10.0
+}
