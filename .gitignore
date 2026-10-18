@@ -2,3 +2,7 @@ save.json
 exports/
 __pycache__/
 *.pyc
+
+work/
+godot/.godot/
+*.blend1

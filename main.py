@@ -13,6 +13,7 @@ import sys
 import json
 import math
 import random
+import tempfile
 
 SELFTEST = "--selftest" in sys.argv
 if SELFTEST:
@@ -1208,6 +1209,22 @@ class Game:
 # ---------------------------------------------------------------- 自检
 
 def selftest():
+    # Every write and death cleanup must stay in a disposable sandbox.
+    global SAVE_FILE, EXPORT_DIR
+    original_save, original_export = SAVE_FILE, EXPORT_DIR
+    original_rng = random.getstate()
+    with tempfile.TemporaryDirectory(prefix="dead-days-selftest-") as sandbox:
+        SAVE_FILE = os.path.join(sandbox, "save.json")
+        EXPORT_DIR = os.path.join(sandbox, "exports")
+        try:
+            random.seed(20261019)
+            return _selftest_isolated()
+        finally:
+            SAVE_FILE, EXPORT_DIR = original_save, original_export
+            random.setstate(original_rng)
+
+
+def _selftest_isolated():
     g = Game()
     screen = pygame.Surface((WIDTH, HEIGHT))
     dt = 1 / 60
