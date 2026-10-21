@@ -134,6 +134,8 @@ func valid(candidate: Variant) -> bool:
             return false
         if e.kind == "injured" and not number(e.payload.get("damage"), 0, 100):
             return false
+    if candidate.has("house_light") and not candidate.house_light is bool:
+        return false
     if candidate.schema >= 2 and not valid_threats(candidate):
         return false
     return candidate.schema != 3 or valid_time(candidate)

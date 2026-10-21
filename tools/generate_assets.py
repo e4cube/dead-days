@@ -278,24 +278,28 @@ def export(name, info):
     MANIFEST[name]=entry
     print('ASSET_OK',name,triangles,mesh_count)
 
-if not bpy.app.background:
-    raise RuntimeError('Background mode required; interactive projects are never cleared')
-OUT.mkdir(parents=True,exist_ok=True)
-SOURCE.mkdir(parents=True,exist_ok=True)
-NAMES=['player','zombie','building_home','building_clinic','building_shop','door','bed','cabinet','table','loot_crate']
-SELECTED=ARGS.only.split(',') if ARGS.only else NAMES
-if any(name not in NAMES for name in SELECTED):
-    raise RuntimeError('Unknown asset selection')
-for name in SELECTED:
-    reset()
-    if name in ['player','zombie']:
-        info=character(name)
-    elif name.startswith('building_'):
-        info=building(name.removeprefix('building_'))
-    else:
-        prop(name)
-        info={}
-    export(name,info)
-if not ARGS.only:
-    (OUT/'manifest.json').write_text(json.dumps({'version':1,'blender':bpy.app.version_string,'assets':MANIFEST},indent=2)+'\n',encoding='utf-8')
-print('ASSET_PIPELINE_OK',bpy.app.version_string,len(MANIFEST))
+def main():
+    if not bpy.app.background:
+        raise RuntimeError('Background mode required; interactive projects are never cleared')
+    OUT.mkdir(parents=True,exist_ok=True)
+    SOURCE.mkdir(parents=True,exist_ok=True)
+    NAMES=['player','zombie','building_home','building_clinic','building_shop','door','bed','cabinet','table','loot_crate']
+    SELECTED=ARGS.only.split(',') if ARGS.only else NAMES
+    if any(name not in NAMES for name in SELECTED):
+        raise RuntimeError('Unknown asset selection')
+    for name in SELECTED:
+        reset()
+        if name in ['player','zombie']:
+            info=character(name)
+        elif name.startswith('building_'):
+            info=building(name.removeprefix('building_'))
+        else:
+            prop(name)
+            info={}
+        export(name,info)
+    if not ARGS.only:
+        (OUT/'manifest.json').write_text(json.dumps({'version':1,'blender':bpy.app.version_string,'assets':MANIFEST},indent=2)+'\n',encoding='utf-8')
+    print('ASSET_PIPELINE_OK',bpy.app.version_string,len(MANIFEST))
+
+if __name__ == "__main__":
+    main()

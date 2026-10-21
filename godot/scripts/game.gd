@@ -36,6 +36,9 @@ var inventory_actions: HBoxContainer
 var write_button: Button
 var export_button: Button
 var panel_kind := ""
+var house_details: Node3D
+var camera_yaw := 0.0
+var camera_zoom := 19.0
 var last_notice := ""
 var export_directory := "user://exports"
 
@@ -70,25 +73,37 @@ func build_ui() -> void:
     var shade := ColorRect.new()
     shade.color = Color(0.03, 0.04, 0.06, 0.88)
     shade.position = Vector2(16, 14)
-    shade.size = Vector2(1120, 108)
+    shade.size = Vector2(720, 78)
     shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
     layer.add_child(shade)
     hud = Label.new()
     hud.position = Vector2(30, 20)
-    hud.add_theme_font_size_override("font_size", 19)
+    hud.add_theme_font_size_override("font_size", 16)
     layer.add_child(hud)
     hint = Label.new()
     hint.position = Vector2(30, 625)
     layer.add_child(hint)
+    var toolbar := HBoxContainer.new()
+    toolbar.position = Vector2(620, 660)
+    layer.add_child(toolbar)
+    button(toolbar, "背包 I", func():
+        if active: open_panel("inventory"))
+    button(toolbar, "日志 J", func():
+        if active: open_panel("journal"))
+    button(toolbar, "休息 R", func():
+        if active: request_rest("hour"))
+    button(toolbar, "保存 F5", func():
+        if active: save_run())
     notice = Label.new()
-    notice.position = Vector2(30, 660)
+    notice.position = Vector2(30, 690)
+    notice.add_theme_font_size_override("font_size", 13)
     layer.add_child(notice)
     menu = VBoxContainer.new()
     menu.position = Vector2(395, 200)
     menu.custom_minimum_size = Vector2(360, 0)
     layer.add_child(menu)
     var title := Label.new()
-    title.text = "DEAD DAYS / 末日生存日志\n阶段 C3 · 低多边形街区"
+    title.text = "DEAD DAYS / 末日生存日志\n灰湾街区 · 生存日志"
     title.add_theme_font_size_override("font_size", 26)
     menu.add_child(title)
     button(menu, "新游戏（保留所有已有快照）", new_run)
@@ -180,7 +195,7 @@ func label3(parent: Node3D, text: String, pos: Vector3) -> void:
     var label := Label3D.new()
     label.text = text
     label.position = pos
-    label.font_size = 38
+    label.font_size = 27
     label.pixel_size = 0.012
     label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
     parent.add_child(label)
@@ -227,11 +242,12 @@ func build_world() -> void:
         label3(world, "床 [R/T]", position + Vector3.UP * 1.5)
     for furniture in model.rules.furniture:
         for building in model.rules.buildings:
-            if furniture.building == building.id:
+            if furniture.building == building.id and building.id != "home":
                 var size := Vector3(furniture.size[0], furniture.size[1], furniture.size[2])
                 var position := Vector3(building.x + furniture.offset[0], size.y * 0.5, furniture.offset[2])
                 var body := collision_box(position, size)
                 Assets.attach(body, furniture.asset, Vector3(0, -size.y * 0.5, 0))
+    house_details = preload("res://scripts/house_slice.gd").build(self)
     # Boundary bodies prevent leaving the playable block.
     for x in [-13.5, 13.5]:
         box(world, Vector3(x, 1, -1), Vector3(0.3, 2, 19), Color("36433a"))
@@ -258,7 +274,7 @@ func build_world() -> void:
     player.rotation.y = model.state.combat.facing
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-    camera.size = 19
+    camera.size = camera_zoom
     world.add_child(camera)
     camera.current = true
     update_camera()
@@ -304,7 +320,8 @@ func apply_door(id: String) -> void:
     door_visuals[id].rotation.y = -PI / 2 if opened else 0.0
 
 func update_camera() -> void:
-    camera.position = player.position + Vector3(11, 15, 14)
+    camera.size = camera_zoom
+    camera.position = player.position + Vector3(11, 15, 14).rotated(Vector3.UP, camera_yaw)
     camera.look_at(player.position + Vector3(0, 0.5, 0))
 
 func nearby() -> Dictionary:
@@ -474,9 +491,9 @@ func update_lighting() -> void:
 
 func refresh_hud() -> void:
     var rest_text: String = " · 正在休息" if model.state.rest.active else ""
-    hud.text = "DEAD DAYS / 第%d天 %s · 阶段C3%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s\nWASD 移动 · Shift跑步 · E交互 · I背包 · J日志 · 空格攻击 · 1/2/3使用 4装备 · R短休 T睡眠 · Esc菜单" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
+    hud.text = "DEAD DAYS / 第%d天 %s%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     var target := nearby()
-    hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "住宅床边可 R 休息一小时；18:00后可 T 睡到次日06:00。"
+    hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
     if not closest_bed().is_empty():
         hint.text = "床边：[R] 休息一小时 · [T] 夜间睡到黎明；先关门并摆脱追击。"
     notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice
@@ -504,6 +521,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
         return
     if model.state.rest.active and code != KEY_F5:
         return
+    if code == KEY_Q or code == KEY_V:
+        camera_yaw += PI / 4 * (-1 if code == KEY_Q else 1)
+        update_camera()
+        update_cutaways()
+    if code == KEY_L and inside("home"):
+        var lamp: OmniLight3D = world.get_node("HouseLamp")
+        lamp.visible = not lamp.visible
+        model.state.house_light = lamp.visible
+        model.event("light", "打开住宅照明。" if lamp.visible else "关闭住宅照明。")
     match code:
         KEY_E: interact()
         KEY_F5: save_run()
@@ -615,8 +641,15 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
     return body
 
 func update_cutaways() -> void:
+    if is_instance_valid(house_details):
+        Assets.cutaway(house_details, inside("home"))
     for id in building_visuals:
         Assets.cutaway(building_visuals[id], inside(id))
+        for mesh in building_visuals[id].find_children("*", "MeshInstance3D", true, false):
+            if str(mesh.name) == "DD_Keep_Back":
+                mesh.visible = not inside(id) or camera.position.z > player.position.z
+            elif str(mesh.name) == "DD_Keep_West":
+                mesh.visible = not inside(id) or camera.position.x > player.position.x
 
 func safe_position(position: Vector3) -> Vector3:
     if absf(position.y) > 0.5:
@@ -640,3 +673,11 @@ func on_target_lost() -> void:
         if zombie.record.health > 0 and zombie.record.had_target:
             return
     model.event("escaped", "隔断视线后，追来的僵尸搜索无果，停止了追击。", "希望")
+
+func _unhandled_input(event: InputEvent) -> void:
+    if active and not panel.visible and event is InputEventMouseButton and event.pressed:
+        if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+            camera_zoom = maxf(11, camera_zoom - 1)
+        elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+            camera_zoom = minf(28, camera_zoom + 1)
+        update_camera()

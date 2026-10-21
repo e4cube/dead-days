@@ -16,15 +16,19 @@ def main():
     (ROOT/'work/asset-replay.log').write_text(result.stdout+result.stderr,encoding='utf-8')
     if result.returncode or 'ASSET_PIPELINE_OK' not in result.stdout or 'Traceback' in result.stdout+result.stderr:
         raise RuntimeError('Blender generation failed: see work/asset-replay.log')
+    details=subprocess.run([args.blender,'--background','--factory-startup','--python',str(ROOT/'tools/generate_house_details.py'),'--','--output-root','work/asset-replay'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
+    assert details.returncode==0 and 'HOUSE_DETAIL_PIPELINE_OK' in details.stdout, details.stdout+details.stderr
     assets=ROOT/'godot/assets'
     replay=ROOT/'work/asset-replay/godot/assets'
+    import json
+    original = json.loads((assets/'manifest.json').read_text())
     for path in sorted(assets.glob('*.glb')):
         generated=replay/path.name
         assert generated.exists(), path.name
         assert hashlib.sha256(path.read_bytes()).digest()==hashlib.sha256(generated.read_bytes()).digest(), f'Non-reproducible GLB: {path.name}'
         assert (ROOT/'art/source'/f'{path.stem}.blend').stat().st_size>100, f'Missing Blender source: {path.name}'
     assert (assets/'manifest.json').read_bytes()==(replay/'manifest.json').read_bytes(), 'Manifest drift'
-    print('ASSET_REPLAY_OK / 10 GLBs and manifest byte-identical; source projects present')
+    print('ASSET_REPLAY_OK / 12 GLBs and manifest byte-identical; source projects present')
 
 if __name__=='__main__':
     main()
