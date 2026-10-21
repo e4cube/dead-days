@@ -1,4 +1,5 @@
 extends CharacterBody3D
+const Timeline = preload("res://scripts/survival_time.gd")
 ## World-space perception, finite memory and path following. The record is authoritative/saveable.
 var game
 var record: Dictionary
@@ -60,7 +61,7 @@ func sees_player() -> bool:
     var offset: Vector3 = game.player.position - position
     offset.y = 0
     var distance := offset.length()
-    if distance > rule.sight_range:
+    if distance > float(rule.sight_range) * lerpf(float(rule.night_sight_multiplier), 1.0, Timeline.daylight(game.model)):
         return false
     var facing := Vector3(sin(rotation.y), 0, cos(rotation.y))
     if distance > rule.close_sight and facing.dot(offset.normalized()) < cos(deg_to_rad(rule.fov_degrees * 0.5)):
@@ -156,7 +157,23 @@ func tick(delta: float) -> void:
     var speed: float = rule.chase_speed if record.mode in ["chase", "search"] else rule.walk_speed
     movement = movement.limit_length(speed)
     velocity = Vector3(movement.x, -2, movement.z)
-    move_and_slide()
+    # Explicit swept displacement keeps accelerated rest simulation in the same time units.
+    var recovering: Array = []
+    for other in game.zombie_bodies:
+        if other != self and other.record.health > 0 and position.distance_to(other.position) < 0.58:
+            # Let the repulsion move initially intersecting capsules apart; environment/player sweeps stay active.
+            add_collision_exception_with(other)
+            recovering.append(other)
+    var motion := velocity * delta
+    for slide in 3:
+        var collision := move_and_collide(motion)
+        if collision == null:
+            break
+        motion = collision.get_remainder().slide(collision.get_normal())
+        if motion.length_squared() < 0.0000001:
+            break
+    for other in recovering:
+        remove_collision_exception_with(other)
     if movement.length() > 0.1:
         rotation.y = lerp_angle(rotation.y, atan2(movement.x, movement.z), minf(1, delta * 8))
     elif record.mode == "search":

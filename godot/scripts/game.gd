@@ -1,4 +1,6 @@
 extends Node3D
+const Timeline = preload("res://scripts/survival_time.gd")
+const Rest = preload("res://scripts/rest.gd")
 const Model = preload("res://scripts/survival.gd")
 const Navigation = preload("res://scripts/navigation.gd")
 const Zombie = preload("res://scripts/zombie.gd")
@@ -9,6 +11,8 @@ var active := false
 var world: Node3D
 var player: CharacterBody3D
 var camera: Camera3D
+var sun: DirectionalLight3D
+var environment: WorldEnvironment
 var doors := {}
 var nav_sources: Array = []
 var navigation = Navigation.new()
@@ -82,7 +86,7 @@ func build_ui() -> void:
     menu.custom_minimum_size = Vector2(360, 0)
     layer.add_child(menu)
     var title := Label.new()
-    title.text = "DEAD DAYS / 末日生存日志\n阶段 C1 · 尸群与脱离"
+    title.text = "DEAD DAYS / 末日生存日志\n阶段 C2 · 活到第二天"
     title.add_theme_font_size_override("font_size", 26)
     menu.add_child(title)
     button(menu, "新游戏（保留所有已有快照）", new_run)
@@ -126,7 +130,7 @@ func show_menu() -> void:
     active = false
     menu.show()
     panel.hide()
-    hud.text = "DEAD DAYS  /  重构分支\n新旧存档隔离；僵尸已接入，睡眠与昼夜仍待实现。"
+    hud.text = "DEAD DAYS  /  重构分支\n新旧存档隔离；昼夜与生存时钟已接入。住宅床边可R短休、T睡到黎明。"
     hint.text = "WASD 移动 · Shift 跑步 · 空格攻击 · E 开关门/搜刮 · I 背包 · J 日志 · 1/2/3 使用物品 · F5 保存 · Esc 保存回菜单"
 
 func new_run() -> void:
@@ -218,6 +222,13 @@ func build_world() -> void:
         label3(world, b.name, Vector3(x, 3.1, -5))
         label3(world, "柜子 [E]", Vector3(x, 1.6, -3))
         apply_door(b.id)
+    for definition in model.rules.beds:
+        var position: Vector3 = Rest.bed_position(model, definition)
+        var size := Vector3(definition.size[0], definition.size[1], definition.size[2])
+        box(world, position + Vector3.UP * (size.y * 0.5), size, Color("6e6555"))
+        box(world, position + Vector3(0, size.y + 0.04, 0), Vector3(size.x * 0.95, 0.08, size.z * 0.95), Color("78919a"), false)
+        box(world, position + Vector3(0, size.y + 0.12, -size.z * 0.3), Vector3(size.x * 0.8, 0.12, 0.4), Color("c0bbb0"), false)
+        label3(world, "床 [R/T]", position + Vector3.UP * 1.5)
     # Boundary bodies prevent leaving the playable block.
     for x in [-13.5, 13.5]:
         box(world, Vector3(x, 1, -1), Vector3(0.3, 2, 19), Color("36433a"))
@@ -253,12 +264,14 @@ func build_world() -> void:
     world.add_child(camera)
     camera.current = true
     update_camera()
-    var light := DirectionalLight3D.new()
+    sun = DirectionalLight3D.new()
+    var light := sun
     light.rotation_degrees = Vector3(-55, -30, 0)
     light.light_energy = 1.1
     light.shadow_enabled = true
     world.add_child(light)
-    var env := WorldEnvironment.new()
+    environment = WorldEnvironment.new()
+    var env := environment
     env.environment = Environment.new()
     env.environment.background_mode = Environment.BG_COLOR
     env.environment.background_color = Color("19232b")
@@ -273,6 +286,7 @@ func build_world() -> void:
         zombie.setup(self, record)
         zombie_bodies.append(zombie)
     update_player_visual(0)
+    update_lighting()
 
 func apply_door(id: String) -> void:
     var body: StaticBody3D = doors[id]
@@ -300,13 +314,10 @@ func nearby() -> Dictionary:
     return target
 
 func inside(id: String) -> bool:
-    for b in model.rules.buildings:
-        if b.id == id:
-            return absf(player.position.x - b.x) < 2.45 and player.position.z < -0.4 and player.position.z > -4.75
-    return false
+    return Rest.inside(model, id, player.position)
 
 func interact() -> void:
-    if model.state.stats.health <= 0:
+    if model.state.stats.health <= 0 or model.state.rest.active:
         return
     var target := nearby()
     if target.is_empty():
@@ -343,11 +354,20 @@ func save_run() -> bool:
 func _physics_process(delta: float) -> void:
     if not active or panel.visible:
         return
-    # World-relative controls are labeled explicitly; camera is fixed orthographic isometric.
-    model.tick_combat(delta)
-    var input := Input.get_vector("left", "right", "forward", "back")
     if model.state.stats.health <= 0:
-        input = Vector2.ZERO
+        refresh_hud()
+        return
+    if model.state.rest.active:
+        if Input.get_vector("left", "right", "forward", "back").length() > 0 or Input.is_action_pressed("attack"):
+            Rest.cancel(model, "主动起身")
+            last_notice = "已停止休息。"
+        else:
+            advance_rest(delta)
+        update_player_visual(delta)
+        update_lighting()
+        refresh_hud()
+        return
+    var input := Input.get_vector("left", "right", "forward", "back")
     var running: bool = Input.is_action_pressed("run") and model.state.stats.stamina > 0
     var speed: float = model.rules.run_speed if running else model.rules.walk_speed
     player.velocity = Vector3(input.x * speed, -2.0, input.y * speed)
@@ -361,19 +381,95 @@ func _physics_process(delta: float) -> void:
         run_noise_left = model.rules.noise.run_interval
     if Input.is_action_pressed("attack"):
         try_attack()
-    for zombie in zombie_bodies:
-        zombie.tick(delta)
+    sync_position()
+    tick_world(delta, false)
     discover_zombies()
     update_player_visual(delta)
     for b in model.rules.buildings:
         if inside(b.id):
             model.enter(b.id)
-    sync_position()
     update_camera()
-    hud.text = "DEAD DAYS / 第%d天 06:00 · 阶段C1\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f    负重 %.1f / %.1f kg  武器 %s\nWASD 世界方向移动 · Shift 跑步 · E 交互 · I 背包 · J 日志 · 空格攻击 · 1食物 2水 3绷带 4装备 · F5保存 · Esc菜单" % [model.state.day, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
+    update_lighting()
+    refresh_hud()
+
+func tick_world(seconds: float, sleeping: bool) -> void:
+    model.tick_combat(seconds)
+    model.advance_time(seconds, sleeping)
+    for zombie in zombie_bodies:
+        zombie.tick(seconds)
+    if sleeping:
+        model.state.stats.stamina = minf(100, model.state.stats.stamina + float(model.rules.stamina_recovery) * seconds)
+
+func advance_rest(delta: float) -> void:
+    sync_position()
+    var rule: Dictionary = model.rules.rest
+    var budget: float = minf(delta * float(rule.acceleration), float(rule.step_seconds) * int(rule.max_steps_per_frame))
+    for index in int(rule.max_steps_per_frame):
+        if not model.state.rest.active or budget <= 0:
+            break
+        var blocked: String = Rest.reason(model, model.state.rest.bed)
+        if not blocked.is_empty():
+            Rest.cancel(model, blocked, "僵尸" in blocked)
+            last_notice = "休息中断：" + blocked
+            break
+        var remaining: float = float(model.state.rest.target) - Timeline.absolute(model)
+        if remaining <= 0.0000001:
+            complete_rest()
+            break
+        var seconds: float = minf(minf(budget, float(rule.step_seconds)), remaining / float(model.rules.time.minutes_per_second))
+        tick_world(seconds, true)
+        budget -= seconds
+        blocked = Rest.reason(model, model.state.rest.bed)
+        if not blocked.is_empty():
+            Rest.cancel(model, blocked, "僵尸" in blocked)
+            last_notice = "休息中断：" + blocked
+            break
+        if Timeline.absolute(model) >= float(model.state.rest.target) - 0.0000001:
+            complete_rest()
+            break
+
+func complete_rest() -> void:
+    Rest.finish(model)
+    var text: String = model.state.events.back().text
+    if save_run():
+        last_notice = text + " 已自动保存。"
+
+func closest_bed() -> String:
+    var nearest := ""
+    var distance := INF
+    for definition in model.rules.beds:
+        var position: Vector3 = Rest.bed_position(model, definition)
+        var d := Vector2(player.position.x - position.x, player.position.z - position.z).length()
+        if d <= definition.use_radius and d < distance:
+            distance = d
+            nearest = definition.id
+    return nearest
+
+func request_rest(kind: String) -> void:
+    if model.state.rest.active:
+        Rest.cancel(model, "主动起身")
+        last_notice = "已停止休息。"
+        return
+    sync_position()
+    var blocked: String = Rest.begin(model, closest_bed(), kind)
+    last_notice = blocked if not blocked.is_empty() else "正在加速休息；T或移动可起身，F5可保存。"
+
+func update_lighting() -> void:
+    var day: float = Timeline.daylight(model)
+    sun.light_energy = lerpf(0.12, 1.1, day)
+    sun.light_color = Color("8badd4").lerp(Color("fff1d4"), day)
+    sun.rotation_degrees.x = lerpf(-12.0, -55.0, day)
+    environment.environment.ambient_light_energy = lerpf(0.22, 0.65, day)
+    environment.environment.background_color = Color("0c1524").lerp(Color("19232b"), day)
+
+func refresh_hud() -> void:
+    var rest_text: String = " · 正在休息" if model.state.rest.active else ""
+    hud.text = "DEAD DAYS / 第%d天 %s · 阶段C2%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s\nWASD 移动 · Shift跑步 · E交互 · I背包 · J日志 · 空格攻击 · 1/2/3使用 4装备 · R短休 T睡眠 · Esc菜单" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     var target := nearby()
-    hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "住宅 / 诊所 / 杂货店：沿街找门，搜刮后可带往其他房屋。"
-    notice.text = ("你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice)
+    hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "住宅床边可 R 休息一小时；18:00后可 T 睡到次日06:00。"
+    if not closest_bed().is_empty():
+        hint.text = "床边：[R] 休息一小时 · [T] 夜间睡到黎明；先关门并摆脱追击。"
+    notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice
 
 func _unhandled_key_input(event: InputEvent) -> void:
     if not event is InputEventKey or not event.pressed or event.echo or not active:
@@ -392,6 +488,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
             open_panel("inventory" if code == KEY_I else "journal")
         return
     if panel.visible:
+        return
+    if code in [KEY_T, KEY_R]:
+        request_rest("night" if code == KEY_T else "hour")
+        return
+    if model.state.rest.active and code != KEY_F5:
         return
     match code:
         KEY_E: interact()
@@ -479,7 +580,7 @@ func discover_zombies() -> void:
         return
     var count := 0
     for zombie in zombie_bodies:
-        if zombie.record.health > 0 and player.position.distance_to(zombie.position) < model.rules.zombie.sight_range and line_clear(player.position, zombie.position):
+        if zombie.record.health > 0 and player.position.distance_to(zombie.position) < float(model.rules.zombie.sight_range) * lerpf(float(model.rules.zombie.night_sight_multiplier), 1.0, Timeline.daylight(model)) and line_clear(player.position, zombie.position):
             count += 1
     if count > 0:
         model.state.seen_horde = true

@@ -3,7 +3,7 @@
 ## 范围与当前成果
 
 阶段 A 已建立独立 Godot 4 工程、数据与逻辑边界、旧版保护、可执行检查、Blender/GLB 导入验证。
-阶段 B 实施搜刮与日志闭环：主菜单 → 实体门 → 入屋 → 有限物资容器 → 负重背包 → 使用食物 → 手写与自动日志 → 跨建筑搬运 → 保存退出 → 继续。后续阶段 C1 的实际增量见 [AI与战斗](c1-threats.md)，仍未完成整张需求清单。
+阶段 B 实施搜刮与日志闭环：主菜单 → 实体门 → 入屋 → 有限物资容器 → 负重背包 → 使用食物 → 手写与自动日志 → 跨建筑搬运 → 保存退出 → 继续。阶段 C1 的增量见 [AI与战斗](c1-threats.md)，C2见 [时钟与休息](c2-survival-time.md)，仍未完成整张需求清单。
 
 | 文件/模块 | 责任 |
 | --- | --- |
@@ -13,6 +13,7 @@
 | `godot/scripts/save_store.gd` | 独立用户目录、不可变快照、临时文件提交、有效快照回退 |
 | `godot/scripts/game.gd` | 小型场景生成、CharacterBody3D、相机、交互距离/空间校验、UI、输入；后续扩张前应拆出场景生成器与面板 |
 | `godot/scripts/zombie.gd`、`navigation.gd` | 物理感知与有限记忆AI、实际角色移动、A*与门更新 |
+| `godot/scripts/survival_time.gd`、`rest.gd` | 游戏分钟、生理/每日总结、休息资格与计划；加速世界由game.gd协调 |
 | `tools/generate_assets.py` | Blender 后台箱子生产，保存 .blend，导出 GLB |
 | `godot/tests/`、`tools/run_checks.py` | 规则、导入、真实物理操作链及旧存档哨兵回归 |
 
@@ -26,13 +27,13 @@ Godot 是实际引擎。Blender 仅为离线资产生产工具。资源、UI、�
 
 新版本仅使用 `%APPDATA%/DeadDaysRebuild/`，不读取/迁移/覆盖根目录 save.json。`saves/` 内每次保存新建唯一名称快照，先写 .tmp、flush、close，再 rename；旧快照不清理。读档按名称由新到旧检验，跳过截断 JSON 与不支持的 schema，全部失败时保留内存状态与磁盘文件。
 
-schema 2 包括天数/分钟、位置、属性、库存、门状态、各容器剩余物资、首次进入集合、完整事件，并增加 combat、zombies、noises、noise_sequence、seen_horde。数值与物品身份、重量均先验证。schema 1 验证后在内存中添加威胁状态并升级为2，旧文件不改；升级时跳过距旧玩家位置4米内的初始敌人，避免读档即重叠。未知 schema 明确拒绝。临时文件不参与继续游戏。没有持久化场景 Node 或 GLB 内部结构。测试使用唯一 `user://tests/` 子目录，绝不使用正式 saves/。
+schema 3 包括天数/分钟、位置、属性、库存、门状态、各容器剩余物资、首次进入集合、完整事件，并保留 combat、zombies、noises、noise_sequence、seen_horde，新增calendar/rest。数值与物品身份、重量均先验证。schema1在内存添加威胁状态，schema1/2再添加时钟/休息并升级到3，旧文件不改；schema1添加敌人时跳过距玩家4米内刷点。未知schema拒绝。临时文件不参与继续游戏。没有持久化场景 Node 或 GLB 内部结构。测试使用唯一 `user://tests/` 子目录，绝不使用正式 saves/。
 
 不可变快照目前会持续占用磁盘；保留策略、多存档槽选择、异常恢复界面是后续工作。该方案降低中断写入风险，不宣称提供断电硬件事务保证。关闭窗口或 Esc 保存失败时留在当前游戏。
 
 ## 事件与日志
 
-事件有 id、kind、day、minutes、text、mood、payload。类型包括 started、door、entered、looted、used、manual，以及 equipped、first_zombies、injured、near_death、killed、died、escaped、migrated。文本对应已发生的状态变化；loot payload 保存获得的具体物品数量。首次进入去重，手写保留五种心情。支持实际 Markdown 文件导出。当前时间固定为第1天06:00，不伪造第二天或每日总结。
+事件有 id、kind、day、minutes、text、mood、payload。类型包括 started、door、entered、looted、used、manual，以及 equipped、first_zombies、injured、near_death、killed、died、escaped、migrated，以及C2的need_warning、need_empty、rest_started、rest_finished、rest_interrupted、sleep_danger、daily_summary。文本对应已发生的状态变化；loot payload 保存获得的具体物品数量。首次进入去重，手写保留五种心情。支持实际 Markdown 文件导出。C2统一推进时间，午夜从真实事件生成每日总结，支持睡到第二天与中途存档；时钟/休息规则在独立模块管理。
 
 ## v0.3 审计：可复用设计与限制
 

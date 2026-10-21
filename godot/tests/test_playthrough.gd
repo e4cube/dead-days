@@ -46,7 +46,7 @@ func run() -> void:
     check(game.panel.visible and "罐头" in game.journal_text.text, "inventory shows actual items")
     game.inventory_actions.get_child(0).pressed.emit()
     key(KEY_I)
-    check(game.model.state.inventory.food == 1 and game.model.state.stats.hunger == 95, "use through inventory button")
+    check(game.model.state.inventory.food == 1 and absf(game.model.state.stats.hunger - 95) < 1, "use through inventory button")
     key(KEY_J)
     game.entry.text = "我进屋找到了罐头。"
     game.mood.select(3)

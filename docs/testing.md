@@ -16,7 +16,7 @@
 - I：背包，点击按钮使用物品；关闭面板后也可按1食物/2水/3绷带，4装备已持有的木棍。
 - J：真实事件日志；输入文字、选择心情、点击写入，或导出 Markdown。
 - F5：保存新快照；Esc：关闭面板，或保存回菜单。窗口关闭前也保存。
-- 面板打开时暂停移动。当前时间固定为第1天06:00。
+- 面板打开时暂停整个世界。C2新档08:00开始；R短休、夜间T睡到黎明，移动或T起身。
 
 新档与导出位于 `%APPDATA%/DeadDaysRebuild/` 的 saves/ 和 exports/；测试使用 tests/，不接触正式 saves/。继续游戏选择最近有效快照。
 
@@ -76,3 +76,18 @@ python main.py --selftest
 本轮通过：原自检保护、原搜刮闭环、扩展规则与存档、GLB导入、物理AI/战斗fixture，以及实际图形窗口追击/关门/搜索中存读档/脱离/日志。截图检查还发现并修复VBox背景被布局器压为零高的问题，日志与背包现在有完整深色底板。
 
 没有验证睡眠、第二天与每日总结，因为它们仍未实现。AI/战斗单项fixture会摆放角色来隔离边界情形；端到端test_escape从开局到结束不进行传送。全部为自动化试玩，非人工键鼠操作。
+
+
+## 阶段 C2 增量验证（2026-10-21）
+
+总入口新增TIME_RULES_OK、REST_SAFETY_OK和SLEEP_PLAYTHROUGH_OK。--visual会实际运行“入屋→床→夜晚→睡眠中存读档→第二天→每日总结与导出”，生成work/c2-*.png。运行时世界持续模拟，危险中断另有物理fixture。
+
+本轮Codex bundled Python的pygame依赖已不再存在；把测试依赖安装到忽略的work/test_dependencies，不再依赖修改全局运行时：
+
+```powershell
+& 'C:\Users\11\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m pip install --target work/test_dependencies pygame==2.6.1
+$env:PYTHONPATH = (Resolve-Path work/test_dependencies).Path
+& 'C:\Users\11\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' tools/run_checks.py --godot 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --visual
+```
+
+如果使用自行建立并已安装requirements.txt的Python环境，无需PYTHONPATH。原Python入口不会自动安装依赖。

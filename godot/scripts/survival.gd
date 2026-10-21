@@ -1,16 +1,19 @@
 extends RefCounted
+const Timeline = preload("res://scripts/survival_time.gd")
+const Rest = preload("res://scripts/rest.gd")
 ## Scene-independent authoritative state. UI never mutates inventory directly.
 var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/rules.json"))
 var state: Dictionary = {}
 
 func start() -> void:
-    state = {"schema": 2, "day": 1, "minutes": 360.0,
+    state = {"schema": 2, "day": 1, "minutes": float(rules.time.start_minutes),
         "position": [-7.0, 0.0, 2.0], "stats": {"health": 100.0, "hunger": 65.0, "thirst": 65.0, "stamina": 100.0},
         "inventory": {}, "doors": {}, "containers": {}, "visited": [], "events": []}
     for b in rules.buildings:
         state.doors[b.id] = false
         state.containers[b.id] = b.container.duplicate(true)
     add_threat_state()
+    add_time_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -57,7 +60,7 @@ func loot(id: String) -> int:
 func use_item(id: String) -> bool:
     if not rules.items.has(id) or state.inventory.get(id, 0) <= 0:
         return false
-    if state.stats.health <= 0:
+    if state.stats.health <= 0 or state.rest.active:
         return false
     var rule: Dictionary = rules.items[id]
     if rule.get("kind", "") == "weapon":
@@ -87,7 +90,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -127,7 +130,13 @@ func valid(candidate: Variant) -> bool:
         for key in ["id", "day", "minutes"]:
             if not (e[key] is float or e[key] is int) or not is_finite(e[key]):
                 return false
-    return candidate.schema == 1 or valid_threats(candidate)
+        if e.kind == "looted" and (not e.payload.get("items") is Dictionary or not valid_items(e.payload.items)):
+            return false
+        if e.kind == "injured" and not number(e.payload.get("damage"), 0, 100):
+            return false
+    if candidate.schema >= 2 and not valid_threats(candidate):
+        return false
+    return candidate.schema != 3 or valid_time(candidate)
 
 func valid_items(items: Dictionary) -> bool:
     for id in items:
@@ -161,6 +170,9 @@ func restore(candidate: Dictionary) -> void:
         add_threat_state(true)
         # Old peaceful saves are preserved on disk; migration only adds threat state in memory.
         event("migrated", "旧街区存档已载入；街道东端出现了僵尸。", "恐惧")
+    if state.schema == 2:
+        add_time_state()
+        event("migrated", "生存时钟和室内休息规则已接入；原有世界状态保留。", "平静")
 
 func noise(pos: Vector3, radius: float, kind: String) -> void:
     state.noise_sequence += 1
@@ -176,7 +188,7 @@ func tick_combat(delta: float) -> void:
             state.noises.remove_at(i)
 
 func begin_attack() -> bool:
-    if state.stats.health <= 0 or state.combat.attack_cd > 0:
+    if state.stats.health <= 0 or state.rest.active or state.combat.attack_cd > 0:
         return false
     var weapon: Dictionary = rules.weapons[state.combat.equipped]
     if state.stats.stamina < weapon.stamina:
@@ -267,3 +279,40 @@ func valid_threats(candidate: Dictionary) -> bool:
 
 func integer(value: Variant, low: float, high: float) -> bool:
     return number(value, low, high) and value == floor(value)
+
+
+func add_time_state() -> void:
+    state.schema = 3
+    state.calendar = {"last_summary_day": int(state.day) - 1}
+    state.rest = Rest.empty()
+
+func advance_time(seconds: float, sleeping: bool = false) -> void:
+    Timeline.advance(self, seconds, sleeping)
+
+func environment_damage(amount: float) -> void:
+    if amount <= 0 or state.stats.health <= 0:
+        return
+    var previous: float = state.stats.health
+    state.stats.health = maxf(0, previous - amount)
+    if previous >= 25 and state.stats.health < 25 and state.stats.health > 0:
+        event("near_death", "饥渴让身体濒临极限。", "绝望", {"cause": "needs"})
+    if state.stats.health <= 0:
+        event("died", "生存记录因饥饿或脱水而结束。", "绝望", {"cause": "needs"})
+
+func valid_time(candidate: Dictionary) -> bool:
+    if not candidate.get("calendar") is Dictionary or not candidate.get("rest") is Dictionary:
+        return false
+    if not integer(candidate.calendar.get("last_summary_day"), 0, candidate.day - 1) or candidate.calendar.last_summary_day != candidate.day - 1:
+        return false
+    var rest: Dictionary = candidate.rest
+    if not rest.get("active") is bool or not rest.get("kind") is String or not rest.get("bed") is String:
+        return false
+    var now: float = (candidate.day - 1) * 1440.0 + candidate.minutes
+    if not number(rest.get("start"), 0, now) or not number(rest.get("target"), 0, now + 1440.0):
+        return false
+    if rest.active:
+        if rest.kind not in ["hour", "night"] or Rest.bed(self, rest.bed).is_empty() or rest.target <= now or rest.target - rest.start > 1440.0:
+            return false
+    elif rest.kind != "" or rest.bed != "" or rest.start != 0 or rest.target != 0:
+        return false
+    return true

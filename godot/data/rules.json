@@ -107,7 +107,8 @@
     "separation_radius": 0.85,
     "separation_strength": 1.2,
     "repath_seconds": 0.4,
-    "patrol_seconds": 4.0
+    "patrol_seconds": 4.0,
+    "night_sight_multiplier": 0.65
   },
   "zombie_spawns": [
     {
@@ -146,5 +147,53 @@
       37
     ],
     "clearance": 0.32
+  },
+  "time": {
+    "minutes_per_second": 2.0,
+    "dawn": 360.0,
+    "daylight_full": 480.0,
+    "dusk": 1080.0,
+    "night_full": 1200.0,
+    "start_minutes": 480.0
+  },
+  "survival": {
+    "hunger_per_minute": 0.025,
+    "thirst_per_minute": 0.035,
+    "sleep_metabolism": 0.7,
+    "starvation_damage_per_minute": 0.25,
+    "dehydration_damage_per_minute": 0.4,
+    "sleep_heal_per_minute": 0.02,
+    "healing_threshold": 20.0,
+    "warning_threshold": 20.0
+  },
+  "rest": {
+    "hour_minutes": 60.0,
+    "night_start": 1080.0,
+    "danger_radius": 5.0,
+    "acceleration": 60.0,
+    "step_seconds": 0.05,
+    "max_steps_per_frame": 32
+  },
+  "beds": [
+    {
+      "id": "home_bed",
+      "building": "home",
+      "offset": [
+        -1.5,
+        0.0,
+        -3.5
+      ],
+      "size": [
+        1.1,
+        0.5,
+        1.8
+      ],
+      "use_radius": 1.7
+    }
+  ],
+  "room": {
+    "inner_half_width": 2.45,
+    "min_z": -4.75,
+    "max_z": -0.4
   }
 }

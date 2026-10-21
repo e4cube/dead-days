@@ -75,7 +75,7 @@ def fingerprint():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--godot', required=True)
-    parser.add_argument('--visual', action='store_true', help='Run real renderer and capture work/playthrough.png')
+    parser.add_argument('--visual', action='store_true', help='Run real renderer; capture playthrough, C1 pursuit and C2 sleep screenshots in work/')
     args = parser.parse_args()
     before = fingerprint()
     try:
@@ -84,9 +84,12 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rules.gd'], 'RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_assets.gd'], 'ASSET_IMPORT_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_escape.gd'], 'ESCAPE_PLAYTHROUGH_OK')
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_sleep_playthrough.gd'], 'SLEEP_PLAYTHROUGH_OK')
     finally:
         assert fingerprint() == before, 'Protected player files changed!'
     print('ALL_CHECKS_OK / legacy and Godot production saves/exports unchanged')
