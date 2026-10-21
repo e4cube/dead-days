@@ -4,12 +4,13 @@ var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://d
 var state: Dictionary = {}
 
 func start() -> void:
-    state = {"schema": 1, "day": 1, "minutes": 360.0,
+    state = {"schema": 2, "day": 1, "minutes": 360.0,
         "position": [-7.0, 0.0, 2.0], "stats": {"health": 100.0, "hunger": 65.0, "thirst": 65.0, "stamina": 100.0},
         "inventory": {}, "doors": {}, "containers": {}, "visited": [], "events": []}
     for b in rules.buildings:
         state.doors[b.id] = false
         state.containers[b.id] = b.container.duplicate(true)
+    add_threat_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -56,7 +57,13 @@ func loot(id: String) -> int:
 func use_item(id: String) -> bool:
     if not rules.items.has(id) or state.inventory.get(id, 0) <= 0:
         return false
+    if state.stats.health <= 0:
+        return false
     var rule: Dictionary = rules.items[id]
+    if rule.get("kind", "") == "weapon":
+        state.combat.equipped = id
+        event("equipped", "装备了" + rule.name + "。", "平静", {"item": id})
+        return true
     if state.stats[rule.stat] >= 100.0:
         return false
     state.inventory[id] -= 1
@@ -80,7 +87,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if candidate.schema != 1 or not candidate.day is float and not candidate.day is int or candidate.day < 1:
+    if (candidate.schema != 1 and candidate.schema != 2) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -120,7 +127,7 @@ func valid(candidate: Variant) -> bool:
         for key in ["id", "day", "minutes"]:
             if not (e[key] is float or e[key] is int) or not is_finite(e[key]):
                 return false
-    return true
+    return candidate.schema == 1 or valid_threats(candidate)
 
 func valid_items(items: Dictionary) -> bool:
     for id in items:
@@ -128,3 +135,135 @@ func valid_items(items: Dictionary) -> bool:
         if not rules.items.has(id) or not (n is float or n is int) or not is_finite(n) or n < 0 or n != floor(n) or n > 10000:
             return false
     return true
+
+
+func add_threat_state(protect_spawn: bool = false) -> void:
+    state.schema = 2
+    state.combat = {"equipped": "fists", "attack_cd": 0.0, "hurt_cd": 0.0, "facing": PI}
+    state.zombies = []
+    state.noises = []
+    state.noise_sequence = 0
+    state.seen_horde = false
+    for spawn in rules.zombie_spawns:
+        if protect_spawn and Vector2(spawn.position[0] - state.position[0], spawn.position[2] - state.position[2]).length() < 4.0:
+            continue
+        state.zombies.append(make_zombie(spawn.id, spawn.position))
+
+func make_zombie(id: String, pos: Array) -> Dictionary:
+    return {"id": id, "position": pos.duplicate(), "health": rules.zombie.health,
+        "mode": "wander", "target": pos.duplicate(), "heading": PI,
+        "memory": 0.0, "alert_left": 0.0, "attack_cd": 0.0, "windup": 0.0,
+        "last_noise": 0, "patrol_left": 0.0, "patrol_index": 0, "had_target": false}
+
+func restore(candidate: Dictionary) -> void:
+    state = candidate.duplicate(true)
+    if state.schema == 1:
+        add_threat_state(true)
+        # Old peaceful saves are preserved on disk; migration only adds threat state in memory.
+        event("migrated", "旧街区存档已载入；街道东端出现了僵尸。", "恐惧")
+
+func noise(pos: Vector3, radius: float, kind: String) -> void:
+    state.noise_sequence += 1
+    state.noises.append({"id": state.noise_sequence, "position": [pos.x, pos.y, pos.z],
+        "radius": radius, "ttl": rules.noise.ttl, "kind": kind})
+
+func tick_combat(delta: float) -> void:
+    state.combat.attack_cd = maxf(0, state.combat.attack_cd - delta)
+    state.combat.hurt_cd = maxf(0, state.combat.hurt_cd - delta)
+    for i in range(state.noises.size() - 1, -1, -1):
+        state.noises[i].ttl -= delta
+        if state.noises[i].ttl <= 0:
+            state.noises.remove_at(i)
+
+func begin_attack() -> bool:
+    if state.stats.health <= 0 or state.combat.attack_cd > 0:
+        return false
+    var weapon: Dictionary = rules.weapons[state.combat.equipped]
+    if state.stats.stamina < weapon.stamina:
+        return false
+    state.stats.stamina -= weapon.stamina
+    state.combat.attack_cd = weapon.cooldown
+    return true
+
+func damage_zombie(zombie: Dictionary, amount: float) -> bool:
+    if zombie.health <= 0 or amount <= 0:
+        return false
+    zombie.health = maxf(0, zombie.health - amount)
+    if zombie.health == 0:
+        zombie.mode = "dead"
+        zombie.windup = 0.0
+        event("killed", "用" + rules.weapons[state.combat.equipped].name + "击倒了一只僵尸。", "疲惫", {"zombie": zombie.id})
+    return true
+
+func damage_player(amount: float, attacker: String) -> bool:
+    if state.stats.health <= 0 or state.combat.hurt_cd > 0 or amount <= 0:
+        return false
+    var previous: float = state.stats.health
+    state.stats.health = maxf(0, previous - amount)
+    state.combat.hurt_cd = rules.combat.hurt_immunity
+    event("injured", "被僵尸击中，损失 %.0f 点生命。" % (previous - state.stats.health), "恐惧", {"attacker": attacker, "damage": previous - state.stats.health})
+    if previous >= 25 and state.stats.health < 25 and state.stats.health > 0:
+        event("near_death", "伤势危重，必须摆脱追击并寻找医疗物资。", "绝望")
+    if state.stats.health <= 0:
+        event("died", "这段生存记录在街区中结束了。", "绝望")
+    return true
+
+func number(value: Variant, low: float, high: float) -> bool:
+    return (value is float or value is int) and is_finite(value) and value >= low and value <= high
+
+func valid_position(pos: Variant) -> bool:
+    if not pos is Array or pos.size() != 3:
+        return false
+    for n in pos:
+        if not number(n, -1000, 1000):
+            return false
+    return true
+
+func valid_threats(candidate: Dictionary) -> bool:
+    for key in ["combat", "zombies", "noises", "noise_sequence", "seen_horde"]:
+        if not candidate.has(key):
+            return false
+    if not candidate.combat is Dictionary or not candidate.zombies is Array or not candidate.noises is Array or not candidate.seen_horde is bool or not integer(candidate.noise_sequence, 0, 1e12):
+        return false
+    var combat: Dictionary = candidate.combat
+    if not combat.get("equipped") is String or not rules.weapons.has(combat.equipped):
+        return false
+    if combat.equipped != "fists" and candidate.inventory.get(combat.equipped, 0) < 1:
+        return false
+    for key in ["attack_cd", "hurt_cd"]:
+        if not number(combat.get(key), 0, 10):
+            return false
+    if not number(combat.get("facing"), -1000, 1000) or candidate.zombies.size() > 100 or candidate.noises.size() > 100:
+        return false
+    var ids := {}
+    for z in candidate.zombies:
+        if not z is Dictionary or not z.get("id") is String or ids.has(z.id):
+            return false
+        ids[z.id] = true
+        if not valid_position(z.get("position")) or not valid_position(z.get("target")):
+            return false
+        if not number(z.get("health"), 0, rules.zombie.health) or z.get("mode") not in ["wander", "alert", "chase", "search", "dead"]:
+            return false
+        if (z.health == 0) != (z.mode == "dead") or not z.get("had_target") is bool:
+            return false
+        var limits := {"memory": rules.zombie.search_seconds, "alert_left": rules.zombie.alert_seconds,
+            "attack_cd": rules.zombie.attack_cooldown, "windup": rules.zombie.attack_windup, "patrol_left": rules.zombie.patrol_seconds}
+        for key in limits:
+            if not number(z.get(key), 0, limits[key]):
+                return false
+        if not integer(z.get("patrol_index"), 0, 1e12) or not integer(z.get("last_noise"), 0, candidate.noise_sequence):
+            return false
+        if not number(z.get("heading"), -1000, 1000):
+            return false
+    var noise_ids := {}
+    for n in candidate.noises:
+        if not n is Dictionary or not valid_position(n.get("position")) or not n.get("kind") is String:
+            return false
+        if not integer(n.get("id"), 1, candidate.noise_sequence) or not number(n.get("ttl"), 0, rules.noise.ttl) or not number(n.get("radius"), 0, 100) or noise_ids.has(n.id):
+            return false
+        noise_ids[n.id] = true
+    return true
+
+
+func integer(value: Variant, low: float, high: float) -> bool:
+    return number(value, low, high) and value == floor(value)

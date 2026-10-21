@@ -11,14 +11,14 @@
 
 或用 Godot 导入 `godot/project.godot` 后运行主场景。首次启动前必须先导入 GLB。引擎不在该位置时替换可执行文件路径。
 
-- WASD：世界 X/Z 方向移动；Shift：跑步并消耗体力。
+- WASD：世界 X/Z 方向移动；Shift：跑步并消耗体力、制造声音；空格：近战攻击。
 - E：附近门开关；屋内靠近柜子时搜刮可携带物资。先离开门洞才能关门。
-- I：背包，点击按钮使用物品；关闭面板后也可按1食物/2水/3绷带。
+- I：背包，点击按钮使用物品；关闭面板后也可按1食物/2水/3绷带，4装备已持有的木棍。
 - J：真实事件日志；输入文字、选择心情、点击写入，或导出 Markdown。
 - F5：保存新快照；Esc：关闭面板，或保存回菜单。窗口关闭前也保存。
 - 面板打开时暂停移动。当前时间固定为第1天06:00。
 
-新档与导出位于 `%APPDATA%/Godot/app_userdata/DeadDaysRebuild/` 的 saves/ 和 exports/；测试使用 tests/，不接触正式 saves/。继续游戏选择最近有效快照。
+新档与导出位于 `%APPDATA%/DeadDaysRebuild/` 的 saves/ 和 exports/；测试使用 tests/，不接触正式 saves/。继续游戏选择最近有效快照。
 
 ## 自动化检查
 
@@ -43,7 +43,7 @@ python main.py --selftest
 & 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot --script res://tests/test_playthrough.gd
 ```
 
-## 本轮实测（2026-10-19）
+## 阶段 A/B 实测（2026-10-19，历史基线）
 
 - Blender 5.2.2 LTS：后台 bpy 脚本成功；保存 .blend 并导出2040字节 GLB。
 - Godot 4.7.2：无头导入/脚本运行成功；图形窗口 OpenGL 3.3 Compatibility / GTX1650 完成端到端操作，截图已检查。
@@ -62,3 +62,17 @@ python main.py --selftest
 - JSON 数字解析为浮点；往返测试按JSON语义比较，不比较原始数值字符串格式。
 - 关门用例开始仍在门洞：调整真实行走距离后验证关门，保留“不能夹住玩家”的限制。
 - .blend 放入 res:// 引发依赖 Blender 编辑器路径的导入失败：源工程移到 art/source，Godot 只导入 GLB 后重新跑完整验证。
+
+
+## 阶段 C1 增量验证（2026-10-19）
+
+相同的总入口现在额外运行THREATS_OK与ESCAPE_PLAYTHROUGH_OK；--visual会用真实OpenGL窗口运行原搜刮闭环和新追击脱离闭环。新规则测试包含schema1迁移和schema2活跃敌人存档。完整测试通过后打印 `ALL_CHECKS_OK / legacy and Godot production saves/exports unchanged`。
+
+```powershell
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_threats.gd
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot --script res://tests/test_escape.gd
+```
+
+本轮通过：原自检保护、原搜刮闭环、扩展规则与存档、GLB导入、物理AI/战斗fixture，以及实际图形窗口追击/关门/搜索中存读档/脱离/日志。截图检查还发现并修复VBox背景被布局器压为零高的问题，日志与背包现在有完整深色底板。
+
+没有验证睡眠、第二天与每日总结，因为它们仍未实现。AI/战斗单项fixture会摆放角色来隔离边界情形；端到端test_escape从开局到结束不进行传送。全部为自动化试玩，非人工键鼠操作。

@@ -52,7 +52,7 @@ func run() -> void:
     game.mood.select(3)
     game.write_button.pressed.emit()
     check(game.model.state.events.back().kind == "manual", "manual journal button")
-    check("第一次进入住宅" in game.journal_text.text and "获得 3 件" in game.journal_text.text, "event-grounded journal visible")
+    check("第一次进入住宅" in game.journal_text.text and "获得 4 件" in game.journal_text.text, "event-grounded journal visible")
     game.export_button.pressed.emit()
     var exports := DirAccess.open(game.export_directory).get_files()
     check(exports.size() == 1, "Markdown file exported")

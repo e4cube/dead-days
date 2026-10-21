@@ -49,7 +49,7 @@ func load_latest(model: RefCounted) -> bool:
             continue
         var candidate: Variant = parser.data
         if model.valid(candidate):
-            model.state = candidate.duplicate(true)
+            model.restore(candidate)
             return true
     last_error = "没有通过校验的存档（原文件未修改）"
     return false

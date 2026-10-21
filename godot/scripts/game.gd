@@ -1,5 +1,7 @@
 extends Node3D
 const Model = preload("res://scripts/survival.gd")
+const Navigation = preload("res://scripts/navigation.gd")
+const Zombie = preload("res://scripts/zombie.gd")
 const Store = preload("res://scripts/save_store.gd")
 var model = Model.new()
 var store = Store.new()
@@ -8,6 +10,14 @@ var world: Node3D
 var player: CharacterBody3D
 var camera: Camera3D
 var doors := {}
+var nav_sources: Array = []
+var navigation = Navigation.new()
+var zombie_bodies: Array = []
+var run_noise_left := 0.0
+var attack_flash := 0.0
+var player_torso: MeshInstance3D
+var player_arm: Node3D
+var weapon_visual: Node3D
 var hud: Label
 var hint: Label
 var notice: Label
@@ -29,6 +39,7 @@ func _ready() -> void:
     bind("forward", KEY_W)
     bind("back", KEY_S)
     bind("run", KEY_SHIFT)
+    bind("attack", KEY_SPACE)
     get_tree().auto_accept_quit = false
     build_ui()
     show_menu()
@@ -71,7 +82,7 @@ func build_ui() -> void:
     menu.custom_minimum_size = Vector2(360, 0)
     layer.add_child(menu)
     var title := Label.new()
-    title.text = "DEAD DAYS / 末日生存日志\n阶段 B · 搜刮与日志切片"
+    title.text = "DEAD DAYS / 末日生存日志\n阶段 C1 · 尸群与脱离"
     title.add_theme_font_size_override("font_size", 26)
     menu.add_child(title)
     button(menu, "新游戏（保留所有已有快照）", new_run)
@@ -82,11 +93,9 @@ func build_ui() -> void:
     panel.custom_minimum_size = Vector2(720, 0)
     var style := StyleBoxFlat.new()
     style.bg_color = Color(0.04, 0.05, 0.07, 0.98)
-    var background := Panel.new()
-    background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    background.add_theme_stylebox_override("panel", style)
-    background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    panel.add_child(background)
+    # Draw on the VBox itself: a Panel child would be resized to zero height by the container.
+    panel.draw.connect(func(): panel.draw_style_box(style, Rect2(Vector2(-16, -12), panel.size + Vector2(32, 24))))
+    panel.resized.connect(panel.queue_redraw)
     layer.add_child(panel)
     journal_text = RichTextLabel.new()
     journal_text.custom_minimum_size = Vector2(700, 330)
@@ -107,7 +116,7 @@ func build_ui() -> void:
     inventory_actions = HBoxContainer.new()
     panel.add_child(inventory_actions)
     for id in model.rules.items:
-        button(inventory_actions, "使用" + model.rules.items[id].name, func():
+        button(inventory_actions, ("装备" if model.rules.items[id].get("kind", "") == "weapon" else "使用") + model.rules.items[id].name, func():
             use(id)
             refresh_panel())
     button(panel, "关闭 [I / J / Esc]", close_panel)
@@ -117,8 +126,8 @@ func show_menu() -> void:
     active = false
     menu.show()
     panel.hide()
-    hud.text = "DEAD DAYS  /  重构分支\n新存档独立于 Pygame v0.3；阶段 C 的僵尸与睡眠尚未接入。"
-    hint.text = "WASD 移动 · Shift 跑步 · E 开关门/搜刮 · I 背包 · J 日志 · 1/2/3 使用物品 · F5 保存 · Esc 保存回菜单"
+    hud.text = "DEAD DAYS  /  重构分支\n新旧存档隔离；僵尸已接入，睡眠与昼夜仍待实现。"
+    hint.text = "WASD 移动 · Shift 跑步 · 空格攻击 · E 开关门/搜刮 · I 背包 · J 日志 · 1/2/3 使用物品 · F5 保存 · Esc 保存回菜单"
 
 func new_run() -> void:
     model.start()
@@ -126,7 +135,7 @@ func new_run() -> void:
     active = true
     menu.hide()
     close_panel()
-    last_notice = "先走近住宅门按 E，再进入屋内搜刮柜子。"
+    last_notice = "先搜刮住宅的木棍并装备；街道东端有僵尸。跑步和战斗会引来注意。"
 
 func continue_run() -> void:
     if not store.load_latest(model):
@@ -157,6 +166,8 @@ func box(parent: Node3D, pos: Vector3, size: Vector3, color: Color, solid: bool 
         shape.size = size
         collision.shape = shape
         root.add_child(collision)
+    if solid and parent == world and pos.y + size.y * 0.5 > 0.3:
+        nav_sources.append({"body": root, "rect": Rect2(Vector2(pos.x - size.x * 0.5, pos.z - size.z * 0.5), Vector2(size.x, size.z))})
     return root
 
 func label3(parent: Node3D, text: String, pos: Vector3) -> void:
@@ -173,6 +184,10 @@ func build_world() -> void:
         remove_child(world)
         world.queue_free()
     doors.clear()
+    nav_sources.clear()
+    zombie_bodies.clear()
+    run_noise_left = 0
+    attack_flash = 0
     world = Node3D.new()
     add_child(world)
     box(world, Vector3(0, -0.25, -1), Vector3(27, 0.5, 19), Color("49594a"))
@@ -210,6 +225,8 @@ func build_world() -> void:
         box(world, Vector3(0, 1, z), Vector3(27, 2, 0.3), Color("36433a"))
     player = CharacterBody3D.new()
     player.name = "Survivor"
+    player.collision_layer = 2
+    player.collision_mask = 1 | 4
     world.add_child(player)
     var shape := CollisionShape3D.new()
     var capsule := CapsuleShape3D.new()
@@ -218,12 +235,18 @@ func build_world() -> void:
     shape.shape = capsule
     shape.position.y = 0.9
     player.add_child(shape)
-    box(player, Vector3(0, 0.95, 0), Vector3(0.5, 0.8, 0.35), Color("c5ab5e"), false)
+    player_torso = box(player, Vector3(0, 0.95, 0), Vector3(0.5, 0.8, 0.35), Color("c5ab5e"), false).get_child(0)
+    player_arm = Node3D.new()
+    player_arm.position = Vector3(0.36, 1.2, 0)
+    player.add_child(player_arm)
+    box(player_arm, Vector3(0, -0.2, 0.05), Vector3(0.16, 0.5, 0.16), Color("d7bc9a"), false)
+    weapon_visual = box(player_arm, Vector3(0, -0.15, 0.45), Vector3(0.1, 0.1, 0.9), Color("745233"), false)
     box(player, Vector3(0, 1.6, 0), Vector3(0.36, 0.36, 0.36), Color("d7bc9a"), false)
     for x in [-0.16, 0.16]:
         box(player, Vector3(x, 0.35, 0), Vector3(0.2, 0.7, 0.24), Color("3c4d5c"), false)
     var p: Array = model.state.position
     player.position = Vector3(p[0], p[1], p[2])
+    player.rotation.y = model.state.combat.facing
     camera = Camera3D.new()
     camera.projection = Camera3D.PROJECTION_ORTHOGONAL
     camera.size = 19
@@ -243,6 +266,13 @@ func build_world() -> void:
     env.environment.ambient_light_color = Color("c6d7e6")
     env.environment.ambient_light_energy = 0.65
     world.add_child(env)
+    navigation.rebuild(nav_sources, model.rules.navigation)
+    for record in model.state.zombies:
+        var zombie = Zombie.new()
+        world.add_child(zombie)
+        zombie.setup(self, record)
+        zombie_bodies.append(zombie)
+    update_player_visual(0)
 
 func apply_door(id: String) -> void:
     var body: StaticBody3D = doors[id]
@@ -276,6 +306,8 @@ func inside(id: String) -> bool:
     return false
 
 func interact() -> void:
+    if model.state.stats.health <= 0:
+        return
     var target := nearby()
     if target.is_empty():
         last_notice = "靠近门或屋内柜子后按 E。"
@@ -284,8 +316,15 @@ func interact() -> void:
         if model.state.doors[target.id] and absf(player.position.z) < 0.6 and absf(player.position.x - doors[target.id].position.x) < 1.2:
             last_notice = "先离开门口，避免关门夹住自己。"
             return
+        if model.state.doors[target.id]:
+            for zombie in zombie_bodies:
+                if zombie.record.health > 0 and absf(zombie.position.z) < 0.55 and absf(zombie.position.x - doors[target.id].position.x) < 1.15:
+                    last_notice = "有僵尸挡在门洞，无法关门。"
+                    return
         model.toggle_door(target.id)
         apply_door(target.id)
+        navigation.rebuild(nav_sources, model.rules.navigation)
+        model.noise(player.position, model.rules.noise.door_radius, "door")
         last_notice = model.state.events.back().text
     else:
         var count: int = model.loot(target.id)
@@ -293,6 +332,7 @@ func interact() -> void:
 
 func sync_position() -> void:
     model.state.position = [player.position.x, player.position.y, player.position.z]
+    model.state.combat.facing = player.rotation.y
 
 func save_run() -> bool:
     sync_position()
@@ -304,7 +344,10 @@ func _physics_process(delta: float) -> void:
     if not active or panel.visible:
         return
     # World-relative controls are labeled explicitly; camera is fixed orthographic isometric.
+    model.tick_combat(delta)
     var input := Input.get_vector("left", "right", "forward", "back")
+    if model.state.stats.health <= 0:
+        input = Vector2.ZERO
     var running: bool = Input.is_action_pressed("run") and model.state.stats.stamina > 0
     var speed: float = model.rules.run_speed if running else model.rules.walk_speed
     player.velocity = Vector3(input.x * speed, -2.0, input.y * speed)
@@ -312,15 +355,25 @@ func _physics_process(delta: float) -> void:
     if input.length() > 0.1:
         player.rotation.y = lerp_angle(player.rotation.y, atan2(input.x, input.y), delta * 12)
     model.state.stats.stamina = clampf(model.state.stats.stamina + (-float(model.rules.stamina_run_cost) if running and input.length() > 0 else float(model.rules.stamina_recovery)) * delta, 0, 100)
+    run_noise_left = maxf(0, run_noise_left - delta)
+    if running and input.length() > 0 and run_noise_left <= 0:
+        model.noise(player.position, model.rules.noise.run_radius, "running")
+        run_noise_left = model.rules.noise.run_interval
+    if Input.is_action_pressed("attack"):
+        try_attack()
+    for zombie in zombie_bodies:
+        zombie.tick(delta)
+    discover_zombies()
+    update_player_visual(delta)
     for b in model.rules.buildings:
         if inside(b.id):
             model.enter(b.id)
     sync_position()
     update_camera()
-    hud.text = "DEAD DAYS / 第%d天 06:00 · 阶段B\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f    负重 %.1f / %.1f kg\nWASD 世界方向移动 · Shift 跑步 · E 交互 · I 背包 · J 日志 · 1食物 2水 3绷带 · F5保存 · Esc菜单" % [model.state.day, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity]
+    hud.text = "DEAD DAYS / 第%d天 06:00 · 阶段C1\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f    负重 %.1f / %.1f kg  武器 %s\nWASD 世界方向移动 · Shift 跑步 · E 交互 · I 背包 · J 日志 · 空格攻击 · 1食物 2水 3绷带 4装备 · F5保存 · Esc菜单" % [model.state.day, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     var target := nearby()
     hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "住宅 / 诊所 / 杂货店：沿街找门，搜刮后可带往其他房屋。"
-    notice.text = last_notice
+    notice.text = ("你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice)
 
 func _unhandled_key_input(event: InputEvent) -> void:
     if not event is InputEventKey or not event.pressed or event.echo or not active:
@@ -346,9 +399,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
         KEY_1: use("food")
         KEY_2: use("water")
         KEY_3: use("bandage")
+        KEY_4: use("club")
+        KEY_SPACE: try_attack()
 
 func use(id: String) -> void:
-    last_notice = "使用成功：" + model.rules.items[id].name if model.use_item(id) else "物品不足或当前无需使用。"
+    if model.use_item(id):
+        last_notice = ("已装备：" if model.rules.items[id].get("kind", "") == "weapon" else "使用成功：") + model.rules.items[id].name
+    else:
+        last_notice = "物品不足或当前无需使用。"
 
 func open_panel(kind: String) -> void:
     panel_kind = kind
@@ -391,3 +449,51 @@ func _notification(what: int) -> void:
     if what == NOTIFICATION_WM_CLOSE_REQUEST:
         if not active or save_run():
             get_tree().quit()
+
+
+func line_clear(from: Vector3, to: Vector3) -> bool:
+    var ray := PhysicsRayQueryParameters3D.create(from + Vector3.UP * 1.0, to + Vector3.UP * 1.0, 1)
+    return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+func try_attack() -> bool:
+    if not active or panel.visible or not model.begin_attack():
+        return false
+    attack_flash = 0.2
+    var weapon: Dictionary = model.rules.weapons[model.state.combat.equipped]
+    model.noise(player.position, model.rules.combat.noise_radius, "combat")
+    var facing := Vector3(sin(player.rotation.y), 0, cos(player.rotation.y))
+    var hits := 0
+    for zombie in zombie_bodies:
+        if zombie.record.health <= 0:
+            continue
+        var offset: Vector3 = zombie.position - player.position
+        offset.y = 0
+        if offset.length() <= weapon.range and (offset.length() < 0.01 or facing.dot(offset.normalized()) >= cos(deg_to_rad(model.rules.combat.half_angle_degrees))) and line_clear(player.position, zombie.position):
+            zombie.take_hit(weapon.damage)
+            hits += 1
+    last_notice = "用%s攻击，命中%d只；声响可能引来附近僵尸。" % [weapon.name, hits]
+    return true
+
+func discover_zombies() -> void:
+    if model.state.seen_horde:
+        return
+    var count := 0
+    for zombie in zombie_bodies:
+        if zombie.record.health > 0 and player.position.distance_to(zombie.position) < model.rules.zombie.sight_range and line_clear(player.position, zombie.position):
+            count += 1
+    if count > 0:
+        model.state.seen_horde = true
+        model.event("first_zombies", "第一次发现%s，可见%d只。" % ["尸群" if count > 1 else "僵尸", count], "恐惧", {"count": count})
+
+func update_player_visual(delta: float) -> void:
+    attack_flash = maxf(0, attack_flash - delta)
+    player_arm.rotation.x = -1.3 if attack_flash > 0 else 0.0
+    weapon_visual.visible = model.state.combat.equipped == "club"
+    player_torso.material_override.albedo_color = Color("d24c43") if model.state.combat.hurt_cd > 0 else Color("c5ab5e")
+
+
+func on_target_lost() -> void:
+    for zombie in zombie_bodies:
+        if zombie.record.health > 0 and zombie.record.had_target:
+            return
+    model.event("escaped", "隔断视线后，追来的僵尸搜索无果，停止了追击。", "希望")

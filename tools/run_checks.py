@@ -60,8 +60,13 @@ def legacy_safety():
 def fingerprint():
     result = {}
     paths = [ROOT / 'save.json']
-    if (ROOT / 'exports').exists():
-        paths.extend(p for p in (ROOT / 'exports').rglob('*') if p.is_file())
+    protected = [ROOT / 'exports']
+    if os.environ.get('APPDATA'):
+        data_root = Path(os.environ['APPDATA']) / 'DeadDaysRebuild'
+        protected.extend([data_root / 'saves', data_root / 'exports'])
+    for directory in protected:
+        if directory.exists():
+            paths.extend(p for p in directory.rglob('*') if p.is_file())
     for path in paths:
         result[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
     return result
@@ -78,11 +83,13 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--editor', '--import', '--quit'])
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rules.gd'], 'RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_assets.gd'], 'ASSET_IMPORT_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_escape.gd'], 'ESCAPE_PLAYTHROUGH_OK')
     finally:
-        assert fingerprint() == before, 'Legacy player files changed!'
-    print('ALL_CHECKS_OK / legacy save and exports unchanged')
+        assert fingerprint() == before, 'Protected player files changed!'
+    print('ALL_CHECKS_OK / legacy and Godot production saves/exports unchanged')
 
 if __name__ == '__main__':
     main()
