@@ -20,8 +20,6 @@ def main():
     assert details.returncode==0 and 'HOUSE_DETAIL_PIPELINE_OK' in details.stdout, details.stdout+details.stderr
     assets=ROOT/'godot/assets'
     replay=ROOT/'work/asset-replay/godot/assets'
-    import json
-    original = json.loads((assets/'manifest.json').read_text())
     for path in sorted(assets.glob('*.glb')):
         generated=replay/path.name
         assert generated.exists(), path.name

@@ -26,6 +26,34 @@ func hidden_roof() -> bool:
         if str(mesh.name).begins_with("DD_Hide_Roof") and mesh.visible:
             return false
     return true
+func check_layout() -> void:
+    var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/house_layout.json"))
+    var origin: Vector3 = game.house_details.position
+    var meshes: Array = game.house_details.find_children("*", "MeshInstance3D", true, false)
+    check(meshes.size() == layout.modules.size(), "every authored module imported")
+    for module in layout.modules:
+        var at: Array = module.position
+        var expected := origin + Vector3(at[0],at[1],at[2])
+        var found := false
+        for mesh in meshes:
+            if mesh.global_transform.origin.distance_to(expected) < 0.001 and str(mesh.name).begins_with(module.name):
+                found = true
+                if module.kind == "box":
+                    var size: Array = module.size
+                    check(mesh.get_aabb().size.is_equal_approx(Vector3(size[0],size[1],size[2])), "render bounds match authored dimensions " + module.name)
+                break
+        check(found, "GLB placement agrees with shared layout " + module.name)
+    for obstacle in layout.obstacles:
+        var body: Node3D = game.world.get_node("HouseObstacle_" + obstacle.id)
+        var at: Array = obstacle.position
+        var size: Array = obstacle.size
+        check(body.position.is_equal_approx(origin + Vector3(at[0],at[1],at[2])), "collider placement " + obstacle.id)
+        check(body.get_child(1).shape.size.is_equal_approx(Vector3(size[0],size[1],size[2])), "collider dimensions " + obstacle.id)
+        var registered := false
+        for source in game.nav_sources:
+            if source.body == body:
+                registered = true
+        check(registered, "layout collider registered with navigation " + obstacle.id)
 func _initialize() -> void:
     call_deferred("run")
 func run() -> void:
@@ -35,6 +63,7 @@ func run() -> void:
     game.store = load("res://scripts/save_store.gd").new("user://tests/house_%d" % Time.get_ticks_usec())
     game.new_run()
     await physics_frame
+    check_layout()
     check(not hidden_roof(),"outside restores solid roof")
     await shot("outside")
     await walk("forward",24)
