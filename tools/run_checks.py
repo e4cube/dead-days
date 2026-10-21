@@ -75,14 +75,19 @@ def fingerprint():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--godot', required=True)
+    parser.add_argument('--blender', help='Also regenerate a separate asset pack and verify byte-identical GLBs')
     parser.add_argument('--visual', action='store_true', help='Run real renderer; capture playthrough, C1 pursuit and C2 sleep screenshots in work/')
     args = parser.parse_args()
+    (ROOT / "work").mkdir(exist_ok=True)
     before = fingerprint()
     try:
         legacy_safety()
+        if args.blender:
+            run([sys.executable, 'tools/check_asset_pipeline.py', '--blender', args.blender], 'ASSET_REPLAY_OK')
         run([args.godot, '--headless', '--path', 'godot', '--editor', '--import', '--quit'])
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rules.gd'], 'RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_assets.gd'], 'ASSET_IMPORT_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_visual_integration.gd'], 'VISUAL_INTEGRATION_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
@@ -90,6 +95,8 @@ def main():
         run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_escape.gd'], 'ESCAPE_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_sleep_playthrough.gd'], 'SLEEP_PLAYTHROUGH_OK')
+        if args.visual:
+            run(command + ['--path', 'godot', '--script', 'res://tests/preview_assets.gd'], 'ASSET_GALLERY_OK')
     finally:
         assert fingerprint() == before, 'Protected player files changed!'
     print('ALL_CHECKS_OK / legacy and Godot production saves/exports unchanged')

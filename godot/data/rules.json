@@ -39,7 +39,9 @@
         "food": 2,
         "water": 1,
         "club": 1
-      }
+      },
+      "asset": "building_home",
+      "container_asset": "cabinet"
     },
     {
       "id": "clinic",
@@ -48,7 +50,9 @@
       "color": "688b91",
       "container": {
         "bandage": 3
-      }
+      },
+      "asset": "building_clinic",
+      "container_asset": "cabinet"
     },
     {
       "id": "shop",
@@ -58,7 +62,9 @@
       "container": {
         "food": 3,
         "water": 3
-      }
+      },
+      "asset": "building_shop",
+      "container_asset": "loot_crate"
     }
   ],
   "stamina_run_cost": 18.0,
@@ -195,5 +201,57 @@
     "inner_half_width": 2.45,
     "min_z": -4.75,
     "max_z": -0.4
+  },
+  "furniture": [
+    {
+      "id": "home_table",
+      "building": "home",
+      "asset": "table",
+      "offset": [
+        1.7,
+        0,
+        -3.7
+      ],
+      "size": [
+        1.0,
+        0.765,
+        1.0
+      ]
+    },
+    {
+      "id": "clinic_table",
+      "building": "clinic",
+      "asset": "table",
+      "offset": [
+        1.7,
+        0,
+        -3.7
+      ],
+      "size": [
+        1.0,
+        0.765,
+        1.0
+      ]
+    },
+    {
+      "id": "shop_table",
+      "building": "shop",
+      "asset": "table",
+      "offset": [
+        1.7,
+        0,
+        -3.7
+      ],
+      "size": [
+        1.0,
+        0.765,
+        1.0
+      ]
+    }
+  ],
+  "actor": {
+    "radius": 0.28,
+    "height": 1.7,
+    "center_y": 0.9
   }
 }

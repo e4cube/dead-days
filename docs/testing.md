@@ -91,3 +91,15 @@ $env:PYTHONPATH = (Resolve-Path work/test_dependencies).Path
 ```
 
 如果使用自行建立并已安装requirements.txt的Python环境，无需PYTHONPATH。原Python入口不会自动安装依赖。
+
+
+## 阶段 C3 增量验证（2026-10-21）
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path work/test_dependencies).Path
+& 'C:\Users\11\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' tools/run_checks.py --godot 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --blender 'D:\Blender\blender.exe' --visual
+```
+
+--blender可选，用独立work目录重建并核对GLB字节，不改正式资源。ASSET_IMPORT_OK扩展到全部10个资产与16骨骼/五动作/蒙皮采样；VISUAL_INTEGRATION_OK验证屋顶剖面、开门板碰撞、家具旧位置修复、真实动作选择。--visual额外生成work/c3-poses.png，原搜刮、C1追击和C2睡眠图形试玩同步使用新模型。
+
+原源码的碰撞/规则逻辑继续承担因果关系，动画只消费真实状态。当前没有独立exe或普通集显性能结果。资产清单和详细规范见docs/assets.md。

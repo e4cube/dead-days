@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "blender": "5.2.2 LTS",
+  "assets": {
+    "player": {
+      "file": "player.glb",
+      "source": "art/source/player.blend",
+      "triangles": 1072,
+      "meshes": 2,
+      "clips": [
+        "stand",
+        "move",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "bones": 16
+    },
+    "zombie": {
+      "file": "zombie.glb",
+      "source": "art/source/zombie.blend",
+      "triangles": 908,
+      "meshes": 1,
+      "clips": [
+        "stand",
+        "move",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "bones": 16
+    },
+    "building_home": {
+      "file": "building_home.glb",
+      "source": "art/source/building_home.blend",
+      "triangles": 258,
+      "meshes": 18,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "building_clinic": {
+      "file": "building_clinic.glb",
+      "source": "art/source/building_clinic.blend",
+      "triangles": 300,
+      "meshes": 17,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "building_shop": {
+      "file": "building_shop.glb",
+      "source": "art/source/building_shop.blend",
+      "triangles": 348,
+      "meshes": 21,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "door": {
+      "file": "door.glb",
+      "source": "art/source/door.blend",
+      "triangles": 112,
+      "meshes": 4
+    },
+    "bed": {
+      "file": "bed.glb",
+      "source": "art/source/bed.blend",
+      "triangles": 176,
+      "meshes": 4
+    },
+    "cabinet": {
+      "file": "cabinet.glb",
+      "source": "art/source/cabinet.blend",
+      "triangles": 220,
+      "meshes": 5
+    },
+    "table": {
+      "file": "table.glb",
+      "source": "art/source/table.blend",
+      "triangles": 220,
+      "meshes": 5
+    },
+    "loot_crate": {
+      "file": "loot_crate.glb",
+      "source": "art/source/loot_crate.blend",
+      "triangles": 36,
+      "meshes": 1
+    }
+  }
+}

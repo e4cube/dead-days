@@ -1,4 +1,5 @@
 extends CharacterBody3D
+const CharacterVisual = preload("res://scripts/character_visual.gd")
 const Timeline = preload("res://scripts/survival_time.gd")
 ## World-space perception, finite memory and path following. The record is authoritative/saveable.
 var game
@@ -9,9 +10,7 @@ var route_index := 0
 var replan_left := 0.0
 var nav_revision := -1
 var hit_flash := 0.0
-var torso: MeshInstance3D
 var state_label: Label3D
-var arm: Node3D
 var visual_root: Node3D
 
 func setup(owner_game: Node3D, data: Dictionary) -> void:
@@ -22,22 +21,15 @@ func setup(owner_game: Node3D, data: Dictionary) -> void:
     collision_mask = 1 | 2 | 4
     var collider := CollisionShape3D.new()
     var shape := CapsuleShape3D.new()
-    shape.radius = 0.28
-    shape.height = 1.7
+    shape.radius = game.model.rules.actor.radius
+    shape.height = game.model.rules.actor.height
     collider.shape = shape
-    collider.position.y = 0.9
+    collider.position.y = game.model.rules.actor.center_y
     add_child(collider)
-    visual_root = Node3D.new()
+    visual_root = CharacterVisual.new()
     add_child(visual_root)
-    var body: Node3D = game.box(visual_root, Vector3(0, 0.95, 0), Vector3(0.52, 0.8, 0.36), Color("58725a"), false)
-    torso = body.get_child(0)
-    game.box(visual_root, Vector3(0, 1.58, 0), Vector3(0.4, 0.4, 0.4), Color("7f9775"), false)
-    for x in [-0.16, 0.16]:
-        game.box(visual_root, Vector3(x, 0.35, 0), Vector3(0.2, 0.7, 0.24), Color("414d47"), false)
-    arm = Node3D.new()
-    arm.position = Vector3(0.34, 1.2, 0)
-    visual_root.add_child(arm)
-    game.box(arm, Vector3(0, -0.22, 0.2), Vector3(0.15, 0.5, 0.15), Color("7f9775"), false)
+    visual_root.setup("zombie")
+    visual_root.position.y = float(game.model.rules.actor.center_y) - float(game.model.rules.actor.height) * 0.5
     state_label = Label3D.new()
     state_label.font_size = 24
     state_label.pixel_size = 0.009
@@ -139,6 +131,7 @@ func tick(delta: float) -> void:
             record.attack_cd = rule.attack_cooldown
     elif visible_target and distance <= rule.attack_range and record.attack_cd <= 0:
         record.windup = rule.attack_windup
+        visual_root.trigger("attack")
     var movement := Vector3.ZERO
     if record.windup <= 0 and not (visible_target and distance < rule.attack_range * 0.8):
         movement = follow_path(delta)
@@ -200,6 +193,7 @@ func follow_path(delta: float) -> Vector3:
 func take_hit(damage: float) -> void:
     if game.model.damage_zombie(record, damage):
         hit_flash = 0.2
+        visual_root.trigger("hurt")
         record.windup = 0.0
         if record.health > 0:
             record.mode = "alert"
@@ -208,17 +202,21 @@ func take_hit(damage: float) -> void:
             record.alert_left = rule.alert_seconds
         update_visual(0)
 
-func update_visual(_delta: float) -> void:
+func update_visual(delta: float) -> void:
     if record.health <= 0:
         collision_layer = 0
         collision_mask = 0
-        visual_root.rotation.z = PI / 2
-        visual_root.position.y = 0.25
+        visual_root.sample("death", 0)
         state_label.position.y = 0.65
         state_label.text = "倒地"
         state_label.modulate = Color("7b817a")
         return
-    var colors := {"wander": Color("78956c"), "alert": Color("d0ad5c"), "chase": Color("b75647"), "search": Color("ae8a5a")}
-    torso.material_override.albedo_color = Color.WHITE if hit_flash > 0 else colors[record.mode]
+    var action := "stand"
+    if hit_flash > 0:
+        action = "hurt"
+    elif record.windup > 0 or record.attack_cd > float(rule.attack_cooldown) - 0.28:
+        action = "attack"
+    elif Vector2(velocity.x, velocity.z).length() > 0.1:
+        action = "move"
+    visual_root.sample(action, delta)
     state_label.text = {"wander": "游荡", "alert": "警觉", "chase": "追击", "search": "搜索"}[record.mode] + " %.0f" % record.health
-    arm.rotation.x = -1.0 if record.windup > 0 else 0.0
