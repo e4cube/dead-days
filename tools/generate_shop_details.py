@@ -11,8 +11,15 @@ kit['reset']()
 layout=json.loads((kit['ROOT']/'godot/data/shop_layout.json').read_text(encoding='utf-8'))
 assert layout['version']==1
 for module in layout['modules']:
-    x,y,z=module['position'];w,h,d=module['size']
-    kit['box'](module['name'],(x,-z,y),(w,d,h),module['material'])
+    x,y,z=module['position']
+    if module.get('kind','box')=='cylinder':
+        bpy.ops.mesh.primitive_cylinder_add(vertices=16,radius=module['radius'],depth=module['depth'],location=(x,-z,y))
+        obj=bpy.context.object;obj.name=module['name'];obj.data.materials.append(kit['MATS'][module['material']])
+        for face in obj.data.polygons:
+            if len(face.vertices)==4:face.use_smooth=True
+    else:
+        w,h,d=module['size']
+        kit['box'](module['name'],(x,-z,y),(w,d,h),module['material'])
 base=kit['BASE']
 (base/'art/source').mkdir(parents=True,exist_ok=True)
 (base/'godot/assets').mkdir(parents=True,exist_ok=True)

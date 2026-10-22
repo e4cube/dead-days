@@ -30,6 +30,7 @@ func run() -> void:
     check(game.model.state.inventory.get("food",0)==3 and game.model.state.inventory.get("water",0)==3,"shop loot transfers real food and water")
     check(game.model.state.containers.shop.food==0 and game.model.state.containers.shop.water==0,"shop stock depleted once")
     check(visible_stock("FoodCan")==0 and visible_stock("WaterBody")==0,"empty shop removes stock visuals")
+    check(visible_stock("WaterCap")==0 and visible_stock("WaterNeck")==0,"empty shop leaves no floating bottle parts")
     key(KEY_E)
     check(game.model.state.inventory.food==3,"repeat search cannot replenish")
     key(KEY_B)

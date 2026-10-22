@@ -24,7 +24,7 @@ func run() -> void:
         check(asset.find_children("*", "CollisionObject3D", true, false).is_empty(), "GLB has no duplicate gameplay collision " + id)
         var meshes := asset.find_children("*", "MeshInstance3D", true, false)
         check(meshes.size() == entry.meshes, "mesh budget " + id)
-        check(entry.triangles <= 2000, "low-poly triangle budget " + id)
+        check(entry.triangles <= (8000 if id=="player" else 2000), "close-view player / low-poly world triangle budget " + id)
         if id == "loot_crate":
             check(meshes.size() == 1 and meshes[0].get_aabb().size.is_equal_approx(Vector3(1.2, 1.0, 0.7)), "crate meter dimensions retained")
         if id in ["player", "zombie"]:

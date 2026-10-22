@@ -338,7 +338,8 @@
         1.55
       ],
       "material": "cloth",
-      "bevel": 0.07
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Keep_SofaBack",
@@ -354,7 +355,8 @@
         1.7
       ],
       "material": "cloth",
-      "bevel": 0.04
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Keep_SofaArm",
@@ -370,7 +372,8 @@
         0.16
       ],
       "material": "cloth",
-      "bevel": 0.03
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Keep_SofaArm",
@@ -386,7 +389,8 @@
         0.16
       ],
       "material": "cloth",
-      "bevel": 0.03
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Keep_CoffeeTable",
@@ -453,35 +457,19 @@
       "bevel": 0.025
     },
     {
-      "name": "DD_Keep_Worktop",
-      "kind": "box",
-      "position": [
-        2.25,
-        0.95,
-        -3.25
-      ],
-      "size": [
-        0.88,
-        0.08,
-        1.8
-      ],
-      "material": "steel",
-      "bevel": 0.015
-    },
-    {
       "name": "DD_Keep_Sink",
-      "kind": "box",
+      "kind": "basin",
       "position": [
         2.25,
-        1,
+        0.94,
         -3.65
       ],
       "size": [
-        0.55,
-        0.025,
-        0.48
+        0.58,
+        0.16,
+        0.52
       ],
-      "material": "glass",
+      "material": "steel",
       "bevel": 0.02
     },
     {
@@ -1884,7 +1872,8 @@
         0.65
       ],
       "material": "linen",
-      "bevel": 0
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Keep_SofaCushion",
@@ -1900,7 +1889,8 @@
         0.65
       ],
       "material": "linen",
-      "bevel": 0
+      "bevel": 0.05,
+      "bevel_segments": 3
     },
     {
       "name": "DD_Hide_BackSkirting",
@@ -2422,6 +2412,70 @@
         0.014
       ],
       "material": "wood",
+      "bevel": 0
+    },
+    {
+      "name": "DD_Keep_CounterSideA",
+      "kind": "box",
+      "position": [
+        1.88,
+        0.95,
+        -3.25
+      ],
+      "size": [
+        0.14,
+        0.08,
+        1.8
+      ],
+      "material": "steel",
+      "bevel": 0
+    },
+    {
+      "name": "DD_Keep_CounterSideB",
+      "kind": "box",
+      "position": [
+        2.62,
+        0.95,
+        -3.25
+      ],
+      "size": [
+        0.14,
+        0.08,
+        1.8
+      ],
+      "material": "steel",
+      "bevel": 0
+    },
+    {
+      "name": "DD_Keep_CounterRear",
+      "kind": "box",
+      "position": [
+        2.25,
+        0.95,
+        -4.025
+      ],
+      "size": [
+        0.6,
+        0.08,
+        0.25
+      ],
+      "material": "steel",
+      "bevel": 0
+    },
+    {
+      "name": "DD_Keep_CounterFront",
+      "kind": "box",
+      "position": [
+        2.25,
+        0.95,
+        -2.875
+      ],
+      "size": [
+        0.6,
+        0.08,
+        1.05
+      ],
+      "material": "steel",
       "bevel": 0
     }
   ],

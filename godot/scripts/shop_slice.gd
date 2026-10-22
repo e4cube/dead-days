@@ -7,7 +7,7 @@ static func build(game: Node3D) -> Node3D:
         if b.id=="shop":
             origin.x=b.x
     var details := Assets.attach(game.world,"shop_details",origin)
-    for prefix in ["FoodCan","FoodLabel","WaterBody","WaterCap"]:
+    for prefix in ["FoodCan","FoodLabel","WaterBody","WaterCap","WaterNeck"]:
         var group: Array = []
         for mesh in details.find_children("*","MeshInstance3D",true,false):
             if str(mesh.name).begins_with("DD_Keep_"+prefix):
@@ -20,7 +20,7 @@ static func build(game: Node3D) -> Node3D:
         body.name="ShopObstacle_"+obstacle.id
     return details
 static func stock(details: Node3D, inventory: Dictionary) -> void:
-    for prefix in ["FoodCan","FoodLabel","WaterBody","WaterCap"]:
+    for prefix in ["FoodCan","FoodLabel","WaterBody","WaterCap","WaterNeck"]:
         var count: int = inventory.get("food" if prefix.begins_with("Food") else "water",0)
         var meshes: Array = details.get_meta(prefix,[])
         for i in meshes.size():

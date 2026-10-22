@@ -7,6 +7,7 @@ import argparse
 import json
 import math
 import sys
+import struct
 import bpy
 from mathutils import Vector
 
@@ -28,6 +29,8 @@ COLORS = {
     'clinic': (.27,.39,.39,1), 'shop': (.52,.43,.28,1), 'cross': (.62,.23,.17,1),
     'skin': (.64,.45,.30,1), 'jacket': (.31,.38,.23,1), 'trousers': (.16,.23,.28,1),
     'boots': (.12,.13,.12,1), 'hair': (.14,.10,.07,1), 'eyes': (.07,.07,.06,1),
+    'player_jacket': (.28,.32,.26,1), 'canvas': (.34,.30,.22,1),
+    'hair_player': (.23,.17,.12,1), 'hair_highlight': (.29,.22,.15,1),
     'zskin': (.40,.47,.29,1), 'zshirt': (.37,.25,.21,1), 'zpants': (.22,.25,.20,1)
 }
 MATS = {}
@@ -48,7 +51,7 @@ def reset():
         shader.inputs['Roughness'].default_value = .93
         MATS[name] = material
 
-def box(name, at, size, material, bevel=0):
+def box(name, at, size, material, bevel=0, bevel_segments=1):
     bpy.ops.mesh.primitive_cube_add(size=1, location=at)
     obj = bpy.context.object
     obj.name = name
@@ -58,7 +61,7 @@ def box(name, at, size, material, bevel=0):
     if bevel:
         modifier = obj.modifiers.new('DD_Chamfer', 'BEVEL')
         modifier.width = bevel
-        modifier.segments = 1
+        modifier.segments = bevel_segments
         bpy.ops.object.modifier_apply(modifier=modifier.name)
     return obj
 
@@ -101,10 +104,35 @@ def character(kind):
     bpy.ops.object.mode_set(mode='OBJECT')
     parts = []
     skin = 'zskin' if zombie else 'skin'
-    shirt = 'zshirt' if zombie else 'jacket'
+    shirt = 'zshirt' if zombie else 'player_jacket'
     pants = 'zpants' if zombie else 'trousers'
     def part(name, at, size, material, bone, bevel=.02):
-        obj = box('DD_'+name,at,size,material,bevel)
+        organic = name in ['Neck','Hips','Nose'] or name.startswith(('Ear_','UpperSleeve_','Forearm_','Hand_','Thigh_','Shin_','Collar','HairTuft'))
+        if not zombie and name=='Torso':
+            rings=[(1.01,.18,.13),(1.08,.21,.15),(1.25,.255,.16),(1.37,.25,.14),(1.44,.15,.115)]
+            vertices=[];faces=[]
+            for z,rx,ry in rings:
+                for i in range(16):
+                    angle=i*math.tau/16
+                    vertices.append((rx*math.cos(angle),ry*math.sin(angle),z))
+            for j in range(len(rings)-1):
+                for i in range(16):faces.append((j*16+i,j*16+(i+1)%16,(j+1)*16+(i+1)%16,(j+1)*16+i))
+            faces += [tuple(reversed(range(16))),tuple(range(64,80))]
+            mesh=bpy.data.meshes.new('DD_TailoredTorso');mesh.from_pydata(vertices,[],faces)
+            obj=bpy.data.objects.new('DD_TailoredTorso',mesh);bpy.context.collection.objects.link(obj)
+            mesh.materials.append(MATS[material])
+            for face in mesh.polygons:face.use_smooth=True
+        elif not zombie and organic:
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=8,radius=1,location=at)
+            obj=bpy.context.object
+            obj.name='DD_'+name
+            size=tuple(v*(1.15 if i==2 and name.startswith(('UpperSleeve_','Forearm_','Thigh_','Shin_')) else 1) for i,v in enumerate(size))
+            obj.scale=tuple(v*.5 for v in size)
+            bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+            obj.data.materials.append(MATS[material])
+            for face in obj.data.polygons: face.use_smooth=True
+        else:
+            obj = box('DD_'+name,at,size,material,.065 if name=='Backpack' else bevel,3 if not zombie else 1)
         group = obj.vertex_groups.new(name=bone)
         group.add(list(range(len(obj.data.vertices))),1,'REPLACE')
         parts.append(obj)
@@ -113,21 +141,57 @@ def character(kind):
     part('Belt',(0,0,1.01),(.38,.29,.10),'steel','pelvis',.01)
     part('Hips',(0,0,.92),(.35,.28,.18),pants,'pelvis')
     part('Neck',(0,0,1.45),(.13,.13,.13),skin,'head')
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1,location=(0,-.005,1.61))
+    if zombie:
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1,location=(0,-.005,1.61))
+    else:
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=16,radius=1,location=(0,-.005,1.61))
     head = bpy.context.object
     head.name='DD_Head'
-    head.scale=(.23,.205,.215)
+    head.scale=(.23,.205,.215) if zombie else (.18,.165,.19)
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
     head.data.materials.append(MATS[skin])
+    if not zombie:
+        for vertex in head.data.vertices:
+            if vertex.co.z<-.07:
+                vertex.co.x*=.90
+        for face in head.data.polygons: face.use_smooth=True
     head.vertex_groups.new(name='head').add(list(range(len(head.data.vertices))),1,'REPLACE')
     parts.append(head)
-    part('Hair',(0,.015,1.77),(.36,.32,.10),'hair','head',.04)
-    part('HairFringe',(-.07,-.14,1.74),(.22,.10,.10),'hair','head',.02)
-    part('Nose',(0,-.208,1.60),(.065,.07,.07),skin,'head',.01)
-    part('Mouth',(0,-.204,1.535),(.085,.012,.018),'zshirt' if zombie else 'wood','head',0)
+    if zombie:
+        part('Hair',(0,.015,1.77),(.36,.32,.10),'hair','head',.04)
+        part('HairFringe',(-.07,-.14,1.74),(.22,.10,.10),'hair','head',.02)
+    else:
+        # Scalp follows the skull with a lower nape and an asymmetric hairline.
+        vertices=[];faces=[]
+        for ring in range(9):
+            for i in range(24):
+                phi=i*math.tau/24
+                limit=1.48+.30*math.sin(phi)+.06*math.cos(phi*3)
+                theta=.015+(limit-.015)*ring/8
+                vertices.append((.187*math.sin(theta)*math.cos(phi),.012+.174*math.sin(theta)*math.sin(phi),1.61+.207*math.cos(theta)))
+        for ring in range(8):
+            for i in range(24):
+                a=ring*24+i;b=ring*24+(i+1)%24
+                faces.append((a,a+24,b+24,b))
+        faces.append(tuple(range(24)))
+        mesh=bpy.data.meshes.new('DD_SculptedHair')
+        mesh.from_pydata(vertices,[],faces)
+        hair=bpy.data.objects.new('DD_SculptedHair',mesh)
+        bpy.context.collection.objects.link(hair)
+        mesh.materials.append(MATS['hair_player'])
+        mesh.materials.append(MATS['hair_highlight'])
+        hair.vertex_groups.new(name='head').add(list(range(len(mesh.vertices))),1,'REPLACE')
+        for i,face in enumerate(mesh.polygons):
+            face.use_smooth=True
+            face.material_index=1 if i%24 in [2,7,13,19] else 0
+        parts.append(hair)
+        for i,(x,y,z) in enumerate([(-.08,-.06,1.79),(.04,-.085,1.80),(.10,.015,1.78)]):
+            part('HairTuft'+str(i),(x,y,z),(.14,.15,.09),'hair_player','head')
+    part('Nose',(0,-.208 if zombie else -.173,1.60),(.065,.07,.07),skin,'head',.01)
+    part('Mouth',(0,-.204 if zombie else -.161,1.535),(.085,.012,.018),'zshirt' if zombie else 'wood','head',0)
     for side, sign in [('L',-1),('R',1)]:
-        part('Eye_'+side,(sign*.085,-.193,1.65),(.038,.022,.024),'white' if zombie else 'eyes','head',0)
-        part('Ear_'+side,(sign*.222,0,1.61),(.05,.075,.10),skin,'head',.01)
+        part('Eye_'+side,(sign*.085,-.193 if zombie else -.157,1.65),(.038,.022,.024),'white' if zombie else 'eyes','head',0)
+        part('Ear_'+side,(sign*(.222 if zombie else .178),0,1.61),(.05,.075,.10),skin,'head',.01)
         part('UpperSleeve_'+side,(sign*.292,0,1.26),(.18,.24,.29),shirt,'upper_arm_'+side)
         part('Forearm_'+side,(sign*.35,0,.98),(.145,.16,.25),skin,'forearm_'+side)
         part('Hand_'+side,(sign*.36,-.015,.80),(.15,.18,.14),skin,'hand_'+side)
@@ -140,15 +204,30 @@ def character(kind):
         part('KneeTear',(.14,-.135,.56),(.12,.025,.12),skin,'thigh_R',.01)
         part('CheekMark',(.14,-.175,1.58),(.06,.025,.075),'cross','head',0)
     else:
-        part('Backpack',(0,.20,1.24),(.34,.17,.34),'wood','spine',.035)
-        part('PackFlap',(0,.30,1.36),(.30,.06,.11),'jacket','spine',.02)
+        part('Backpack',(0,.20,1.24),(.34,.17,.34),'canvas','spine',.035)
+        part('PackFlap',(0,.30,1.36),(.30,.06,.11),'canvas','spine',.02)
         part('JacketZip',(0,-.168,1.25),(.025,.018,.35),'steel','spine',0)
         part('Buckle',(0,-.158,1.01),(.09,.035,.065),'cream','pelvis',.008)
         for sign in [-1,1]:
             part('VestPocket',(sign*.12,-.17,1.15),(.15,.07,.15),'wood_light','spine',.015)
-            part('PackStrap',(sign*.18,-.17,1.33),(.055,.035,.27),'wood','spine',.01)
+            # A continuous fabric ribbon wraps from chest over shoulder to pack.
+            points=[(sign*.18,-.18,1.12),(sign*.20,-.18,1.34),(sign*.21,-.10,1.44),(sign*.21,.04,1.46),(sign*.20,.18,1.40),(sign*.17,.29,1.20)]
+            vertices=[];faces=[]
+            for x,y,z in points:
+                vertices += [(x-.026,y-.012,z),(x+.026,y-.012,z),(x+.026,y+.012,z),(x-.026,y+.012,z)]
+            for j in range(len(points)-1):
+                for k in range(4):faces.append((j*4+k,j*4+(k+1)%4,(j+1)*4+(k+1)%4,(j+1)*4+k))
+            mesh=bpy.data.meshes.new('DD_WrappedStrap');mesh.from_pydata(vertices,[],faces)
+            strap=bpy.data.objects.new('DD_WrappedStrap',mesh);bpy.context.collection.objects.link(strap)
+            mesh.materials.append(MATS['wood']);strap.vertex_groups.new(name='spine').add(list(range(len(vertices))),1,'REPLACE');parts.append(strap)
             part('Collar',(sign*.09,-.12,1.43),(.14,.10,.065),'cream','spine',.012)
     body = join(parts,'DD_'+kind.capitalize()+'_Body')
+    if not zombie:
+        # Resolve curved bevel n-gons deterministically before glTF's adaptive tessellation.
+        modifier=body.modifiers.new('DD_FixedTriangles','TRIANGULATE')
+        modifier.quad_method='FIXED'
+        modifier.ngon_method='CLIP'
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
     body.parent=rig
     body.modifiers.new('DD_Skin','ARMATURE').object=rig
     if not zombie:
@@ -224,9 +303,14 @@ def prop(kind):
         box('DD_Bed_Pillow',(0,.55,.61),(.82,.38,.12),'white',.04)
         box('DD_Bed_Headboard',(0,.85,.50),(1.1,.10,.65),'wood_light',.02)
     elif kind=='cabinet':
-        box('DD_Cabinet',(0,0,.5),(1.2,.7,1),'wood',.025)
+        for x in [-.565,.565]:
+            box('DD_Cabinet_Side',(x,0,.5),(.07,.7,1),'wood',.012,2)
+        for z in [.065,.965]:
+            box('DD_Cabinet_Rail',(0,0,z),(1.12,.7,.07),'wood',.012,2)
+        box('DD_Cabinet_Back',(0,.325,.5),(1.06,.05,.84),'wood_light')
         for x in [-.29,.29]:
-            box('DD_Cabinet_Panel',(x,-.355,.5),(.54,.025,.88),'wood_light',.015)
+            box('DD_Cabinet_Panel',(x,-.335,.5),(.54,.045,.86),'wood_light',.014,3)
+            box('DD_Cabinet_Inset',(x,-.362,.5),(.43,.015,.72),'wood',.012,2)
             box('DD_Cabinet_Pull',(x+(.18 if x<0 else -.18),-.38,.56),(.04,.045,.16),'steel',.008)
     elif kind=='table':
         box('DD_Table_Top',(0,0,.72),(1.0,1.0,.09),'wood_light',.025)
@@ -294,6 +378,45 @@ def building(kind):
             board.rotation_euler.y=sign*.13
     return {'cutaway_prefixes':['DD_Hide_','DD_Cut_']}
 
+def canonical_triangle_order(path):
+    # Blender may enumerate smooth-face triangles in a different order between processes.
+    # Sort only opaque triangle index triplets; positions, winding, weights and clips stay intact.
+    data=bytearray(path.read_bytes())
+    json_length=struct.unpack_from('<I',data,12)[0]
+    document=json.loads(data[20:20+json_length])
+    binary_start=28+json_length
+    seen=set()
+    normals=set()
+    for mesh in document['meshes']:
+        for primitive in mesh['primitives']:
+            normals.add(primitive['attributes']['NORMAL'])
+            assert primitive.get('mode',4)==4
+            index=primitive['indices']
+            if index in seen:continue
+            seen.add(index)
+            accessor=document['accessors'][index]
+            view=document['bufferViews'][accessor['bufferView']]
+            assert accessor['type']=='SCALAR' and 'byteStride' not in view
+            fmt={5121:'B',5123:'H',5125:'I'}[accessor['componentType']]
+            count=accessor['count'];assert count%3==0
+            start=binary_start+view.get('byteOffset',0)+accessor.get('byteOffset',0)
+            values=struct.unpack_from('<'+fmt*count,data,start)
+            triangles=sorted(tuple(values[i:i+3]) for i in range(0,count,3))
+            struct.pack_into('<'+fmt*count,data,start,*(v for triangle in triangles for v in triangle))
+    # Smooth bevel normal sums can differ by ~4e-5 across Blender processes.
+    # A 0.01 component grid followed by normalization gives stable unit normals
+    # with less than one degree of visual error; geometry and rig data are unchanged.
+    for index in normals:
+        accessor=document['accessors'][index];view=document['bufferViews'][accessor['bufferView']]
+        assert accessor['type']=='VEC3' and accessor['componentType']==5126 and 'byteStride' not in view
+        start=binary_start+view.get('byteOffset',0)+accessor.get('byteOffset',0)
+        for i in range(accessor['count']):
+            at=start+i*12
+            n=[round(v*100)/100 for v in struct.unpack_from('<fff',data,at)]
+            length=math.sqrt(sum(v*v for v in n))
+            struct.pack_into('<fff',data,at,*(v/length for v in n))
+    path.write_bytes(data)
+
 def export(name, info):
     bpy.context.scene.frame_set(0)
     bpy.context.view_layer.update()
@@ -310,6 +433,8 @@ def export(name, info):
     bpy.ops.export_scene.gltf(filepath=str(OUT/(name+'.glb')),export_format='GLB',export_yup=True,
         export_texcoords=False,export_animations=True,export_animation_mode='ACTIONS',export_force_sampling=True,
         export_anim_slide_to_zero=True,export_optimize_animation_size=True)
+    if name=='player':
+        canonical_triangle_order(OUT/(name+'.glb'))
     entry={'file':name+'.glb','source':'art/source/'+name+'.blend','triangles':triangles,'meshes':mesh_count,**info}
     MANIFEST[name]=entry
     print('ASSET_OK',name,triangles,mesh_count)

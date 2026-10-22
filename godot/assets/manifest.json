@@ -5,7 +5,7 @@
     "player": {
       "file": "player.glb",
       "source": "art/source/player.blend",
-      "triangles": 1492,
+      "triangles": 6318,
       "meshes": 2,
       "clips": [
         "stand",
@@ -76,8 +76,8 @@
     "cabinet": {
       "file": "cabinet.glb",
       "source": "art/source/cabinet.blend",
-      "triangles": 220,
-      "meshes": 5
+      "triangles": 1124,
+      "meshes": 11
     },
     "table": {
       "file": "table.glb",

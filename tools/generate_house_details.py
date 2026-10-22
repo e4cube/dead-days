@@ -44,7 +44,18 @@ for module in layout['modules']:
     at = (x, -z, y)  # Godot Y-up -> Blender Z-up.
     if module['kind'] == 'box':
         w, h, d = module['size']
-        box(module['name'], at, (w,d,h), module['material'], module.get('bevel',0))
+        box(module['name'], at, (w,d,h), module['material'], module.get('bevel',0),module.get('bevel_segments',1))
+    elif module['kind'] == 'basin':
+        w,h,d=module['size']
+        vertices=[];faces=[]
+        for rx,ry,z in [(w/2,d/2,h/2),(w/2-.04,d/2-.04,h/2),(w/2-.08,d/2-.08,-h/2)]:
+            vertices += [(-rx,-ry,z),(rx,-ry,z),(rx,ry,z),(-rx,ry,z)]
+        for j in range(2):
+            for i in range(4):faces.append((j*4+i,j*4+(i+1)%4,(j+1)*4+(i+1)%4,(j+1)*4+i))
+        faces.append((8,9,10,11))
+        mesh=bpy.data.meshes.new(module['name']);mesh.from_pydata(vertices,[],faces)
+        obj=bpy.data.objects.new(module['name'],mesh);bpy.context.collection.objects.link(obj)
+        obj.location=at;mesh.materials.append(kit['MATS'][module['material']])
     elif module['kind'] == 'cylinder':
         cylinder(module['name'],at,module['radius'],module['depth'],module['material'],module['vertices'])
     else:
