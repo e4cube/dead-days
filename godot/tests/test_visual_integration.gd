@@ -25,7 +25,7 @@ func run() -> void:
     check(roof.visible, "outside has full building exterior")
     game.player.position = Vector3(-7, 0, -1.5)
     game.update_cutaways()
-    check(not roof.visible, "inside hides its own roof")
+    check(roof.visible, "inside retains solid roof for third person camera")
     var other_roof = game.building_visuals.shop.find_children("DD_Hide_Roof*", "MeshInstance3D", true, false)[0]
     check(other_roof.visible, "other buildings retain exterior")
     game.model.state.doors.home = false

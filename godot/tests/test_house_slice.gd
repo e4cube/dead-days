@@ -23,17 +23,14 @@ func shot(name: String) -> void:
         root.get_texture().get_image().save_png(ProjectSettings.globalize_path("res://../work/house-"+name+".png"))
 func walk_to(local: Vector2) -> void:
     var goal: Vector2 = Vector2(game.house_details.position.x,game.house_details.position.z) + local
-    for i in 360:
+    for i in 900:
         var difference: Vector2 = goal - Vector2(game.player.position.x,game.player.position.z)
         for action in ["left","right","forward","back"]:
             Input.action_release(action)
-        if difference.length() < .035:
+        if difference.length() < .075:
             await physics_frame
             return
-        if absf(difference.x) > .025:
-            Input.action_press("right" if difference.x > 0 else "left")
-        else:
-            Input.action_press("back" if difference.y > 0 else "forward")
+        preload("res://tests/movement_driver.gd").drive(game,difference)
         await physics_frame
     for action in ["left","right","forward","back"]:
         Input.action_release(action)
@@ -72,31 +69,11 @@ func check_layout() -> void:
                 registered = true
         check(registered, "layout collider registered with navigation " + obstacle.id)
 func check_orbit_walls() -> void:
-    var viewport := root.get_visible_rect().size
-    var actor: Vector2 = game.camera.unproject_position(game.player.position+Vector3.UP)
-    check(actor.x>viewport.x*.12 and actor.x<viewport.x*.88 and actor.y>viewport.y*.16 and actor.y<viewport.y*.84,"actor stays clear of edge UI during indoor orbit")
-    for x in [-2.6,2.6]:
-        for z in [-6.8,-.2]:
-            var screen: Vector2 = game.camera.unproject_position(game.house_details.position+Vector3(x,.1,z))
-            check(screen.x>0 and screen.x<viewport.x and screen.y>viewport.y*.12 and screen.y<viewport.y*.87,"whole house floor fits indoor composition")
-    var view: Vector3 = game.camera.position - game.player.position
-    for mesh in game.building_visuals.home.find_children("*", "MeshInstance3D", true, false):
-        var name := str(mesh.name)
-        if name.begins_with("DD_Hide_Front"):
-            check(mesh.visible == (view.z < 0), "front wall follows orbit")
-        elif name == "DD_Hide_East":
-            check(mesh.visible == (view.x < 0), "east wall follows orbit")
-        elif name == "DD_Keep_Back":
-            check(mesh.visible == (view.z > 0), "back wall follows orbit")
-        elif name == "DD_Keep_West":
-            check(mesh.visible == (view.x > 0), "west wall follows orbit")
-    for mesh in game.house_details.find_children("*", "MeshInstance3D", true, false):
-        if str(mesh.name) == "DD_Cut_Back":
-            check(mesh.visible == (view.z <= 0), "back low wall preserves thickness")
-        elif str(mesh.name) == "DD_Cut_West":
-            check(mesh.visible == (view.x <= 0), "west low wall preserves thickness")
-        elif str(mesh.name).begins_with("DD_Hide_BackPicture"):
-            check(mesh.visible == (view.z > 0), "wall picture hides with supporting wall")
+    check(game.camera.projection==Camera3D.PROJECTION_PERSPECTIVE,"indoor camera is perspective follow view")
+    check(game.camera.position.y<2.6,"camera stays below the roof")
+    check(not hidden_roof(),"interior retains real roof")
+    var query := PhysicsRayQueryParameters3D.create(game.camera_focus,game.camera.position,1,[game.player.get_rid()])
+    check(game.get_world_3d().direct_space_state.intersect_ray(query).is_empty(),"follow camera stops before opaque walls")
 func _initialize() -> void:
     call_deferred("run")
 func run() -> void:
@@ -112,7 +89,7 @@ func run() -> void:
     await walk("forward",24)
     key(KEY_E)
     await walk("forward",54)
-    check(game.inside("home") and hidden_roof(),"walk inside reveals actual interior")
+    check(game.inside("home") and not hidden_roof(),"walk inside reveals actual interior")
     for child in game.world.get_children():
         if child is Label3D:
             check(not child.visible,"indoor framing removes permanent floating labels")
@@ -125,6 +102,9 @@ func run() -> void:
     check(not game.world.get_node("HouseLamp").visible,"light setting persists")
     key(KEY_L)
     await shot("interior")
+    check(game.camera.position.distance_to(game.player.position+Vector3.UP*1.6)<.9,"default indoor camera is close to head and neck")
+    var feet: Vector2 = game.camera.unproject_position(game.player.position)
+    check(feet.y>root.get_visible_rect().size.y,"near-neck composition excludes full body and feet")
     # Explicit night rendering fixture; real overnight progression is tested separately.
     var previous_minutes: float = game.model.state.minutes
     game.active=false
@@ -164,7 +144,7 @@ func run() -> void:
     await walk_to(Vector2(0,-6.1))
     await walk_to(Vector2(1,-6.1))
     check(game.inside("home") and game.player.position.z < -5.8 and game.player.position.x > -6.4, "kitchen rear passage physically accessible")
-    check(hidden_roof(),"extension remains interior for roof occlusion")
+    check(not hidden_roof(),"extension remains interior for roof occlusion")
     check(game.nearby().get("id")=="home_fridge","reachable fridge identified independently")
     var cabinet: Dictionary = game.model.state.containers.home.duplicate(true)
     key(KEY_E)
@@ -226,28 +206,22 @@ func run() -> void:
     for i in 8:
         key(KEY_Q)
         check_orbit_walls()
-        check(hidden_roof(), "roof stays hidden throughout orbit")
+        check(not hidden_roof(), "roof stays hidden throughout orbit")
         if i == 3:
-            var hidden_crowns := 0
-            for crown in game.world.get_meta("tree_crowns"):
-                if not crown.mesh.visible:
-                    hidden_crowns+=1
-            check(hidden_crowns>0,"reverse camera removes foreground foliage over rooms")
-            check(hidden_crowns<game.world.get_meta("tree_crowns").size(),"background canopy remains visible")
             await shot("reverse")
     check(game.player.position.is_equal_approx(initial_position), "camera orbit does not move actor")
     for i in game.nav_sources.size():
         check(game.nav_sources[i].body.collision_layer == layers[i], "visual cutaway preserves physical walls")
     key(KEY_Q)
-    check(absf(game.camera_yaw)>0.1,"camera orbit changes actual camera")
+    check(absf(game.indoor_orbit)>0.1,"camera orbit changes actual camera")
     await shot("rotated")
     key(KEY_V)
     var wheel := InputEventMouseButton.new()
     wheel.button_index = MOUSE_BUTTON_WHEEL_UP
     wheel.pressed = true
     game._unhandled_input(wheel)
-    check(game.camera_zoom==18 and is_equal_approx(game.camera.size,18*.62),"wheel preserves chosen zoom with indoor framing scale")
-    await walk("back",60)
+    check(game.camera_zoom==19 and is_equal_approx(game.indoor_distance,.45),"indoor wheel adjusts close neck distance independently")
+    await walk_to(Vector2(0,1.2))
     check(not game.inside("home") and not hidden_roof(),"walk outside restores roof")
     for crown in game.world.get_meta("tree_crowns"):
         check(crown.mesh.visible,"all foliage restores outside without changing trunk collisions")

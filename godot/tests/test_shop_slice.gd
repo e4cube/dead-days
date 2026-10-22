@@ -57,7 +57,7 @@ func run() -> void:
         key(KEY_Q)
         for mesh in game.building_visuals.shop.find_children("*","MeshInstance3D",true,false):
             if str(mesh.name).begins_with("DD_Hide_Roof"):
-                check(not mesh.visible,"shop roof hidden in all orbit directions")
+                check(mesh.visible,"shop roof stays solid in all follow directions")
         if i==3:
             await shop_shot("reverse")
     game.save_run()

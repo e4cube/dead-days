@@ -58,7 +58,17 @@ func run() -> void:
     key(KEY_1)
     key(KEY_2)
     key(KEY_4)
-    await walk("left", 30)
+    var goal := Vector2(-8.5,-1.9)
+    for i in 300:
+        for action in ["left","right","forward","back"]:
+            Input.action_release(action)
+        var difference: Vector2 = goal-Vector2(game.player.position.x,game.player.position.z)
+        if difference.length()<.075:
+            break
+        preload("res://tests/movement_driver.gd").drive(game,difference)
+        await physics_frame
+    for action in ["left","right","forward","back"]:
+        Input.action_release(action)
     check(game.closest_bed() == "home_bed", "walk to usable bed without teleport")
     var start: float = game.model.state.minutes
     key(KEY_T)

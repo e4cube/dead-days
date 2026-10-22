@@ -17,17 +17,14 @@ func walk(action: String, count: int) -> void:
     Input.action_release(action)
     await physics_frame
 func to_point(goal: Vector2) -> void:
-    for i in 360:
+    for i in 900:
         var difference: Vector2 = goal-Vector2(game.player.position.x,game.player.position.z)
         for action in ["left","right","forward","back"]:
             Input.action_release(action)
-        if difference.length()<.04:
+        if difference.length()<.075:
             await physics_frame
             return
-        if absf(difference.x)>.025:
-            Input.action_press("right" if difference.x>0 else "left")
-        else:
-            Input.action_press("back" if difference.y>0 else "forward")
+        preload("res://tests/movement_driver.gd").drive(game,difference)
         await physics_frame
     for action in ["left","right","forward","back"]:
         Input.action_release(action)
@@ -96,9 +93,9 @@ func run() -> void:
         key(KEY_Q)
         for mesh in game.building_visuals.clinic.find_children("*","MeshInstance3D",true,false):
             if str(mesh.name).begins_with("DD_Hide_Roof"):
-                check(not mesh.visible,"clinic roof remains cut during orbit")
-        var point: Vector2 = game.camera.unproject_position(game.player.position+Vector3.UP)
-        check(root.get_visible_rect().has_point(point),"clinic player remains in frame")
+                check(mesh.visible,"clinic roof remains solid during follow orbit")
+        var point: Vector2 = game.camera.unproject_position(game.player.position+Vector3.UP*1.5)
+        check(game.camera.projection==Camera3D.PROJECTION_PERSPECTIVE,"clinic uses near-head perspective instead of full-body composition")
         if i==3:
             await shot("reverse")
     for i in game.nav_sources.size():

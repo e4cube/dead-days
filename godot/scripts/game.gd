@@ -49,9 +49,9 @@ var camera_yaw := 0.0
 var camera_zoom := 19.0
 var camera_focus := Vector3.ZERO
 var camera_initialized := false
-var camera_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/house_layout.json")).camera
-var clinic_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/clinic_layout.json")).camera
-var shop_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/shop_layout.json")).camera
+var camera_inside := false
+var indoor_orbit := 0.0
+var indoor_distance := .55
 var last_notice := ""
 var export_directory := "user://exports"
 
@@ -355,17 +355,32 @@ func apply_door(id: String) -> void:
     door_visuals[id].rotation.y = -PI / 2 if opened else 0.0
 
 func update_camera(delta: float = 0) -> void:
+    var indoors := inside("home") or inside("clinic") or inside("shop")
+    if indoors:
+        var heading := player.rotation.y+indoor_orbit
+        var target := player.position+Vector3(.12,1.65,0).rotated(Vector3.UP,heading)
+        var blend := 1.0 if not camera_inside or delta<=0 else 1.0-exp(-delta*12)
+        camera_focus=preload("res://scripts/indoor_camera.gd").position_for(self,player.position+Vector3.UP*1.4,camera_focus.lerp(target,blend))
+        camera.projection=Camera3D.PROJECTION_PERSPECTIVE
+        camera.fov=68
+        camera.near=.06
+        var desired := camera_focus+Vector3(.06,.06,-indoor_distance).rotated(Vector3.UP,heading)
+        camera.position=preload("res://scripts/indoor_camera.gd").position_for(self,camera_focus,desired)
+        camera.look_at(camera_focus)
+        player_visual.visible=camera.position.distance_to(player.position+Vector3.UP*1.6)>=.25
+        camera_inside=true
+        camera_initialized=true
+        return
+    camera.projection=Camera3D.PROJECTION_ORTHOGONAL
+    camera.near=.05
+    player_visual.visible=true
+    if camera_inside:
+        camera_initialized=false
+        indoor_orbit=0
+    camera_inside=false
     var focus := player.position + Vector3(0,.5,0)
     var size := camera_zoom
     var offset := Vector3(11,15,14)
-    if inside("home") or inside("clinic") or inside("shop"):
-        var framing := camera_framing if inside("home") else (clinic_framing if inside("clinic") else shop_framing)
-        var details := house_details if inside("home") else (clinic_details if inside("clinic") else shop_details)
-        var center: Array = framing.center
-        var house_center := details.position + Vector3(center[0],center[1],center[2])
-        focus = house_center.lerp(focus,float(framing.player_weight))
-        size = clampf(camera_zoom * float(framing.zoom_scale),float(framing.min_size),float(framing.max_size))
-        offset = Vector3(10,19,12)
     var blend := 1.0 if not camera_initialized or delta<=0 else 1.0-exp(-delta*8.0)
     camera_focus = camera_focus.lerp(focus,blend)
     camera.size = lerpf(camera.size,size,blend)
@@ -464,13 +479,20 @@ func _physics_process(delta: float) -> void:
     var input := Input.get_vector("left", "right", "forward", "back")
     var running: bool = Input.is_action_pressed("run") and model.state.stats.stamina > 0
     var speed: float = model.rules.run_speed if running else model.rules.walk_speed
-    player.velocity = Vector3(input.x * speed, -2.0, input.y * speed)
+    var indoors := inside("home") or inside("clinic") or inside("shop")
+    if indoors:
+        player.rotation.y+=input.x*delta*2.4
+        var direction := Vector3(0,0,-input.y).rotated(Vector3.UP,player.rotation.y)
+        player.velocity=direction*speed+Vector3.DOWN*2
+    else:
+        player.velocity = Vector3(input.x * speed, -2.0, input.y * speed)
     player.move_and_slide()
-    if input.length() > 0.1:
+    if not indoors and input.length() > 0.1:
         player.rotation.y = lerp_angle(player.rotation.y, atan2(input.x, input.y), delta * 12)
-    model.state.stats.stamina = clampf(model.state.stats.stamina + (-float(model.rules.stamina_run_cost) if running and input.length() > 0 else float(model.rules.stamina_recovery)) * delta, 0, 100)
+    var moving := absf(input.y)>.1 if indoors else input.length()>.1
+    model.state.stats.stamina = clampf(model.state.stats.stamina + (-float(model.rules.stamina_run_cost) if running and moving else float(model.rules.stamina_recovery)) * delta, 0, 100)
     run_noise_left = maxf(0, run_noise_left - delta)
-    if running and input.length() > 0 and run_noise_left <= 0:
+    if running and moving and run_noise_left <= 0:
         model.noise(player.position, model.rules.noise.run_radius, "running")
         run_noise_left = model.rules.noise.run_interval
     if Input.is_action_pressed("attack"):
@@ -574,6 +596,7 @@ func refresh_hud() -> void:
     for b in model.rules.buildings:
         if inside(b.id):
             hint.text += " · [L] 照明：" + ("开" if model.light_enabled(b.id) else "关")
+            hint.text += " · W/S 前后 · A/D 转向 · Q/V 环视"
     notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -603,7 +626,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
     if model.state.rest.active and code != KEY_F5:
         return
     if code == KEY_Q or code == KEY_V:
-        camera_yaw += PI / 4 * (-1 if code == KEY_Q else 1)
+        if camera_inside:
+            indoor_orbit+=PI/4*(-1 if code==KEY_Q else 1)
+        else:
+            camera_yaw += PI / 4 * (-1 if code == KEY_Q else 1)
         update_camera()
         update_cutaways()
     if code == KEY_L:
@@ -762,23 +788,23 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
 
 func update_cutaways() -> void:
     var view := camera.position - player.position
-    InteriorLighting.cutaway(self,view)
-    preload("res://scripts/house_slice.gd").cut_foliage(self,inside("home"))
+    InteriorLighting.cutaway(self,Vector3(1,1,1))
+    preload("res://scripts/house_slice.gd").cut_foliage(self,false)
     # Indoor interactions are already named by the contextual HUD. Keep the
     # close composition free of permanent labels floating across furniture.
     for child in world.get_children():
         if child is Label3D:
             child.visible = not (inside("home") or inside("clinic") or inside("shop"))
     if is_instance_valid(shop_details):
-        Assets.cutaway(shop_details,inside("shop"),view)
+        Assets.cutaway(shop_details,false,view)
         preload("res://scripts/shop_slice.gd").stock(shop_details,model.state.containers.shop)
     if is_instance_valid(clinic_details):
-        Assets.cutaway(clinic_details,inside("clinic"),view)
+        Assets.cutaway(clinic_details,false,view)
         preload("res://scripts/clinic_slice.gd").stock(clinic_details,int(model.state.containers.clinic.get("bandage",0)))
     if is_instance_valid(house_details):
-        Assets.cutaway(house_details, inside("home"), view)
+        Assets.cutaway(house_details, false, view)
     for id in building_visuals:
-        Assets.cutaway(building_visuals[id], inside(id), view)
+        Assets.cutaway(building_visuals[id], false, view)
 
 func safe_position(position: Vector3) -> Vector3:
     if absf(position.y) > 0.5:
@@ -805,6 +831,13 @@ func on_target_lost() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
     if active and not panel.visible and event is InputEventMouseButton and event.pressed:
+        if camera_inside:
+            if event.button_index==MOUSE_BUTTON_WHEEL_UP:
+                indoor_distance=maxf(.35,indoor_distance-.1)
+            elif event.button_index==MOUSE_BUTTON_WHEEL_DOWN:
+                indoor_distance=minf(1.8,indoor_distance+.1)
+            update_camera()
+            return
         if event.button_index == MOUSE_BUTTON_WHEEL_UP:
             camera_zoom = maxf(11, camera_zoom - 1)
         elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
