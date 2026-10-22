@@ -125,6 +125,28 @@ func run() -> void:
     check(not game.world.get_node("HouseLamp").visible,"light setting persists")
     key(KEY_L)
     await shot("interior")
+    # Explicit night rendering fixture; real overnight progression is tested separately.
+    var previous_minutes: float = game.model.state.minutes
+    game.active=false
+    game.model.state.minutes=1320
+    game.update_lighting()
+    game.refresh_hud()
+    await shot("night-lit-fixture")
+    # Resume to use the actual switch rather than setting the light directly.
+    game.active=true
+    key(KEY_L)
+    check(not game.world.get_node("HouseLamp").visible,"night switch uses same real indoor control")
+    game.save_run()
+    game.continue_run()
+    game.active=false
+    game.refresh_hud()
+    await shot("night-dark-fixture")
+    check(not game.world.get_node("HouseLamp").visible and game.model.state.minutes>=1320,"dark night state survives save continue")
+    game.active=true
+    key(KEY_L)
+    game.model.state.minutes=previous_minutes
+    game.update_lighting()
+    game.refresh_hud()
     # Walk through the bedroom side aisle and the kitchen rear passage.
     # All movement uses production input/physics; no teleporting into the extension.
     await walk_to(Vector2(0,-2.25))
@@ -206,6 +228,12 @@ func run() -> void:
         check_orbit_walls()
         check(hidden_roof(), "roof stays hidden throughout orbit")
         if i == 3:
+            var hidden_crowns := 0
+            for crown in game.world.get_meta("tree_crowns"):
+                if not crown.mesh.visible:
+                    hidden_crowns+=1
+            check(hidden_crowns>0,"reverse camera removes foreground foliage over rooms")
+            check(hidden_crowns<game.world.get_meta("tree_crowns").size(),"background canopy remains visible")
             await shot("reverse")
     check(game.player.position.is_equal_approx(initial_position), "camera orbit does not move actor")
     for i in game.nav_sources.size():
@@ -221,6 +249,8 @@ func run() -> void:
     check(game.camera_zoom==18 and is_equal_approx(game.camera.size,18*.62),"wheel preserves chosen zoom with indoor framing scale")
     await walk("back",60)
     check(not game.inside("home") and not hidden_roof(),"walk outside restores roof")
+    for crown in game.world.get_meta("tree_crowns"):
+        check(crown.mesh.visible,"all foliage restores outside without changing trunk collisions")
     for child in game.world.get_children():
         if child is Label3D:
             check(child.visible,"outdoor location labels return on exit")

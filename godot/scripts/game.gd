@@ -745,6 +745,7 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
 
 func update_cutaways() -> void:
     var view := camera.position - player.position
+    preload("res://scripts/house_slice.gd").cut_foliage(self,inside("home"))
     # Indoor interactions are already named by the contextual HUD. Keep the
     # close composition free of permanent labels floating across furniture.
     for child in world.get_children():
