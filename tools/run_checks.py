@@ -86,6 +86,7 @@ def main():
             run([sys.executable, 'tools/check_asset_pipeline.py', '--blender', args.blender], 'ASSET_REPLAY_OK')
         run([args.godot, '--headless', '--path', 'godot', '--editor', '--import', '--quit'])
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rules.gd'], 'RULES_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_containers.gd'], 'CONTAINERS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_assets.gd'], 'ASSET_IMPORT_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_visual_integration.gd'], 'VISUAL_INTEGRATION_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')

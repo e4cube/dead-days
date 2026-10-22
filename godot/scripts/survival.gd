@@ -14,6 +14,7 @@ func start() -> void:
         state.containers[b.id] = b.container.duplicate(true)
     add_threat_state()
     add_time_state()
+    add_furniture_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -42,6 +43,8 @@ func enter(id: String) -> void:
         event("entered", "第一次进入" + building_name(id) + "。", "希望", {"building": id})
 
 func loot(id: String) -> int:
+    if not state.containers.has(id):
+        return 0
     var count := 0
     var taken := {}
     for item in state.containers[id]:
@@ -54,8 +57,34 @@ func loot(id: String) -> int:
         if n > 0:
             taken[item] = n
     if count > 0:
-        event("looted", "从" + building_name(id) + "柜子获得 " + str(count) + " 件物资。", "希望", {"building": id, "items": taken})
+        event("looted", "从" + container_name(id) + "获得 " + str(count) + " 件物资。", "希望", {"building": container_building(id), "container": id, "items": taken})
     return count
+
+func container_name(id: String) -> String:
+    for definition in rules.get("containers",[]):
+        if definition.id == id:
+            return definition.name
+    return building_name(id) + "柜子"
+
+func container_building(id: String) -> String:
+    for definition in rules.get("containers",[]):
+        if definition.id == id:
+            return definition.building
+    return id
+
+func container_summary(id: String) -> String:
+    var items := PackedStringArray()
+    for item in state.containers.get(id,{}):
+        var count: int = state.containers[id][item]
+        if count > 0:
+            items.append("%s×%d" % [rules.items[item].name,count])
+    return " / ".join(items) if not items.is_empty() else "已空"
+
+func add_furniture_state() -> void:
+    for definition in rules.get("containers",[]):
+        if not state.containers.has(definition.id):
+            state.containers[definition.id] = definition.contents.duplicate(true)
+    state.schema = 4
 
 func use_item(id: String) -> bool:
     if not rules.items.has(id) or state.inventory.get(id, 0) <= 0:
@@ -90,7 +119,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -116,6 +145,19 @@ func valid(candidate: Variant) -> bool:
     for b in rules.buildings:
         if not candidate.doors.has(b.id) or not candidate.doors[b.id] is bool or not candidate.containers.has(b.id) or not candidate.containers[b.id] is Dictionary or not valid_items(candidate.containers[b.id]):
             return false
+    for definition in rules.get("containers",[]):
+        if candidate.schema == 4 and not candidate.containers.has(definition.id):
+            return false
+        if candidate.containers.has(definition.id) and (not candidate.containers[definition.id] is Dictionary or not valid_items(candidate.containers[definition.id])):
+            return false
+    for id in candidate.containers:
+        var known := false
+        for definition in rules.buildings:
+            known = known or definition.id == id
+        for definition in rules.get("containers",[]):
+            known = known or definition.id == id
+        if not known:
+            return false
     for id in candidate.visited:
         if not candidate.doors.has(id):
             return false
@@ -138,7 +180,7 @@ func valid(candidate: Variant) -> bool:
         return false
     if candidate.schema >= 2 and not valid_threats(candidate):
         return false
-    return candidate.schema != 3 or valid_time(candidate)
+    return candidate.schema < 3 or valid_time(candidate)
 
 func valid_items(items: Dictionary) -> bool:
     for id in items:
@@ -175,6 +217,9 @@ func restore(candidate: Dictionary) -> void:
     if state.schema == 2:
         add_time_state()
         event("migrated", "生存时钟和室内休息规则已接入；原有世界状态保留。", "平静")
+    if state.schema == 3:
+        add_furniture_state()
+        event("migrated", "住宅冰箱已接入独立库存；原有物资和世界状态保留。", "平静")
 
 func noise(pos: Vector3, radius: float, kind: String) -> void:
     state.noise_sequence += 1

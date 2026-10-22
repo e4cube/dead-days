@@ -24,6 +24,7 @@ var player_visual: Node3D
 var building_visuals: Dictionary = {}
 var door_visuals: Dictionary = {}
 var open_leaves: Dictionary = {}
+var container_bodies: Dictionary = {}
 var hud: Label
 var hint: Label
 var notice: Label
@@ -208,6 +209,7 @@ func build_world() -> void:
     building_visuals.clear()
     door_visuals.clear()
     open_leaves.clear()
+    container_bodies.clear()
     nav_sources.clear()
     zombie_bodies.clear()
     run_noise_left = 0
@@ -233,6 +235,7 @@ func build_world() -> void:
         var offset: Array = b.get("container_offset",[0,0,-3])
         var container_position := Vector3(x+offset[0],0,offset[2])
         var container_body := collision_box(container_position + Vector3.UP*.5, Vector3(1.2, 1, 0.7))
+        container_bodies[b.id] = container_body
         Assets.attach(container_body, b.container_asset, Vector3(0, -0.5, 0))
         label3(world, b.name, Vector3(x, 3.8, -depth))
         label3(world, "柜子 [E]", container_position + Vector3.UP*1.5)
@@ -251,6 +254,10 @@ func build_world() -> void:
                 var body := collision_box(position, size)
                 Assets.attach(body, furniture.asset, Vector3(0, -size.y * 0.5, 0))
     house_details = preload("res://scripts/house_slice.gd").build(self)
+    for definition in model.rules.get("containers",[]):
+        container_bodies[definition.id] = world.get_node("HouseObstacle_" + definition.obstacle)
+        var at: Vector3 = furniture_container_position(definition)
+        label3(world,definition.name + " [E]",at + Vector3.UP*2)
     # Boundary bodies prevent leaving the playable block.
     for x in [-13.5, 13.5]:
         box(world, Vector3(x, 1, -1), Vector3(0.3, 2, 19), Color("36433a"))
@@ -336,12 +343,30 @@ func nearby() -> Dictionary:
             var pos := Vector3(b.x,0,0) if kind == "door" else Vector3(b.x+offset[0],0,offset[2])
             var distance := Vector2(player.position.x - pos.x, player.position.z - pos.z).length()
             # Containers may only be searched from inside their room.
-            if kind == "container" and not inside(b.id):
+            if kind == "container" and (not inside(b.id) or not container_line_clear(b.id,pos)):
                 continue
             if distance < closest:
                 closest = distance
                 target = {"id": b.id, "kind": kind}
+    for definition in model.rules.get("containers",[]):
+        var pos := furniture_container_position(definition)
+        var distance := Vector2(player.position.x-pos.x,player.position.z-pos.z).length()
+        if inside(definition.building) and distance < closest and container_line_clear(definition.id,pos):
+            closest = distance
+            target = {"id": definition.id, "kind": "container"}
     return target
+
+func furniture_container_position(definition: Dictionary) -> Vector3:
+    for building in model.rules.buildings:
+        if building.id == definition.building:
+            return Vector3(building.x+definition.offset[0],0,definition.offset[2])
+    return Vector3.INF
+
+func container_line_clear(id: String, position: Vector3) -> bool:
+    var ray := PhysicsRayQueryParameters3D.create(player.position+Vector3.UP,position+Vector3.UP,1)
+    if container_bodies.has(id):
+        ray.exclude = [container_bodies[id].get_rid()]
+    return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 
 func inside(id: String) -> bool:
     return Rest.inside(model, id, player.position)
@@ -369,7 +394,7 @@ func interact() -> void:
         last_notice = model.state.events.back().text
     else:
         var count: int = model.loot(target.id)
-        last_notice = "获得 %d 件物资；未带走的留在柜中。" % count if count else "柜子已空或负重不足。"
+        last_notice = "从%s获得%d件物资；未带走的留在原处。" % [model.container_name(target.id),count] if count else "容器已空或负重不足。"
 
 func sync_position() -> void:
     model.state.position = [player.position.x, player.position.y, player.position.z]
@@ -497,7 +522,9 @@ func refresh_hud() -> void:
     var rest_text: String = " · 正在休息" if model.state.rest.active else ""
     hud.text = "DEAD DAYS / 第%d天 %s%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     var target := nearby()
-    hint.text = "[E] " + ("开关门" if target.get("kind") == "door" else "搜索柜子") + " / " + model.building_name(target.id) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
+    hint.text = "[E] " + ("开关门 / " + model.building_name(target.id) if target.get("kind") == "door" else "搜刮 / " + model.container_name(target.id)) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
+    if target.get("kind") == "container":
+        hint.text += " · 剩余：" + model.container_summary(target.id)
     if not closest_bed().is_empty():
         hint.text = "床边：[R] 休息一小时 · [T] 夜间睡到黎明；先关门并摆脱追击。"
     notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice

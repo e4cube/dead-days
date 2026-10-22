@@ -1,5 +1,7 @@
 # Dead Days 重构分支
 
+厨房后部冰箱现可按 E 搜刮独立库存；装不下的物资会保留并保存，提示显示剩余数量。新存档为schema4，旧快照只在内存迁移。见 [家具容器说明](docs/furniture-containers.md)。
+
 住宅现为5.5×7米，柜子移向厨房侧，卧室侧道与后部可实际进入；床交互检查墙体遮挡。见 [住宅空间与动线](docs/house-space-pass.md)。
 
 住宅模型与碰撞现共用 `godot/data/house_layout.json`，已补充实体窗框与百叶；修改布局后需重新运行 Blender 生成器。

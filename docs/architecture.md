@@ -28,7 +28,7 @@ Godot 是实际引擎。Blender 仅为离线资产生产工具。资源、UI、�
 
 新版本仅使用 `%APPDATA%/DeadDaysRebuild/`，不读取/迁移/覆盖根目录 save.json。`saves/` 内每次保存新建唯一名称快照，先写 .tmp、flush、close，再 rename；旧快照不清理。读档按名称由新到旧检验，跳过截断 JSON 与不支持的 schema，全部失败时保留内存状态与磁盘文件。
 
-schema 3 包括天数/分钟、位置、属性、库存、门状态、各容器剩余物资、首次进入集合、完整事件，并保留 combat、zombies、noises、noise_sequence、seen_horde，新增calendar/rest。数值与物品身份、重量均先验证。schema1在内存添加威胁状态，schema1/2再添加时钟/休息并升级到3，旧文件不改；schema1添加敌人时跳过距玩家4米内刷点。未知schema拒绝。临时文件不参与继续游戏。没有持久化场景 Node 或 GLB 内部结构。测试使用唯一 `user://tests/` 子目录，绝不使用正式 saves/。
+当前 schema 4 包括天数/分钟、位置、属性、库存、门状态、各容器剩余物资、首次进入集合、完整事件，以及 combat、zombies、noises、noise_sequence、seen_horde、calendar/rest。containers 保留建筑柜子的原ID，新增 home_fridge 等家具容器ID。数值、容器/物品身份、重量均先验证；schema4缺少家具库存时拒绝，不能通过删字段重新补货。schema1在内存添加威胁状态，schema1/2添加时钟/休息，schema1/2/3最后补入家具库存升级到4，旧文件不改；已有库存不覆盖。schema1添加敌人时跳过距玩家4米内刷点。未知schema拒绝。临时文件不参与继续游戏。没有持久化场景 Node 或 GLB 内部结构。测试使用唯一 `user://tests/` 子目录，绝不使用正式 saves/。
 
 不可变快照目前会持续占用磁盘；保留策略、多存档槽选择、异常恢复界面是后续工作。该方案降低中断写入风险，不宣称提供断电硬件事务保证。关闭窗口或 Esc 保存失败时留在当前游戏。
 
