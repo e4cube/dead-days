@@ -32,6 +32,8 @@ func run() -> void:
             var players := asset.find_children("*", "AnimationPlayer", true, false)
             check(skeletons.size() == 1 and skeletons[0].get_bone_count() == 16, "16-bone skeleton " + id)
             check(players.size() == 1, "animation library " + id)
+            if id == "player":
+                check(players[0].has_animation("run") and "run" in entry.clips, "run survives GLB export and manifest")
             for name in ["stand", "move", "attack", "hurt", "death"]:
                 check(players[0].has_animation(name), "exported clip " + id + "/" + name)
                 if players[0].has_animation(name):
@@ -88,6 +90,7 @@ func run() -> void:
         index = visual.skeleton.find_bone("root")
         check(visual.skeleton.get_bone_pose_rotation(index).angle_to(Quaternion.IDENTITY) > 1.5, "death reconstructs terminal corpse pose")
         if kind == "player":
+            check(visual.animator.get_animation("run").loop_mode == Animation.LOOP_LINEAR, "run loops")
             visual.set_weapon(true)
             check(visual.weapon != null and visual.weapon.visible, "weapon is skinned to hand")
             visual.set_weapon(false)

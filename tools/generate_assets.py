@@ -109,22 +109,25 @@ def character(kind):
         group.add(list(range(len(obj.data.vertices))),1,'REPLACE')
         parts.append(obj)
         return obj
-    part('Torso',(0,0,1.22),(.49,.30,.42),shirt,'spine',.04)
+    part('Torso',(0,0,1.22),(.52,.32,.42),shirt,'spine',.055)
     part('Belt',(0,0,1.01),(.38,.29,.10),'steel','pelvis',.01)
     part('Hips',(0,0,.92),(.35,.28,.18),pants,'pelvis')
     part('Neck',(0,0,1.45),(.13,.13,.13),skin,'head')
     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1,location=(0,-.005,1.61))
     head = bpy.context.object
     head.name='DD_Head'
-    head.scale=(.19,.165,.19)
+    head.scale=(.23,.205,.215)
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
     head.data.materials.append(MATS[skin])
     head.vertex_groups.new(name='head').add(list(range(len(head.data.vertices))),1,'REPLACE')
     parts.append(head)
-    part('Hair',(0,.015,1.75),(.30,.26,.09),'hair','head',.035)
-    part('Nose',(0,-.17,1.60),(.065,.07,.07),skin,'head',.01)
+    part('Hair',(0,.015,1.77),(.36,.32,.10),'hair','head',.04)
+    part('HairFringe',(-.07,-.14,1.74),(.22,.10,.10),'hair','head',.02)
+    part('Nose',(0,-.208,1.60),(.065,.07,.07),skin,'head',.01)
+    part('Mouth',(0,-.204,1.535),(.085,.012,.018),'zshirt' if zombie else 'wood','head',0)
     for side, sign in [('L',-1),('R',1)]:
-        part('Eye_'+side,(sign*.067,-.155,1.65),(.038,.022,.024),'white' if zombie else 'eyes','head',0)
+        part('Eye_'+side,(sign*.085,-.193,1.65),(.038,.022,.024),'white' if zombie else 'eyes','head',0)
+        part('Ear_'+side,(sign*.222,0,1.61),(.05,.075,.10),skin,'head',.01)
         part('UpperSleeve_'+side,(sign*.292,0,1.26),(.18,.24,.29),shirt,'upper_arm_'+side)
         part('Forearm_'+side,(sign*.35,0,.98),(.145,.16,.25),skin,'forearm_'+side)
         part('Hand_'+side,(sign*.36,-.015,.80),(.15,.18,.14),skin,'hand_'+side)
@@ -133,10 +136,18 @@ def character(kind):
         part('Boot_'+side,(sign*.14,-.075,.085),(.20,.33,.17),'boots','foot_'+side)
     if zombie:
         part('TornPatch',(.12,-.154,1.25),(.14,.014,.18),skin,'spine',0)
+        part('TornSleeve',(-.292,-.13,1.18),(.12,.035,.16),skin,'upper_arm_L',.01)
+        part('KneeTear',(.14,-.135,.56),(.12,.025,.12),skin,'thigh_R',.01)
+        part('CheekMark',(.14,-.175,1.58),(.06,.025,.075),'cross','head',0)
     else:
         part('Backpack',(0,.20,1.24),(.34,.17,.34),'wood','spine',.035)
+        part('PackFlap',(0,.30,1.36),(.30,.06,.11),'jacket','spine',.02)
+        part('JacketZip',(0,-.168,1.25),(.025,.018,.35),'steel','spine',0)
+        part('Buckle',(0,-.158,1.01),(.09,.035,.065),'cream','pelvis',.008)
         for sign in [-1,1]:
             part('VestPocket',(sign*.12,-.17,1.15),(.15,.07,.15),'wood_light','spine',.015)
+            part('PackStrap',(sign*.18,-.17,1.33),(.055,.035,.27),'wood','spine',.01)
+            part('Collar',(sign*.09,-.12,1.43),(.14,.10,.065),'cream','spine',.012)
     body = join(parts,'DD_'+kind.capitalize()+'_Body')
     body.parent=rig
     body.modifiers.new('DD_Skin','ARMATURE').object=rig
@@ -149,6 +160,8 @@ def character(kind):
              'hurt':[0,2,4,6], 'death':[0,6,14,22]}
     if zombie:
         clips['attack']=[0,6,13,16,22]
+    else:
+        clips['run']=[0,5,10,15,20]
     rig.animation_data_create()
     for name, frames in clips.items():
         action=bpy.data.actions.new(name)
@@ -167,13 +180,16 @@ def character(kind):
                     rig.pose.bones['upper_arm_'+side].rotation_euler.x=-.35
             if name == 'stand':
                 rig.pose.bones['spine'].rotation_euler.x += math.sin(t*math.tau)*.025
-            elif name == 'move':
-                swing=math.cos(t*math.tau)*(.42 if zombie else .6)
+            elif name in ['move','run']:
+                sprint = name == 'run'
+                swing=math.cos(t*math.tau)*(.9 if sprint else (.42 if zombie else .6))
                 for side, sign in [('L',-1),('R',1)]:
                     rig.pose.bones['thigh_'+side].rotation_euler.x=sign*swing
-                    rig.pose.bones['shin_'+side].rotation_euler.x=max(0,-sign*swing)*.9
+                    rig.pose.bones['shin_'+side].rotation_euler.x=max(0,-sign*swing)*(1.15 if sprint else .9)
                     rig.pose.bones['upper_arm_'+side].rotation_euler.x=(-.65 if zombie else 0)-sign*swing*.6
-                rig.pose.bones['root'].location.z=abs(math.sin(t*math.tau))*.025
+                rig.pose.bones['root'].location.z=abs(math.sin(t*math.tau))*(.06 if sprint else .025)
+                if sprint:
+                    rig.pose.bones['spine'].rotation_euler.x=.16
             elif name == 'attack':
                 wind=({0:0,6:1.8,13:-1.4,16:-.8,22:0} if zombie else {0:-1.4,4:-1.0,8:.6,12:.3,18:0})[frame]
                 rig.pose.bones['upper_arm_R'].rotation_euler.x=wind

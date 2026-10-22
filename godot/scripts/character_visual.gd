@@ -16,7 +16,7 @@ func setup(kind: String) -> void:
     for name in animator.get_animation_list():
         var short: String = str(name).get_slice("/", str(name).get_slice_count("/") - 1)
         clips[short] = name
-        animator.get_animation(name).loop_mode = Animation.LOOP_LINEAR if short in ["stand", "move"] else Animation.LOOP_NONE
+        animator.get_animation(name).loop_mode = Animation.LOOP_LINEAR if short in ["stand", "move", "run"] else Animation.LOOP_NONE
     for node in instance.find_children("*", "MeshInstance3D", true, false):
         if str(node.name).begins_with("DD_Weapon_Club"):
             weapon = node

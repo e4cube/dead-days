@@ -92,6 +92,7 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_character_motion.gd'], 'CHARACTER_MOTION_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_escape.gd'], 'ESCAPE_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_sleep_playthrough.gd'], 'SLEEP_PLAYTHROUGH_OK')

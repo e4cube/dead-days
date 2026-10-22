@@ -632,7 +632,7 @@ func update_player_visual(delta: float) -> void:
     elif model.state.combat.attack_cd > 0:
         action = "attack"
     elif not model.state.rest.active and Vector2(player.velocity.x, player.velocity.z).length() > 0.1:
-        action = "move"
+        action = "run" if Vector2(player.velocity.x, player.velocity.z).length() > float(model.rules.walk_speed) + 0.5 else "move"
     player_visual.sample(action, delta)
 
 func collision_box(position: Vector3, size: Vector3) -> Node3D:

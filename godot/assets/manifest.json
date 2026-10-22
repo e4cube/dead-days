@@ -5,21 +5,22 @@
     "player": {
       "file": "player.glb",
       "source": "art/source/player.blend",
-      "triangles": 1072,
+      "triangles": 1492,
       "meshes": 2,
       "clips": [
         "stand",
         "move",
         "attack",
         "hurt",
-        "death"
+        "death",
+        "run"
       ],
       "bones": 16
     },
     "zombie": {
       "file": "zombie.glb",
       "source": "art/source/zombie.blend",
-      "triangles": 908,
+      "triangles": 1152,
       "meshes": 1,
       "clips": [
         "stand",
