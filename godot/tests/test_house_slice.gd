@@ -54,6 +54,25 @@ func check_layout() -> void:
             if source.body == body:
                 registered = true
         check(registered, "layout collider registered with navigation " + obstacle.id)
+func check_orbit_walls() -> void:
+    var view: Vector3 = game.camera.position - game.player.position
+    for mesh in game.building_visuals.home.find_children("*", "MeshInstance3D", true, false):
+        var name := str(mesh.name)
+        if name.begins_with("DD_Hide_Front"):
+            check(mesh.visible == (view.z < 0), "front wall follows orbit")
+        elif name == "DD_Hide_East":
+            check(mesh.visible == (view.x < 0), "east wall follows orbit")
+        elif name == "DD_Keep_Back":
+            check(mesh.visible == (view.z > 0), "back wall follows orbit")
+        elif name == "DD_Keep_West":
+            check(mesh.visible == (view.x > 0), "west wall follows orbit")
+    for mesh in game.house_details.find_children("*", "MeshInstance3D", true, false):
+        if str(mesh.name) == "DD_Cut_Back":
+            check(mesh.visible == (view.z <= 0), "back low wall preserves thickness")
+        elif str(mesh.name) == "DD_Cut_West":
+            check(mesh.visible == (view.x <= 0), "west low wall preserves thickness")
+        elif str(mesh.name).begins_with("DD_Hide_BackPicture"):
+            check(mesh.visible == (view.z > 0), "wall picture hides with supporting wall")
 func _initialize() -> void:
     call_deferred("run")
 func run() -> void:
@@ -79,6 +98,19 @@ func run() -> void:
     check(not game.world.get_node("HouseLamp").visible,"light setting persists")
     key(KEY_L)
     await shot("interior")
+    var initial_position: Vector3 = game.player.position
+    var layers: Array = []
+    for source in game.nav_sources:
+        layers.append(source.body.collision_layer)
+    for i in 8:
+        key(KEY_Q)
+        check_orbit_walls()
+        check(hidden_roof(), "roof stays hidden throughout orbit")
+        if i == 3:
+            await shot("reverse")
+    check(game.player.position.is_equal_approx(initial_position), "camera orbit does not move actor")
+    for i in game.nav_sources.size():
+        check(game.nav_sources[i].body.collision_layer == layers[i], "visual cutaway preserves physical walls")
     key(KEY_Q)
     check(absf(game.camera_yaw)>0.1,"camera orbit changes actual camera")
     await shot("rotated")

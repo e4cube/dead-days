@@ -6,9 +6,21 @@ static func attach(parent: Node3D, id: String, offset: Vector3 = Vector3.ZERO) -
     instance.position = offset
     return instance
 
-static func cutaway(instance: Node3D, enabled: bool) -> void:
+static func cutaway(instance: Node3D, enabled: bool, view: Vector3 = Vector3(1,1,1)) -> void:
     for mesh in instance.find_children("*", "MeshInstance3D", true, false):
-        if str(mesh.name).begins_with("DD_Hide_"):
-            mesh.visible = not enabled
-        elif str(mesh.name).begins_with("DD_Cut_"):
-            mesh.visible = enabled
+        var name := str(mesh.name)
+        var foreground := true
+        if "_Front" in name:
+            foreground = view.z >= 0
+        elif "_East" in name:
+            foreground = view.x >= 0
+        elif "_Back" in name:
+            foreground = view.z <= 0
+        elif "_West" in name:
+            foreground = view.x <= 0
+        if name.begins_with("DD_Hide_"):
+            mesh.visible = not enabled or (not foreground and ("_Front" in name or "_East" in name or "_Back" in name or "_West" in name))
+        elif name.begins_with("DD_Cut_"):
+            mesh.visible = enabled and foreground
+        elif name in ["DD_Keep_Back", "DD_Keep_West"]:
+            mesh.visible = not enabled or not foreground

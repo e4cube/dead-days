@@ -641,15 +641,11 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
     return body
 
 func update_cutaways() -> void:
+    var view := camera.position - player.position
     if is_instance_valid(house_details):
-        Assets.cutaway(house_details, inside("home"))
+        Assets.cutaway(house_details, inside("home"), view)
     for id in building_visuals:
-        Assets.cutaway(building_visuals[id], inside(id))
-        for mesh in building_visuals[id].find_children("*", "MeshInstance3D", true, false):
-            if str(mesh.name) == "DD_Keep_Back":
-                mesh.visible = not inside(id) or camera.position.z > player.position.z
-            elif str(mesh.name) == "DD_Keep_West":
-                mesh.visible = not inside(id) or camera.position.x > player.position.x
+        Assets.cutaway(building_visuals[id], inside(id), view)
 
 func safe_position(position: Vector3) -> Vector3:
     if absf(position.y) > 0.5:
