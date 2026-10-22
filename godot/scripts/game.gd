@@ -44,6 +44,9 @@ var panel_kind := ""
 var house_details: Node3D
 var camera_yaw := 0.0
 var camera_zoom := 19.0
+var camera_focus := Vector3.ZERO
+var camera_initialized := false
+var camera_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/house_layout.json")).camera
 var last_notice := ""
 var export_directory := "user://exports"
 
@@ -343,10 +346,23 @@ func apply_door(id: String) -> void:
     open_leaves[id].collision_layer = 1 if opened else 0
     door_visuals[id].rotation.y = -PI / 2 if opened else 0.0
 
-func update_camera() -> void:
-    camera.size = camera_zoom
-    camera.position = player.position + Vector3(11, 15, 14).rotated(Vector3.UP, camera_yaw)
-    camera.look_at(player.position + Vector3(0, 0.5, 0))
+func update_camera(delta: float = 0) -> void:
+    var focus := player.position + Vector3(0,.5,0)
+    var size := camera_zoom
+    var offset := Vector3(11,15,14)
+    if inside("home"):
+        var framing := camera_framing
+        var center: Array = framing.center
+        var house_center := house_details.position + Vector3(center[0],center[1],center[2])
+        focus = house_center.lerp(focus,float(framing.player_weight))
+        size = clampf(camera_zoom * float(framing.zoom_scale),float(framing.min_size),float(framing.max_size))
+        offset = Vector3(10,19,12)
+    var blend := 1.0 if not camera_initialized or delta<=0 else 1.0-exp(-delta*8.0)
+    camera_focus = camera_focus.lerp(focus,blend)
+    camera.size = lerpf(camera.size,size,blend)
+    camera.position = camera_focus + offset.rotated(Vector3.UP,camera_yaw)
+    camera.look_at(camera_focus)
+    camera_initialized = true
 
 func nearby() -> Dictionary:
     var closest := float(model.rules.interaction_range)
@@ -457,7 +473,7 @@ func _physics_process(delta: float) -> void:
     for b in model.rules.buildings:
         if inside(b.id):
             model.enter(b.id)
-    update_camera()
+    update_camera(delta)
     update_cutaways()
     update_lighting()
     refresh_hud()
@@ -729,6 +745,11 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
 
 func update_cutaways() -> void:
     var view := camera.position - player.position
+    # Indoor interactions are already named by the contextual HUD. Keep the
+    # close composition free of permanent labels floating across furniture.
+    for child in world.get_children():
+        if child is Label3D:
+            child.visible = not inside("home")
     if is_instance_valid(house_details):
         Assets.cutaway(house_details, inside("home"), view)
     for id in building_visuals:

@@ -32,6 +32,13 @@ import json
 layout = json.loads((kit['ROOT']/'godot/data/house_layout.json').read_text(encoding='utf-8'))
 if layout['version'] != 1:
     raise RuntimeError('Unsupported house layout version')
+for name,color in layout.get('materials',{}).items():
+    mat=bpy.data.materials.new('DD_'+name)
+    linear=tuple(c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4 for c in color[:3])+(1,)
+    mat.diffuse_color=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.94
+    kit['MATS'][name]=mat
 for module in layout['modules']:
     x, y, z = module['position']
     at = (x, -z, y)  # Godot Y-up -> Blender Z-up.

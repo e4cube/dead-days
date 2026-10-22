@@ -72,6 +72,13 @@ func check_layout() -> void:
                 registered = true
         check(registered, "layout collider registered with navigation " + obstacle.id)
 func check_orbit_walls() -> void:
+    var viewport := root.get_visible_rect().size
+    var actor: Vector2 = game.camera.unproject_position(game.player.position+Vector3.UP)
+    check(actor.x>viewport.x*.12 and actor.x<viewport.x*.88 and actor.y>viewport.y*.16 and actor.y<viewport.y*.84,"actor stays clear of edge UI during indoor orbit")
+    for x in [-2.6,2.6]:
+        for z in [-6.8,-.2]:
+            var screen: Vector2 = game.camera.unproject_position(game.house_details.position+Vector3(x,.1,z))
+            check(screen.x>0 and screen.x<viewport.x and screen.y>viewport.y*.12 and screen.y<viewport.y*.87,"whole house floor fits indoor composition")
     var view: Vector3 = game.camera.position - game.player.position
     for mesh in game.building_visuals.home.find_children("*", "MeshInstance3D", true, false):
         var name := str(mesh.name)
@@ -106,6 +113,9 @@ func run() -> void:
     key(KEY_E)
     await walk("forward",54)
     check(game.inside("home") and hidden_roof(),"walk inside reveals actual interior")
+    for child in game.world.get_children():
+        if child is Label3D:
+            check(not child.visible,"indoor framing removes permanent floating labels")
     key(KEY_E)
     check(game.model.state.inventory.get("food",0)==2,"real finite supplies looted")
     key(KEY_L)
@@ -208,9 +218,13 @@ func run() -> void:
     wheel.button_index = MOUSE_BUTTON_WHEEL_UP
     wheel.pressed = true
     game._unhandled_input(wheel)
-    check(game.camera.size==18,"mouse wheel zooms orthographic camera")
+    check(game.camera_zoom==18 and is_equal_approx(game.camera.size,18*.62),"wheel preserves chosen zoom with indoor framing scale")
     await walk("back",60)
     check(not game.inside("home") and not hidden_roof(),"walk outside restores roof")
+    for child in game.world.get_children():
+        if child is Label3D:
+            check(child.visible,"outdoor location labels return on exit")
+    check(absf(game.camera.size-game.camera_zoom)<.15,"exit smoothly restores selected outdoor zoom")
     await shot("exit")
     print("HOUSE_SLICE_OK" if failures==0 else "HOUSE_SLICE_FAILED")
     quit(0 if failures==0 else 1)
