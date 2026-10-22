@@ -34,8 +34,8 @@
     "building_home": {
       "file": "building_home.glb",
       "source": "art/source/building_home.blend",
-      "triangles": 734,
-      "meshes": 55,
+      "triangles": 974,
+      "meshes": 75,
       "cutaway_prefixes": [
         "DD_Hide_",
         "DD_Cut_"
@@ -44,8 +44,8 @@
     "building_clinic": {
       "file": "building_clinic.glb",
       "source": "art/source/building_clinic.blend",
-      "triangles": 416,
-      "meshes": 24,
+      "triangles": 656,
+      "meshes": 44,
       "cutaway_prefixes": [
         "DD_Hide_",
         "DD_Cut_"
@@ -54,8 +54,8 @@
     "building_shop": {
       "file": "building_shop.glb",
       "source": "art/source/building_shop.blend",
-      "triangles": 464,
-      "meshes": 28,
+      "triangles": 704,
+      "meshes": 48,
       "cutaway_prefixes": [
         "DD_Hide_",
         "DD_Cut_"

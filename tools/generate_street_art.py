@@ -109,5 +109,32 @@ for i in range(3):
     obj=box('DiscardedPaper',(i*.18-.2,-.16,.012),(.16,.22,.012),'cream')
     obj.rotation_euler.z=i*.7
 finish('road_debris')
+
+# Thin visual ground dressing; never adds an invisible step to the walkable plane.
+kit['reset']()
+for name,color in [('paving',(.43,.43,.38,1)),('soil',(.33,.32,.23,1)),('asphalt',(.25,.28,.29,1)),('crack',(.17,.19,.18,1))]:
+    mat=bpy.data.materials.new('DD_'+name)
+    linear=tuple(c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4 for c in color[:3])+(1,)
+    mat.diffuse_color=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.98
+    kit['MATS'][name]=mat
+for i in range(52):
+    # Godot z .12..1.0: leave door leaves and all furniture collisions untouched.
+    box('PavingSlab',(-12.75+i*.5,-.55,.022),(.485,.86,.035),'paving')
+for side in [-1,1]:
+    z=5.5 if side==1 else .96
+    for i in range(26):
+        x=-12.5+i
+        box('BrokenRoadEdge',(x,-z,.015),(.94,.16 if i%3 else .25,.02),'soil')
+for i in range(23):
+    x=-12+i*1.07
+    z=1.35+(i%4)*.86
+    obj=box('RoadRepair',(x,-z,.034),(.48+(i%3)*.15,.26,.008),'asphalt')
+    obj.rotation_euler.z=(i%5)*.38
+    for j in range(2):
+        obj=box('RoadCrack',(x+j*.12,-z-.16-j*.1,.040),(.27,.018,.006),'crack')
+        obj.rotation_euler.z=.4+j*.8+i*.3
+finish('street_ground')
 (out/'street_manifest.json').write_text(json.dumps({'version':1,'assets':manifest},indent=2)+'\n',encoding='utf-8')
 print('STREET_ART_PIPELINE_OK',flush=True)

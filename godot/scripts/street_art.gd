@@ -2,6 +2,8 @@ extends RefCounted
 const Assets = preload("res://scripts/asset_library.gd")
 
 static func build(game: Node3D) -> void:
+    var ground := Assets.attach(game.world,"street_ground",Vector3.ZERO)
+    ground.name = "StreetGround"
     var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/street_art.json"))
     var lamps: Array = []
     for definition in data.props:

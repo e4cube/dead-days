@@ -8,7 +8,7 @@ func _initialize() -> void:
     call_deferred("run")
 func run() -> void:
     var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/street_manifest.json"))
-    check(manifest.assets.size()==6,"six real reusable street assets")
+    check(manifest.assets.size()==7,"seven real reusable street assets")
     for id in manifest.assets:
         var entry: Dictionary = manifest.assets[id]
         var instance: Node3D = load("res://assets/"+entry.file).instantiate()
@@ -24,6 +24,7 @@ func run() -> void:
     await process_frame
     game.new_run()
     game.active=false
+    check(game.world.has_node("StreetGround"),"modeled paving and road wear are integrated")
     for i in 3:
         await physics_frame
     var grass: MultiMeshInstance3D = game.world.get_node("StreetGrass")

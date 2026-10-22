@@ -283,6 +283,15 @@ def building(kind):
         box('DD_Hide_'+face+'Fascia',(0,y,2.58),(5.85,.12,.15),'steel')
         for x in [-2.72,2.72]:
             box('DD_Hide_'+face+'Corner',(x,y,1.3),(.10,.10,2.6),'cream')
+        # Irregular low plinth stones and repaired boards: actual editable geometry.
+        for i in range(10):
+            x=-2.57+i*.57
+            if face=='Front' and abs(x)<1.0:
+                continue
+            box('DD_Hide_'+face+'Plinth',(x,y,.13),(.54,.06,.19+(i%3)*.025),'steel' if i%3 else 'wood_light')
+        for sign in [-1,1]:
+            board=box('DD_Hide_'+face+'WindowRepair',(sign*1.8,y-.025 if face=='Front' else y+.025,1.5),(.97,.06,.105),'wood_light')
+            board.rotation_euler.y=sign*.13
     return {'cutaway_prefixes':['DD_Hide_','DD_Cut_']}
 
 def export(name, info):

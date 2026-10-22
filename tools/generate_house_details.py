@@ -46,10 +46,25 @@ save('house_details')
 
 kit['reset']()
 cylinder('DD_Trunk',(0,0,1.15),.14,2.3,'wood',7)
-for x,y,z,r in [(0,0,2.8,1.05),(.55,.15,2.4,.8),(-.5,-.2,2.3,.85),(0,.5,2.7,.75)]:
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=r,location=(x,y,z))
+# Branching silhouette and a restrained olive palette instead of blue-green balls.
+for name,color in [('leaf_shadow',(.25,.31,.18,1)),('leaf_mid',(.36,.41,.24,1)),('leaf_sun',(.45,.48,.29,1))]:
+    mat=bpy.data.materials.new('DD_'+name)
+    linear=tuple(c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4 for c in color[:3])+(1,)
+    mat.diffuse_color=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=linear
+    mat.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.95
+    kit['MATS'][name]=mat
+from mathutils import Vector
+for x,y,z in [(.65,.1,2.45),(-.6,-.25,2.3),(0,.55,2.6)]:
+    start=Vector((0,0,1.5)); end=Vector((x,y,z))
+    branch=cylinder('DD_Branch',(start+end)/2,.07,(end-start).length,'wood',6)
+    branch.rotation_euler=(end-start).to_track_quat('Z','Y').to_euler()
+for i,(x,y,z,r) in enumerate([(0,0,2.85,.90),(.68,.15,2.45,.65),(-.65,-.2,2.3,.72),(0,.62,2.6,.65),(.28,-.56,2.5,.62),(-.3,.15,3.18,.55)]):
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=r,location=(x,y,z))
     obj=bpy.context.object
     obj.name='DD_Crown'
-    obj.data.materials.append(kit['MATS']['jacket' if x>=0 else 'cloth'])
+    obj.scale=(1,.85,1.05 if i%2 else .90)
+    obj.rotation_euler.z=i*.7
+    obj.data.materials.append(kit['MATS'][['leaf_mid','leaf_shadow','leaf_sun'][i%3]])
 save('tree_oak')
 print('HOUSE_DETAIL_PIPELINE_OK')

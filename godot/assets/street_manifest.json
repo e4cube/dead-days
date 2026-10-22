@@ -36,6 +36,12 @@
       "source": "art/source/road_debris.blend",
       "triangles": 116,
       "meshes": 1
+    },
+    "street_ground": {
+      "file": "street_ground.glb",
+      "source": "art/source/street_ground.blend",
+      "triangles": 2076,
+      "meshes": 1
     }
   }
 }
