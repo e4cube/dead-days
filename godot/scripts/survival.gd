@@ -80,6 +80,22 @@ func container_summary(id: String) -> String:
             items.append("%s×%d" % [rules.items[item].name,count])
     return " / ".join(items) if not items.is_empty() else "已空"
 
+func transfer_item(container: String, item: String, deposit: bool) -> bool:
+    if state.stats.health <= 0 or state.rest.active or not state.containers.has(container) or not rules.items.has(item):
+        return false
+    var source: Dictionary = state.inventory if deposit else state.containers[container]
+    var destination: Dictionary = state.containers[container] if deposit else state.inventory
+    if source.get(item,0) <= 0 or destination.get(item,0) >= 10000:
+        return false
+    if not deposit and weight()+float(rules.items[item].weight) > float(rules.capacity)+.0001:
+        return false
+    source[item] -= 1
+    destination[item] = destination.get(item,0)+1
+    if deposit and state.combat.equipped == item and state.inventory[item] == 0:
+        state.combat.equipped = "fists"
+    event("stored" if deposit else "retrieved", ("存入" if deposit else "取回") + rules.items[item].name + " ×1 / " + container_name(container), "平静", {"container": container,"building":container_building(container),"item":item,"count":1})
+    return true
+
 func add_furniture_state() -> void:
     for definition in rules.get("containers",[]):
         if not state.containers.has(definition.id):
@@ -175,6 +191,8 @@ func valid(candidate: Variant) -> bool:
         if e.kind == "looted" and (not e.payload.get("items") is Dictionary or not valid_items(e.payload.items)):
             return false
         if e.kind == "injured" and not number(e.payload.get("damage"), 0, 100):
+            return false
+        if e.kind in ["stored","retrieved"] and (not rules.items.has(e.payload.get("item", "")) or not integer(e.payload.get("count"),1,10000) or not candidate.containers.has(e.payload.get("container",""))):
             return false
     if candidate.has("house_light") and not candidate.house_light is bool:
         return false

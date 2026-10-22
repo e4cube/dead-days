@@ -148,6 +148,32 @@ func run() -> void:
     var carried: Dictionary = game.model.state.inventory.duplicate(true)
     key(KEY_E)
     check(game.model.state.inventory==carried,"empty fridge cannot duplicate inventory")
+    key(KEY_4)
+    key(KEY_B)
+    check(game.panel.visible and game.panel_kind=="storage","B opens live storage panel")
+    var paused_time: float = game.model.state.minutes
+    for i in 10:
+        await physics_frame
+    check(game.model.state.minutes==paused_time,"storage panel follows world pause policy")
+    game.storage_container="home"
+    var rejected_inventory: Dictionary = game.model.state.inventory.duplicate(true)
+    game.storage_transfer("club",true)
+    check(game.model.state.inventory==rejected_inventory,"stale container target cannot remotely transfer")
+    game.storage_container="home_fridge"
+    var before_store: float = game.model.weight()
+    game.storage_buttons.club.store.pressed.emit()
+    check(game.model.state.containers.home_fridge.club==1 and game.model.state.combat.equipped=="fists","real UI stores and unequips weapon")
+    check(game.model.weight()<before_store and game.storage_buttons.club.store.disabled,"storage UI refreshes live counts")
+    check(("负重 %.1f" % game.model.weight()) in game.hud.text and "木棍×1" in game.hint.text,"paused HUD and container hint refresh after transfer")
+    await shot("storage")
+    key(KEY_B)
+    key(KEY_F5)
+    game.continue_run()
+    check(game.model.state.containers.home_fridge.club==1 and game.model.state.inventory.club==0,"deposited weapon survives save continue")
+    key(KEY_B)
+    game.storage_buttons.club.take.pressed.emit()
+    check(game.model.state.inventory.club==1 and game.model.state.containers.home_fridge.club==0,"real UI retrieves one item")
+    key(KEY_B)
     await shot("kitchen")
     await walk_to(Vector2(0,-6.1))
     await walk_to(Vector2(0,-1.9))

@@ -34,6 +34,9 @@ var journal_text: RichTextLabel
 var entry: LineEdit
 var mood: OptionButton
 var inventory_actions: HBoxContainer
+var storage_actions: VBoxContainer
+var storage_buttons := {}
+var storage_container := ""
 var write_button: Button
 var export_button: Button
 var panel_kind := ""
@@ -141,7 +144,16 @@ func build_ui() -> void:
         button(inventory_actions, ("装备" if model.rules.items[id].get("kind", "") == "weapon" else "使用") + model.rules.items[id].name, func():
             use(id)
             refresh_panel())
-    button(panel, "关闭 [I / J / Esc]", close_panel)
+    storage_actions = VBoxContainer.new()
+    panel.add_child(storage_actions)
+    for id in model.rules.items:
+        var row := HBoxContainer.new()
+        storage_actions.add_child(row)
+        var store_button := button(row,"存入1件 " + model.rules.items[id].name,func(): storage_transfer(id,true))
+        var take_button := button(row,"取回1件 " + model.rules.items[id].name,func(): storage_transfer(id,false))
+        storage_buttons[id] = {"store":store_button,"take":take_button}
+    storage_actions.hide()
+    button(panel, "关闭 [I / J / B / Esc]", close_panel)
     panel.hide()
 
 func show_menu() -> void:
@@ -524,7 +536,7 @@ func refresh_hud() -> void:
     var target := nearby()
     hint.text = "[E] " + ("开关门 / " + model.building_name(target.id) if target.get("kind") == "door" else "搜刮 / " + model.container_name(target.id)) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
     if target.get("kind") == "container":
-        hint.text += " · 剩余：" + model.container_summary(target.id)
+        hint.text += " · [B] 存取 · 剩余：" + model.container_summary(target.id)
     if not closest_bed().is_empty():
         hint.text = "床边：[R] 休息一小时 · [T] 夜间睡到黎明；先关门并摆脱追击。"
     notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice
@@ -545,6 +557,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
         else:
             open_panel("inventory" if code == KEY_I else "journal")
         return
+    if code == KEY_B and panel.visible and panel_kind == "storage":
+        close_panel()
+        return
     if panel.visible:
         return
     if code in [KEY_T, KEY_R]:
@@ -563,6 +578,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
         model.event("light", "打开住宅照明。" if lamp.visible else "关闭住宅照明。")
     match code:
         KEY_E: interact()
+        KEY_B: open_storage()
         KEY_F5: save_run()
         KEY_1: use("food")
         KEY_2: use("water")
@@ -584,6 +600,28 @@ func open_panel(kind: String) -> void:
     write_button.visible = kind == "journal"
     export_button.visible = kind == "journal"
     inventory_actions.visible = kind == "inventory"
+    storage_actions.visible = kind == "storage"
+    journal_text.custom_minimum_size.y = 220 if kind == "storage" else 330
+    refresh_panel()
+    if active:
+        refresh_hud()
+
+func open_storage() -> void:
+    var target := nearby()
+    if not active or model.state.stats.health <= 0 or model.state.rest.active or target.get("kind") != "container":
+        last_notice = "需要靠近可触及的容器，才能存取物资。"
+        return
+    storage_container = target.id
+    open_panel("storage")
+
+func storage_transfer(item: String, deposit: bool) -> void:
+    if not active or not panel.visible or panel_kind != "storage" or nearby().get("id") != storage_container:
+        last_notice = "已离开容器，无法继续存取。"
+        return
+    var transferred: bool = model.transfer_item(storage_container,item,deposit)
+    last_notice = model.state.events.back().text if transferred else "物品不足、负重已满或当前不能存取。"
+    update_player_visual(0)
+    refresh_hud()
     refresh_panel()
 
 func close_panel() -> void:
@@ -593,6 +631,14 @@ func close_panel() -> void:
 func refresh_panel() -> void:
     if panel_kind == "journal":
         journal_text.text = model.markdown()
+    elif panel_kind == "storage":
+        journal_text.text = "%s / 存取物资\n背包 %.1f / %.1f kg · 每次移动1件\n\n" % [model.container_name(storage_container),model.weight(),model.rules.capacity]
+        for id in model.rules.items:
+            var carried: int = model.state.inventory.get(id,0)
+            var stored: int = model.state.containers[storage_container].get(id,0)
+            journal_text.text += "%s  背包×%d  容器×%d\n" % [model.rules.items[id].name,carried,stored]
+            storage_buttons[id].store.disabled = carried <= 0 or stored >= 10000
+            storage_buttons[id].take.disabled = stored <= 0 or model.weight()+float(model.rules.items[id].weight)>float(model.rules.capacity)+.0001
     else:
         journal_text.text = "背包 / %.1f / %.1f kg\n\n点击下方按钮使用物品；也可关闭后按 1/2/3。\n" % [model.weight(), model.rules.capacity]
         for id in model.rules.items:
