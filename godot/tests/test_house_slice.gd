@@ -21,6 +21,23 @@ func shot(name: String) -> void:
         await process_frame
     if DisplayServer.get_name() != "headless":
         root.get_texture().get_image().save_png(ProjectSettings.globalize_path("res://../work/house-"+name+".png"))
+func walk_to(local: Vector2) -> void:
+    var goal: Vector2 = Vector2(game.house_details.position.x,game.house_details.position.z) + local
+    for i in 360:
+        var difference: Vector2 = goal - Vector2(game.player.position.x,game.player.position.z)
+        for action in ["left","right","forward","back"]:
+            Input.action_release(action)
+        if difference.length() < .035:
+            await physics_frame
+            return
+        if absf(difference.x) > .025:
+            Input.action_press("right" if difference.x > 0 else "left")
+        else:
+            Input.action_press("back" if difference.y > 0 else "forward")
+        await physics_frame
+    for action in ["left","right","forward","back"]:
+        Input.action_release(action)
+    check(false,"walk waypoint unreachable: " + str(local) + " from " + str(game.player.position))
 func hidden_roof() -> bool:
     for mesh in game.building_visuals.home.find_children("*","MeshInstance3D",true,false):
         if str(mesh.name).begins_with("DD_Hide_Roof") and mesh.visible:
@@ -98,6 +115,26 @@ func run() -> void:
     check(not game.world.get_node("HouseLamp").visible,"light setting persists")
     key(KEY_L)
     await shot("interior")
+    # Walk through the bedroom side aisle and the kitchen rear passage.
+    # All movement uses production input/physics; no teleporting into the extension.
+    await walk_to(Vector2(0,-2.25))
+    await walk_to(Vector2(-2.25,-2.25))
+    await walk_to(Vector2(-2.25,-5.5))
+    await walk_to(Vector2(-1.3,-5.5))
+    check(game.inside("home") and game.player.position.z < -5 and game.player.position.x < -7.5, "bedroom extension physically accessible")
+    await shot("bedroom")
+    await walk_to(Vector2(-2.25,-5.5))
+    await walk_to(Vector2(-2.25,-2.25))
+    await walk_to(Vector2(0,-2.25))
+    await walk_to(Vector2(0,-4.2))
+    check(game.closest_bed().is_empty(),"bedroom partition prevents using bed from kitchen")
+    await walk_to(Vector2(0,-6.1))
+    await walk_to(Vector2(1,-6.1))
+    check(game.inside("home") and game.player.position.z < -5.8 and game.player.position.x > -6.4, "kitchen rear passage physically accessible")
+    check(hidden_roof(),"extension remains interior for roof occlusion")
+    await shot("kitchen")
+    await walk_to(Vector2(0,-6.1))
+    await walk_to(Vector2(0,-1.9))
     var initial_position: Vector3 = game.player.position
     var layers: Array = []
     for source in game.nav_sources:

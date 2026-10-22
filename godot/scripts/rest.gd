@@ -75,5 +75,6 @@ static func inside(model: RefCounted, id: String, position: Vector3) -> bool:
     var room: Dictionary = model.rules.room
     for building in model.rules.buildings:
         if building.id == id:
-            return absf(position.x - float(building.x)) < float(room.inner_half_width) and position.z > float(room.min_z) and position.z < float(room.max_z) and absf(position.y) < 0.5
+            var min_z: float = -float(building.depth)+0.25 if building.has("depth") else float(room.min_z)
+            return absf(position.x - float(building.x)) < float(room.inner_half_width) and position.z > min_z and position.z < float(room.max_z) and absf(position.y) < 0.5
     return false

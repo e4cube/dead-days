@@ -87,7 +87,8 @@ func _initialize() -> void:
     model.state.doors.home = true
     check(not Rest.begin(model, "home_bed", "night").is_empty(), "open room is unsafe")
     model.state.doors.home = false
-    model.state.position = [-8.5, 0, -5.1]
+    model.state.position = [-8.5, 0, -float(model.rules.buildings[0].get("depth",5)) - .1]
+    check(not Rest.inside(model,"home",Vector3(model.state.position[0],0,model.state.position[2])), "expanded rear boundary remains outdoors")
     check(not Rest.begin(model, "home_bed", "night").is_empty(), "cannot sleep through back wall from outdoors")
     model.state.position = [-8.5, 0, -2]
     model.state.zombies[0].position = [-8.5, 0, 2]

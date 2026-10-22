@@ -219,20 +219,23 @@ func build_world() -> void:
         box(world, Vector3(x, 0.04, 3), Vector3(1, 0.03, 0.1), Color("c7bb87"), false)
     for b in model.rules.buildings:
         var x: float = b.x
+        var depth: float = b.get("depth",5.0)
         building_visuals[b.id] = Assets.attach(world, b.asset, Vector3(x, 0, 0))
-        collision_box(Vector3(x, 1.3, -5), Vector3(5.7, 2.6, 0.2))
-        collision_box(Vector3(x - 2.75, 1.3, -2.5), Vector3(0.2, 2.6, 5))
-        collision_box(Vector3(x + 2.75, 1.3, -2.5), Vector3(0.2, 2.6, 5))
+        collision_box(Vector3(x, 1.3, -depth), Vector3(5.7, 2.6, 0.2))
+        collision_box(Vector3(x - 2.75, 1.3, -depth/2), Vector3(0.2, 2.6, depth))
+        collision_box(Vector3(x + 2.75, 1.3, -depth/2), Vector3(0.2, 2.6, depth))
         for side in [-1, 1]:
             collision_box(Vector3(x + side * 1.85, 1.3, 0), Vector3(1.9, 2.6, 0.2))
         doors[b.id] = collision_box(Vector3(x, 1, 0), Vector3(1.7, 2, 0.16))
         door_visuals[b.id] = Assets.attach(doors[b.id], "door", Vector3(-0.85, -1, 0))
         open_leaves[b.id] = collision_box(Vector3(x - 0.85, 1, 0.85), Vector3(0.16, 2, 1.7))
         open_leaves[b.id].collision_layer = 0
-        var container_body := collision_box(Vector3(x, 0.5, -3), Vector3(1.2, 1, 0.7))
+        var offset: Array = b.get("container_offset",[0,0,-3])
+        var container_position := Vector3(x+offset[0],0,offset[2])
+        var container_body := collision_box(container_position + Vector3.UP*.5, Vector3(1.2, 1, 0.7))
         Assets.attach(container_body, b.container_asset, Vector3(0, -0.5, 0))
-        label3(world, b.name, Vector3(x, 3.8, -5))
-        label3(world, "柜子 [E]", Vector3(x, 1.5, -3))
+        label3(world, b.name, Vector3(x, 3.8, -depth))
+        label3(world, "柜子 [E]", container_position + Vector3.UP*1.5)
         apply_door(b.id)
     for definition in model.rules.beds:
         var position: Vector3 = Rest.bed_position(model, definition)
@@ -329,7 +332,8 @@ func nearby() -> Dictionary:
     var target := {}
     for b in model.rules.buildings:
         for kind in ["door", "container"]:
-            var pos := Vector3(b.x, 0, 0 if kind == "door" else -3)
+            var offset: Array = b.get("container_offset",[0,0,-3])
+            var pos := Vector3(b.x,0,0) if kind == "door" else Vector3(b.x+offset[0],0,offset[2])
             var distance := Vector2(player.position.x - pos.x, player.position.z - pos.z).length()
             # Containers may only be searched from inside their room.
             if kind == "container" and not inside(b.id):
@@ -467,7 +471,7 @@ func closest_bed() -> String:
     for definition in model.rules.beds:
         var position: Vector3 = Rest.bed_position(model, definition)
         var d := Vector2(player.position.x - position.x, player.position.z - position.z).length()
-        if d <= definition.use_radius and d < distance:
+        if d <= definition.use_radius and d < distance and line_clear(player.position,position):
             distance = d
             nearest = definition.id
     return nearest

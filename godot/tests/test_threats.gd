@@ -100,7 +100,8 @@ func run() -> void:
     game.model.loot("clinic")
     check(game.model.use_item("bandage") and game.model.state.stats.health == 100, "bandage heals actual wound")
     # Navigation must go around the back wall and enter via the open front door.
-    await fixture(Vector3(11, 0, 6), [{"id": "route", "position": [-7, 0, -7]}], true)
+    var rear_spawn: float = -float(game.model.rules.buildings[0].get("depth",5)) - 2.0
+    await fixture(Vector3(11, 0, 6), [{"id": "route", "position": [-7, 0, rear_spawn]}], true)
     z = game.zombie_bodies[0]
     var path: PackedVector3Array = game.navigation.path(z.position, Vector3(-7, 0, -1.4))
     check(path.size() > 15, "path routes around building instead of direct wall")
@@ -108,7 +109,7 @@ func run() -> void:
     z.record.mode = "search"
     z.record.target = [-7, 0, -1.4]
     z.record.memory = 30
-    for i in 650:
+    for i in 850:
         z.tick(1.0 / 60.0)
         reached_front = reached_front or z.position.z > -0.1
         await physics_frame

@@ -241,11 +241,13 @@ def prop(kind):
 
 def building(kind):
     material={'home':'home','clinic':'clinic','shop':'shop'}[kind]
-    box('DD_Keep_Floor',(0,2.5,.02),(5.5,5,.04),'wood_light')
-    box('DD_Keep_Back',(0,5,1.3),(5.7,.2,2.6),material)
-    box('DD_Keep_West',(-2.75,2.5,1.3),(.2,5,2.6),material)
-    box('DD_Hide_East',(2.75,2.5,1.3),(.2,5,2.6),material)
-    box('DD_Cut_East',(2.75,2.5,.39),(.2,5,.78),material)
+    rules=json.loads((ROOT/'godot/data/rules.json').read_text(encoding='utf-8'))
+    depth=next(float(b.get('depth',5)) for b in rules['buildings'] if b['id']==kind)
+    box('DD_Keep_Floor',(0,depth/2,.02),(5.5,depth,.04),'wood_light')
+    box('DD_Keep_Back',(0,depth,1.3),(5.7,.2,2.6),material)
+    box('DD_Keep_West',(-2.75,depth/2,1.3),(.2,depth,2.6),material)
+    box('DD_Hide_East',(2.75,depth/2,1.3),(.2,depth,2.6),material)
+    box('DD_Cut_East',(2.75,depth/2,.39),(.2,depth,.78),material)
     for sign in [-1,1]:
         box('DD_Hide_Front_'+str(sign),(sign*1.85,0,1.3),(1.9,.2,2.6),material)
         box('DD_Cut_Front_'+str(sign),(sign*1.85,0,.39),(1.9,.2,.78),material)
@@ -254,9 +256,9 @@ def building(kind):
     if kind=='home':
         # Two sloped halves make a reusable gable roof.
         for sign in [-1,1]:
-            obj=box('DD_Hide_Roof_'+str(sign),(sign*1.46,2.5,3.0),(3.08,5.55,.14),'roof')
+            obj=box('DD_Hide_Roof_'+str(sign),(sign*1.46,depth/2,3.0),(3.08,depth+.55,.14),'roof')
             obj.rotation_euler.y=sign*math.radians(18)
-        for y, front in [(-.101,True),(5.101,False)]:
+        for y, front in [(-.101,True),(depth+.101,False)]:
             mesh=bpy.data.meshes.new('DD_Gable')
             mesh.from_pydata([(-2.85,y,2.6),(2.85,y,2.6),(0,y,3.49)],[],[(0,1,2) if front else (2,1,0)])
             obj=bpy.data.objects.new('DD_Hide_Gable_'+str(front),mesh)

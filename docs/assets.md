@@ -45,7 +45,7 @@ python tools/check_asset_pipeline.py --blender 'D:\Blender\blender.exe'
 
 - 1单位=1米，Blender Z向上、角色朝-Y；GLB/Godot Y向上、角色朝+Z。
 - 角色脚底为原点，总高约1.8m。运行时胶囊仍由actor数据定义（半径0.28m、高1.7m、中心0.9m），视觉脚底补偿胶囊的0.05m偏移。
-- 建筑前门中心在原点，后墙Godot z=-5，宽5.7m，墙高2.6m；匹配已验证的街区物理布局。
+- 建筑前门中心在原点，住宅后墙Godot z=-7、诊所/商店z=-5，宽5.7m，墙高2.6m；Blender与Godot读取同一个建筑depth字段。
 - 家具为地面中心原点；门为左侧地面铰链原点。门网格沿+X展开，运行时朝街道旋转90度。
 - `DD_`前缀统一命名。`DD_Hide_`网格用于完整屋顶/立面，`DD_Cut_`用于低剖面墙，`DD_Keep_`始终保留。
 
