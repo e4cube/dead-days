@@ -80,15 +80,39 @@ func container_summary(id: String) -> String:
             items.append("%s×%d" % [rules.items[item].name,count])
     return " / ".join(items) if not items.is_empty() else "已空"
 
-func transfer_item(container: String, item: String, deposit: bool) -> bool:
+func container_weight(container: String) -> float:
+    var total := 0.0
+    for item in state.containers.get(container,{}):
+        total += float(rules.items[item].weight)*float(state.containers[container][item])
+    return total
+
+func container_capacity(container: String) -> float:
+    for definition in rules.get("containers",[]):
+        if definition.id == container:
+            return float(definition.get("capacity",rules.storage_default_capacity))
+    for building in rules.buildings:
+        if building.id == container:
+            return float(building.get("storage_capacity",rules.storage_default_capacity))
+    return 0.0
+
+func transfer_reason(container: String, item: String, deposit: bool) -> String:
     if state.stats.health <= 0 or state.rest.active or not state.containers.has(container) or not rules.items.has(item):
-        return false
+        return "当前无法存取此物品"
     var source: Dictionary = state.inventory if deposit else state.containers[container]
     var destination: Dictionary = state.containers[container] if deposit else state.inventory
     if source.get(item,0) <= 0 or destination.get(item,0) >= 10000:
-        return false
+        return "来源没有物品或数量已达上限"
+    if deposit and container_weight(container)+float(rules.items[item].weight) > container_capacity(container)+.0001:
+        return "容器承重不足，物品留在背包"
     if not deposit and weight()+float(rules.items[item].weight) > float(rules.capacity)+.0001:
+        return "背包负重不足，物品留在容器"
+    return ""
+
+func transfer_item(container: String, item: String, deposit: bool) -> bool:
+    if not transfer_reason(container,item,deposit).is_empty():
         return false
+    var source: Dictionary = state.inventory if deposit else state.containers[container]
+    var destination: Dictionary = state.containers[container] if deposit else state.inventory
     source[item] -= 1
     destination[item] = destination.get(item,0)+1
     if deposit and state.combat.equipped == item and state.inventory[item] == 0:

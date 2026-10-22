@@ -47,7 +47,8 @@
         1.05,
         0,
         -3
-      ]
+      ],
+      "storage_capacity": 15.0
     },
     {
       "id": "clinic",
@@ -58,7 +59,8 @@
         "bandage": 3
       },
       "asset": "building_clinic",
-      "container_asset": "cabinet"
+      "container_asset": "cabinet",
+      "storage_capacity": 5.0
     },
     {
       "id": "shop",
@@ -70,7 +72,8 @@
         "water": 3
       },
       "asset": "building_shop",
-      "container_asset": "loot_crate"
+      "container_asset": "loot_crate",
+      "storage_capacity": 20.0
     }
   ],
   "stamina_run_cost": 18.0,
@@ -274,7 +277,9 @@
       "contents": {
         "food": 1,
         "water": 2
-      }
+      },
+      "capacity": 4.0
     }
-  ]
+  ],
+  "storage_default_capacity": 10.0
 }

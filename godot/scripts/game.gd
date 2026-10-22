@@ -618,8 +618,9 @@ func storage_transfer(item: String, deposit: bool) -> void:
     if not active or not panel.visible or panel_kind != "storage" or nearby().get("id") != storage_container:
         last_notice = "已离开容器，无法继续存取。"
         return
+    var reason: String = model.transfer_reason(storage_container,item,deposit)
     var transferred: bool = model.transfer_item(storage_container,item,deposit)
-    last_notice = model.state.events.back().text if transferred else "物品不足、负重已满或当前不能存取。"
+    last_notice = model.state.events.back().text if transferred else reason
     update_player_visual(0)
     refresh_hud()
     refresh_panel()
@@ -632,13 +633,19 @@ func refresh_panel() -> void:
     if panel_kind == "journal":
         journal_text.text = model.markdown()
     elif panel_kind == "storage":
-        journal_text.text = "%s / 存取物资\n背包 %.1f / %.1f kg · 每次移动1件\n\n" % [model.container_name(storage_container),model.weight(),model.rules.capacity]
+        journal_text.text = "%s / 存取物资\n背包 %.1f / %.1f kg · 容器 %.1f / %.1f kg\n每次移动1件\n\n" % [model.container_name(storage_container),model.weight(),model.rules.capacity,model.container_weight(storage_container),model.container_capacity(storage_container)]
+        if model.container_weight(storage_container)>model.container_capacity(storage_container)+.0001:
+            journal_text.text += "旧存档物资超过当前承重，仅可取出；物品完整保留。\n"
         for id in model.rules.items:
             var carried: int = model.state.inventory.get(id,0)
             var stored: int = model.state.containers[storage_container].get(id,0)
             journal_text.text += "%s  背包×%d  容器×%d\n" % [model.rules.items[id].name,carried,stored]
-            storage_buttons[id].store.disabled = carried <= 0 or stored >= 10000
-            storage_buttons[id].take.disabled = stored <= 0 or model.weight()+float(model.rules.items[id].weight)>float(model.rules.capacity)+.0001
+            var store_reason: String = model.transfer_reason(storage_container,id,true)
+            var take_reason: String = model.transfer_reason(storage_container,id,false)
+            storage_buttons[id].store.disabled = not store_reason.is_empty()
+            storage_buttons[id].take.disabled = not take_reason.is_empty()
+            storage_buttons[id].store.tooltip_text = store_reason
+            storage_buttons[id].take.tooltip_text = take_reason
     else:
         journal_text.text = "背包 / %.1f / %.1f kg\n\n点击下方按钮使用物品；也可关闭后按 1/2/3。\n" % [model.weight(), model.rules.capacity]
         for id in model.rules.items:

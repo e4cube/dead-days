@@ -28,6 +28,7 @@ func _initialize() -> void:
     for i in 200:
         model.transfer_item("home_fridge" if i%2 else "home",items[random.randi_range(0,items.size()-1)],random.randf()<.5)
         check(totals(model)==original and model.weight()<=model.rules.capacity+.0001 and model.valid(model.state),"transfer conserves items, capacity and valid save")
+        check(model.container_weight("home_fridge")<=model.container_capacity("home_fridge")+.0001,"random deposits respect container capacity")
     var store = Store.new("user://tests/storage_%d" % Time.get_ticks_usec())
     check(not store.save(model).is_empty(),"stored items save")
     var loaded = Model.new()
@@ -54,5 +55,28 @@ func _initialize() -> void:
         if event.kind=="stored":
             event.payload.count=-1
     check(not model.valid(bad),"invalid storage event rejected")
+    model.start()
+    for id in model.state.containers:
+        check(model.container_weight(id)<=model.container_capacity(id),"authored initial stock fits container")
+    model.state.inventory={"water":2,"bandage":4}
+    check(model.transfer_item("home_fridge","water",true),"deposit fits available container weight")
+    for i in 4:
+        check(model.transfer_item("home_fridge","bandage",true),"fractional weight reaches exact capacity")
+    check(absf(model.container_weight("home_fridge")-4)<.0001,"container reaches exact configured limit")
+    before=totals(model)
+    var count: int = model.state.events.size()
+    check(not model.transfer_item("home_fridge","water",true) and totals(model)==before and model.state.events.size()==count,"full container rejects atomically without fake event")
+    model.state.containers.home_fridge={"water":6}
+    model.state.inventory={"food":1}
+    check(model.valid(model.state),"old over-capacity stock remains a valid save")
+    var overflow_store = Store.new("user://tests/overflow_%d" % Time.get_ticks_usec())
+    var source: String = overflow_store.save(model)
+    var bytes := FileAccess.get_file_as_bytes(source)
+    check(not source.is_empty() and overflow_store.load_latest(loaded),"over-capacity save loads without deleting stock")
+    check(loaded.state.containers.home_fridge.water==6 and FileAccess.get_file_as_bytes(source)==bytes,"old quantities and file bytes preserved")
+    check(not loaded.transfer_item("home_fridge","food",true),"overloaded legacy container accepts no deposits")
+    for i in 3:
+        check(loaded.transfer_item("home_fridge","water",false),"overloaded stock remains retrievable")
+    check(loaded.transfer_item("home_fridge","food",true),"deposits resume after freeing sufficient room")
     print("STORAGE_OK" if failures==0 else "STORAGE_FAILED")
     quit(0 if failures==0 else 1)
