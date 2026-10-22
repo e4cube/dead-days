@@ -7,6 +7,7 @@ const Model = preload("res://scripts/survival.gd")
 const Navigation = preload("res://scripts/navigation.gd")
 const Zombie = preload("res://scripts/zombie.gd")
 const Store = preload("res://scripts/save_store.gd")
+const StreetArt = preload("res://scripts/street_art.gd")
 var model = Model.new()
 var store = Store.new()
 var active := false
@@ -266,6 +267,7 @@ func build_world() -> void:
                 var body := collision_box(position, size)
                 Assets.attach(body, furniture.asset, Vector3(0, -size.y * 0.5, 0))
     house_details = preload("res://scripts/house_slice.gd").build(self)
+    StreetArt.build(self)
     for definition in model.rules.get("containers",[]):
         container_bodies[definition.id] = world.get_node("HouseObstacle_" + definition.obstacle)
         var at: Vector3 = furniture_container_position(definition)
@@ -524,6 +526,7 @@ func request_rest(kind: String) -> void:
 
 func update_lighting() -> void:
     var day: float = Timeline.daylight(model)
+    StreetArt.lighting(self,day)
     sun.light_energy = lerpf(0.12, 1.1, day)
     sun.light_color = Color("8badd4").lerp(Color("fff1d4"), day)
     sun.rotation_degrees.x = lerpf(-12.0, -55.0, day)

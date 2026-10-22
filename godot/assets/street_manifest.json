@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "assets": {
+    "abandoned_car": {
+      "file": "abandoned_car.glb",
+      "source": "art/source/abandoned_car.blend",
+      "triangles": 924,
+      "meshes": 1
+    },
+    "street_lamp": {
+      "file": "street_lamp.glb",
+      "source": "art/source/street_lamp.blend",
+      "triangles": 220,
+      "meshes": 5
+    },
+    "fence_panel": {
+      "file": "fence_panel.glb",
+      "source": "art/source/fence_panel.blend",
+      "triangles": 484,
+      "meshes": 1
+    },
+    "trash_bin": {
+      "file": "trash_bin.glb",
+      "source": "art/source/trash_bin.blend",
+      "triangles": 156,
+      "meshes": 1
+    },
+    "grass_clump": {
+      "file": "grass_clump.glb",
+      "source": "art/source/grass_clump.blend",
+      "triangles": 72,
+      "meshes": 1
+    },
+    "road_debris": {
+      "file": "road_debris.glb",
+      "source": "art/source/road_debris.blend",
+      "triangles": 116,
+      "meshes": 1
+    }
+  }
+}

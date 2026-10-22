@@ -1,8 +1,10 @@
 # Dead Days 重构分支
 
+街区美术首轮已接入：现有18套 Blender 源工程与 GLB，包括新增汽车、路灯、围栏、垃圾桶、草丛和碎屑。概念图仅作建模参考，实际运行与限制见 [街区美术报告](docs/street-art-pass.md)。
+
 当前为Godot 4可玩小街区：可移动、跑步、近战、进入建筑、搜刮和存放物资，具备僵尸感知/追击、昼夜、饥渴、安全休息与真实事件日志。睡眠会推进世界，危险靠近时中断；保存支持休息中途恢复。仍未扩成120米区域，最终美术、音效和独立exe尚未完成。
 
-住宅为5.5×7米，包含客厅/厨房/卧室家具和实际动线，支持灯光、Q/V镜头旋转、滚轮缩放与方向遮挡。模型与碰撞布局来自 `godot/data/house_layout.json`，改动后需重跑Blender导出。项目保留12份Blender源工程及GLB；玩家6个动作、僵尸5个动作。见 [住宅空间](docs/house-space-pass.md)、[人物美术](docs/character-art-pass.md)、[资源管线](docs/assets.md)。
+住宅为5.5×7米，包含客厅/厨房/卧室家具和实际动线，支持灯光、Q/V镜头旋转、滚轮缩放与方向遮挡。模型与碰撞布局来自 `godot/data/house_layout.json`，改动后需重跑Blender导出。项目保留18份Blender源工程及GLB；玩家6个动作、僵尸5个动作。见 [住宅空间](docs/house-space-pass.md)、[人物美术](docs/character-art-pass.md)、[资源管线](docs/assets.md)。
 
 容器按 **E** 批量搜刮、**B** 逐件存取，冰箱有独立库存，背包与容器均有重量上限。新快照采用schema4，旧快照只在内存迁移；已有容器物资超限不删除，可取出腾空。见 [家具容器](docs/furniture-containers.md)、[存取操作](docs/storage-loop.md)、[容器承重](docs/storage-capacity.md)。下方Pygame文档为历史参考，当前能力与缺失项见 [状态清单](docs/status.md)。
 

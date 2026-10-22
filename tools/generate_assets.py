@@ -22,10 +22,10 @@ OUT = BASE / 'godot' / 'assets'
 SOURCE = BASE / 'art' / 'source'
 MANIFEST = {}
 COLORS = {
-    'wood': (0.34, .20, .10, 1), 'wood_light': (.56,.39,.22,1), 'steel': (.19,.25,.27,1),
+    'wood': (0.34, .20, .10, 1), 'wood_light': (.48,.38,.25,1), 'steel': (.19,.25,.27,1),
     'cream': (.68,.61,.46,1), 'roof': (.15,.22,.24,1), 'glass': (.19,.35,.40,1),
-    'cloth': (.24,.38,.38,1), 'white': (.74,.75,.65,1), 'home': (.58,.43,.28,1),
-    'clinic': (.29,.48,.49,1), 'shop': (.64,.47,.20,1), 'cross': (.62,.23,.17,1),
+    'cloth': (.24,.38,.38,1), 'white': (.74,.75,.65,1), 'home': (.50,.43,.33,1),
+    'clinic': (.27,.39,.39,1), 'shop': (.52,.43,.28,1), 'cross': (.62,.23,.17,1),
     'skin': (.64,.45,.30,1), 'jacket': (.31,.38,.23,1), 'trousers': (.16,.23,.28,1),
     'boots': (.12,.13,.12,1), 'hair': (.14,.10,.07,1), 'eyes': (.07,.07,.06,1),
     'zskin': (.40,.47,.29,1), 'zshirt': (.37,.25,.21,1), 'zpants': (.22,.25,.20,1)
@@ -258,6 +258,10 @@ def building(kind):
         for sign in [-1,1]:
             obj=box('DD_Hide_Roof_'+str(sign),(sign*1.46,depth/2,3.0),(3.08,depth+.55,.14),'roof')
             obj.rotation_euler.y=sign*math.radians(18)
+            for i in range(int(depth*2)+1):
+                seam=box('DD_Hide_RoofSeam',(sign*1.46,i*.5,3.09),(3.08,.025,.035),'steel')
+                seam.rotation_euler.y=sign*math.radians(18)
+        box('DD_Hide_Ridge',(0,depth/2,3.51),(.12,depth+.6,.10),'steel',.015)
         for y, front in [(-.101,True),(depth+.101,False)]:
             mesh=bpy.data.meshes.new('DD_Gable')
             mesh.from_pydata([(-2.85,y,2.6),(2.85,y,2.6),(0,y,3.49)],[],[(0,1,2) if front else (2,1,0)])
@@ -267,6 +271,7 @@ def building(kind):
         box('DD_Hide_Chimney',(1.6,3.8,3.25),(.44,.5,.95),'steel')
     else:
         box('DD_Hide_Roof',(0,2.5,2.76),(5.95,5.5,.24),'roof',.035)
+        box('DD_Hide_RoofVent',(-1.5,3.6,3.02),(.75,.65,.30),'steel',.035)
         if kind=='clinic':
             box('DD_Hide_Sign',(0,-.13,2.35),(1.3,.08,.35),'white')
             box('DD_Hide_CrossV',(0,-.18,2.35),(.10,.035,.26),'cross')
@@ -274,6 +279,10 @@ def building(kind):
         else:
             for i in range(7):
                 box('DD_Hide_Awning_'+str(i),(-2.4+i*.8,-.35,2.52),(.79,.8,.10),'cream' if i%2==0 else 'shop')
+    for y, face in [(-.15,'Front'),(depth+.15,'Back')]:
+        box('DD_Hide_'+face+'Fascia',(0,y,2.58),(5.85,.12,.15),'steel')
+        for x in [-2.72,2.72]:
+            box('DD_Hide_'+face+'Corner',(x,y,1.3),(.10,.10,2.6),'cream')
     return {'cutaway_prefixes':['DD_Hide_','DD_Cut_']}
 
 def export(name, info):

@@ -89,6 +89,7 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_containers.gd'], 'CONTAINERS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_storage.gd'], 'STORAGE_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_assets.gd'], 'ASSET_IMPORT_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_street_art.gd'], 'STREET_ART_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_visual_integration.gd'], 'VISUAL_INTEGRATION_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
@@ -101,6 +102,7 @@ def main():
         run(command + ['--path', 'godot', '--script', 'res://tests/test_house_slice.gd'], 'HOUSE_SLICE_OK')
         if args.visual:
             run(command + ['--path', 'godot', '--script', 'res://tests/preview_assets.gd'], 'ASSET_GALLERY_OK')
+            run(command + ['--path', 'godot', '--script', 'res://tests/preview_street.gd'], 'STREET_PREVIEW_OK')
     finally:
         assert fingerprint() == before, 'Protected player files changed!'
     print('ALL_CHECKS_OK / legacy and Godot production saves/exports unchanged')

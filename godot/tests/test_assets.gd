@@ -61,7 +61,7 @@ func run() -> void:
             Assets.cutaway(asset, true)
             for mesh in meshes:
                 if str(mesh.name).begins_with("DD_Hide_"):
-                    check(not mesh.visible, "interior removes roof occlusion")
+                    check(mesh.visible == ("_Back" in str(mesh.name) or "_West" in str(mesh.name)), "interior removes foreground occlusion and retains background trims")
                 if str(mesh.name).begins_with("DD_Cut_"):
                     check(mesh.visible, "interior low wall retained")
         asset.queue_free()
