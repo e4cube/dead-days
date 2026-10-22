@@ -21,6 +21,8 @@ def main():
     street=subprocess.run([args.blender,'--background','--factory-startup','--python',str(ROOT/'tools/generate_street_art.py'),'--','--output-root','work/asset-replay'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
     assert street.returncode==0 and 'STREET_ART_PIPELINE_OK' in street.stdout, street.stdout+street.stderr
     assets=ROOT/'godot/assets'
+    clinic=subprocess.run([args.blender,'--background','--factory-startup','--python',str(ROOT/'tools/generate_clinic_details.py'),'--','--output-root','work/asset-replay'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
+    assert clinic.returncode==0 and 'CLINIC_PIPELINE_OK' in clinic.stdout,clinic.stdout+clinic.stderr
     replay=ROOT/'work/asset-replay/godot/assets'
     for path in sorted(assets.glob('*.glb')):
         generated=replay/path.name

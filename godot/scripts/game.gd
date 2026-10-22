@@ -42,11 +42,13 @@ var write_button: Button
 var export_button: Button
 var panel_kind := ""
 var house_details: Node3D
+var clinic_details: Node3D
 var camera_yaw := 0.0
 var camera_zoom := 19.0
 var camera_focus := Vector3.ZERO
 var camera_initialized := false
 var camera_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/house_layout.json")).camera
+var clinic_framing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/clinic_layout.json")).camera
 var last_notice := ""
 var export_directory := "user://exports"
 
@@ -270,6 +272,7 @@ func build_world() -> void:
                 var body := collision_box(position, size)
                 Assets.attach(body, furniture.asset, Vector3(0, -size.y * 0.5, 0))
     house_details = preload("res://scripts/house_slice.gd").build(self)
+    clinic_details = preload("res://scripts/clinic_slice.gd").build(self)
     StreetArt.build(self)
     for definition in model.rules.get("containers",[]):
         container_bodies[definition.id] = world.get_node("HouseObstacle_" + definition.obstacle)
@@ -350,10 +353,11 @@ func update_camera(delta: float = 0) -> void:
     var focus := player.position + Vector3(0,.5,0)
     var size := camera_zoom
     var offset := Vector3(11,15,14)
-    if inside("home"):
-        var framing := camera_framing
+    if inside("home") or inside("clinic"):
+        var framing := camera_framing if inside("home") else clinic_framing
+        var details := house_details if inside("home") else clinic_details
         var center: Array = framing.center
-        var house_center := house_details.position + Vector3(center[0],center[1],center[2])
+        var house_center := details.position + Vector3(center[0],center[1],center[2])
         focus = house_center.lerp(focus,float(framing.player_weight))
         size = clampf(camera_zoom * float(framing.zoom_scale),float(framing.min_size),float(framing.max_size))
         offset = Vector3(10,19,12)
@@ -550,6 +554,8 @@ func update_lighting() -> void:
     environment.environment.background_color = Color("0c1524").lerp(Color("19232b"), day)
 
 func refresh_hud() -> void:
+    if is_instance_valid(clinic_details):
+        preload("res://scripts/clinic_slice.gd").stock(clinic_details,int(model.state.containers.clinic.get("bandage",0)))
     var rest_text: String = " · 正在休息" if model.state.rest.active else ""
     hud.text = "DEAD DAYS / 第%d天 %s%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     var target := nearby()
@@ -750,7 +756,10 @@ func update_cutaways() -> void:
     # close composition free of permanent labels floating across furniture.
     for child in world.get_children():
         if child is Label3D:
-            child.visible = not inside("home")
+            child.visible = not (inside("home") or inside("clinic"))
+    if is_instance_valid(clinic_details):
+        Assets.cutaway(clinic_details,inside("clinic"),view)
+        preload("res://scripts/clinic_slice.gd").stock(clinic_details,int(model.state.containers.clinic.get("bandage",0)))
     if is_instance_valid(house_details):
         Assets.cutaway(house_details, inside("home"), view)
     for id in building_visuals:

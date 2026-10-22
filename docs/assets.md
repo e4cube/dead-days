@@ -1,5 +1,7 @@
 # C3：Blender资产生产与Godot导入（2026-10-21）
 
+诊所增量后当前总计20套，新增 `clinic_details` 的128模块/1536三角面由 `tools/generate_clinic_details.py` 生成，详见 [诊所切片](clinic-art-slice.md)。下文19套为前一轮记录。
+
 2026-10-22：当前共19套源工程/GLB，下表是原始10类资源。另有住宅细节、树木及七类街区资源，见 [街区美术报告](street-art-pass.md)、[第二轮完善](street-art-polish.md) 与 `godot/assets/street_manifest.json`。当前重放检查覆盖全部19份GLB及两份清单；下文10份描述为最初批次历史记录。
 
 ## 可重复生产的首批资源
