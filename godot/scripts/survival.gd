@@ -126,6 +126,24 @@ func add_furniture_state() -> void:
             state.containers[definition.id] = definition.contents.duplicate(true)
     state.schema = 4
 
+func light_enabled(id: String) -> bool:
+    if id=="home":
+        return state.get("house_light",true)
+    return state.get("building_lights",{}).get(id,false)
+
+func switch_light(id: String) -> bool:
+    if id not in ["home","clinic","shop"] or state.stats.health<=0 or state.rest.active:
+        return false
+    var enabled := not light_enabled(id)
+    if id=="home":
+        state.house_light=enabled
+    else:
+        if not state.has("building_lights"):
+            state.building_lights={}
+        state.building_lights[id]=enabled
+    event("light",("打开" if enabled else "关闭")+building_name(id)+"照明。","平静",{"building":id,"enabled":enabled})
+    return true
+
 func use_item(id: String) -> bool:
     if not rules.items.has(id) or state.inventory.get(id, 0) <= 0:
         return false
@@ -220,6 +238,12 @@ func valid(candidate: Variant) -> bool:
             return false
     if candidate.has("house_light") and not candidate.house_light is bool:
         return false
+    if candidate.has("building_lights"):
+        if not candidate.building_lights is Dictionary:
+            return false
+        for id in candidate.building_lights:
+            if id not in ["clinic","shop"] or not candidate.building_lights[id] is bool:
+                return false
     if candidate.schema >= 2 and not valid_threats(candidate):
         return false
     return candidate.schema < 3 or valid_time(candidate)

@@ -8,6 +8,7 @@ const Navigation = preload("res://scripts/navigation.gd")
 const Zombie = preload("res://scripts/zombie.gd")
 const Store = preload("res://scripts/save_store.gd")
 const StreetArt = preload("res://scripts/street_art.gd")
+const InteriorLighting = preload("res://scripts/interior_lighting.gd")
 var model = Model.new()
 var store = Store.new()
 var active := false
@@ -276,6 +277,7 @@ func build_world() -> void:
     house_details = preload("res://scripts/house_slice.gd").build(self)
     clinic_details = preload("res://scripts/clinic_slice.gd").build(self)
     shop_details = preload("res://scripts/shop_slice.gd").build(self)
+    InteriorLighting.build(self)
     StreetArt.build(self)
     for definition in model.rules.get("containers",[]):
         container_bodies[definition.id] = world.get_node("HouseObstacle_" + definition.obstacle)
@@ -569,6 +571,9 @@ func refresh_hud() -> void:
         hint.text += " · [B] 存取 · 剩余：" + model.container_summary(target.id)
     if not closest_bed().is_empty():
         hint.text = "床边：[R] 休息一小时 · [T] 夜间睡到黎明；先关门并摆脱追击。"
+    for b in model.rules.buildings:
+        if inside(b.id):
+            hint.text += " · [L] 照明：" + ("开" if model.light_enabled(b.id) else "关")
     notice.text = "你已死亡。J查看日志；Esc保存回菜单，新游戏重新开始。" if model.state.stats.health <= 0 else last_notice
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -601,11 +606,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
         camera_yaw += PI / 4 * (-1 if code == KEY_Q else 1)
         update_camera()
         update_cutaways()
-    if code == KEY_L and inside("home"):
-        var lamp: OmniLight3D = world.get_node("HouseLamp")
-        lamp.visible = not lamp.visible
-        model.state.house_light = lamp.visible
-        model.event("light", "打开住宅照明。" if lamp.visible else "关闭住宅照明。")
+    if code == KEY_L:
+        for b in model.rules.buildings:
+            if inside(b.id) and model.switch_light(b.id):
+                world.get_node("HouseLamp").visible=model.light_enabled("home")
+                InteriorLighting.update(self)
+                last_notice=model.state.events.back().text
     match code:
         KEY_E: interact()
         KEY_B: open_storage()
@@ -756,6 +762,7 @@ func collision_box(position: Vector3, size: Vector3) -> Node3D:
 
 func update_cutaways() -> void:
     var view := camera.position - player.position
+    InteriorLighting.cutaway(self,view)
     preload("res://scripts/house_slice.gd").cut_foliage(self,inside("home"))
     # Indoor interactions are already named by the contextual HUD. Keep the
     # close composition free of permanent labels floating across furniture.
