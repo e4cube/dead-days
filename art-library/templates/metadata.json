@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "replace-with-asset-id",
+  "name": "",
+  "author": "",
+  "source_platform": "",
+  "source_url": "",
+  "license": "UNKNOWN",
+  "license_url": "",
+  "download_date": null,
+  "commercial_use": null,
+  "modification": null,
+  "redistribution": null,
+  "attribution_required": null,
+  "attribution": {
+    "text": "",
+    "changes": "",
+    "notice": "",
+    "placement": ""
+  },
+  "category": "Textures",
+  "styles": [],
+  "tags": [],
+  "formats": [],
+  "files": [],
+  "evidence": [],
+  "review": {
+    "status": "REVIEW_REQUIRED",
+    "reviewer": "",
+    "reviewed_date": null,
+    "source_verified": false,
+    "trademark_checked": false,
+    "likeness_checked": false,
+    "third_party_checked": false,
+    "notes": ""
+  }
+}

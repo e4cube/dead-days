@@ -1,0 +1,65 @@
+{
+  "project": "GameVado 小游戏",
+  "repository_path": null,
+  "integration_status": "requirements-only",
+  "style": "pixel / flat",
+  "license_preference": [
+    "CC0-1.0",
+    "CC-BY-4.0"
+  ],
+  "requirements": [
+    {
+      "id": "gamevado-mini-01",
+      "category": "Characters",
+      "need": "像素素材",
+      "formats": [
+        "PNG",
+        "WEBP"
+      ],
+      "acceptance": "统一像素密度、帧表、nearest 采样",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "gamevado-mini-02",
+      "category": "UI",
+      "need": "界面组件",
+      "formats": [
+        "SVG",
+        "PNG",
+        "WEBP"
+      ],
+      "acceptance": "按钮状态、图标、触控尺寸",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "gamevado-mini-03",
+      "category": "Audio",
+      "need": "音效",
+      "formats": [
+        "WAV",
+        "OGG"
+      ],
+      "acceptance": "短音效、循环接缝、响度",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "gamevado-mini-04",
+      "category": "Environments",
+      "need": "背景",
+      "formats": [
+        "PNG",
+        "WEBP"
+      ],
+      "acceptance": "多比例裁切、移动端内存预算",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "project": "Dead-Days",
+  "assets": [
+    {
+      "id": "polyhaven-aerial-grass-rock",
+      "source_file": "aerial_grass_rock_diff_1k.png",
+      "runtime_file": "assets/external/aerial_grass_rock_diff_1k.png",
+      "usage": "OutdoorGround base color; 6m world triplanar repeat; material tint only, source bytes unchanged"
+    }
+  ]
+}

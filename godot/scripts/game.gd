@@ -236,7 +236,9 @@ func build_world() -> void:
     run_noise_left = 0
     world = Node3D.new()
     add_child(world)
-    box(world, Vector3(0, -0.25, -1), Vector3(27, 0.5, 19), Color("49594a"))
+    var ground := box(world, Vector3(0, -0.25, -1), Vector3(27, 0.5, 19), Color("49594a"))
+    ground.name = "OutdoorGround"
+    preload("res://scripts/ground_material.gd").apply(ground)
     box(world, Vector3(0, 0.015, 3), Vector3(26, 0.03, 4), Color("454b50"), false)
     for x in range(-12, 13, 3):
         box(world, Vector3(x, 0.04, 3), Vector3(1, 0.03, 0.1), Color("c7bb87"), false)

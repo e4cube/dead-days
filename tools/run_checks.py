@@ -82,6 +82,7 @@ def main():
     before = fingerprint()
     try:
         legacy_safety()
+        run([sys.executable, 'tools/check_gamevado_assets.py'], 'GAMEVADO_ASSETS_OK')
         if args.blender:
             run([sys.executable, 'tools/check_asset_pipeline.py', '--blender', args.blender], 'ASSET_REPLAY_OK')
         run([args.godot, '--headless', '--path', 'godot', '--editor', '--import', '--quit'])
@@ -95,6 +96,7 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_gamevado_ground.gd'], 'GAMEVADO_GROUND_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_character_motion.gd'], 'CHARACTER_MOTION_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_escape.gd'], 'ESCAPE_PLAYTHROUGH_OK')

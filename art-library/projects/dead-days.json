@@ -1,0 +1,91 @@
+{
+  "project": "Dead-Days",
+  "repository_path": ".",
+  "integration_status": "outdoor-ground-integrated",
+  "style": "realistic / low-poly，立项时统一",
+  "license_preference": [
+    "CC0-1.0",
+    "CC-BY-4.0"
+  ],
+  "requirements": [
+    {
+      "id": "dead-days-01",
+      "category": "Environments",
+      "need": "末日建筑",
+      "formats": [
+        "GLB",
+        "BLEND"
+      ],
+      "acceptance": "废弃住宅、商店、道路；模块网格/米制",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "dead-days-02",
+      "category": "Characters",
+      "need": "僵尸",
+      "formats": [
+        "GLB",
+        "FBX"
+      ],
+      "acceptance": "骨骼/命名/碰撞体；无真实人物肖像",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "dead-days-03",
+      "category": "Props",
+      "need": "车辆",
+      "formats": [
+        "GLB",
+        "BLEND"
+      ],
+      "acceptance": "无品牌、LOD、车轮独立对象",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "dead-days-04",
+      "category": "Props",
+      "need": "家具",
+      "formats": [
+        "GLB",
+        "BLEND"
+      ],
+      "acceptance": "可交互枢轴、碰撞体",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "dead-days-05",
+      "category": "Environments",
+      "need": "植被",
+      "formats": [
+        "GLB",
+        "PNG"
+      ],
+      "acceptance": "透明裁切、LOD、风动兼容",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "dead-days-06",
+      "category": "Textures",
+      "need": "室外地表颜色贴图",
+      "formats": [
+        "PNG"
+      ],
+      "acceptance": "室外地表平铺，保留道路/建筑/碰撞",
+      "priority": "P1",
+      "status": "INTEGRATED",
+      "selected_asset_ids": [
+        "polyhaven-aerial-grass-rock"
+      ]
+    }
+  ]
+}

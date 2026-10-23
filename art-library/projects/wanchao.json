@@ -1,0 +1,77 @@
+{
+  "project": "万朝",
+  "repository_path": null,
+  "integration_status": "requirements-only",
+  "style": "stylized RTS，历史设计需原创核验",
+  "license_preference": [
+    "CC0-1.0",
+    "CC-BY-4.0"
+  ],
+  "requirements": [
+    {
+      "id": "wanchao-01",
+      "category": "Environments",
+      "need": "RTS 建筑",
+      "formats": [
+        "GLB",
+        "BLEND"
+      ],
+      "acceptance": "阵营一致、网格占地、建造状态",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "wanchao-02",
+      "category": "Characters",
+      "need": "士兵",
+      "formats": [
+        "GLB",
+        "FBX"
+      ],
+      "acceptance": "小屏轮廓、阵营色、低面数",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "wanchao-03",
+      "category": "Textures",
+      "need": "地形",
+      "formats": [
+        "PNG",
+        "WEBP"
+      ],
+      "acceptance": "可平铺、多地表过渡",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "wanchao-04",
+      "category": "VFX",
+      "need": "战争特效",
+      "formats": [
+        "PNG",
+        "WEBP"
+      ],
+      "acceptance": "序列帧/透明度、性能预算",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    },
+    {
+      "id": "wanchao-05",
+      "category": "Animations",
+      "need": "士兵动作",
+      "formats": [
+        "GLB",
+        "FBX"
+      ],
+      "acceptance": "待机/行走/攻击/死亡，与目标骨架匹配",
+      "priority": "P1",
+      "status": "OPEN",
+      "selected_asset_ids": []
+    }
+  ]
+}
