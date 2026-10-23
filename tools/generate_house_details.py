@@ -39,12 +39,23 @@ for name,color in layout.get('materials',{}).items():
     mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=linear
     mat.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.94
     kit['MATS'][name]=mat
+for name,definition in layout.get('surface_profiles',{}).items():
+    rgb=tuple(int(definition['color'][i:i+2],16)/255 for i in (0,2,4))
+    linear=tuple(c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4 for c in rgb)+(1,)
+    material=bpy.data.materials.new('DD_Surface_'+name)
+    material.diffuse_color=linear
+    shader=material.node_tree.nodes.get('Principled BSDF')
+    shader.inputs['Base Color'].default_value=linear
+    shader.inputs['Roughness'].default_value=definition['roughness']
+    shader.inputs['Metallic'].default_value=.65 if definition['kind']==3 else 0
+    kit['MATS']['surface_'+name]=material
 for module in layout['modules']:
     x, y, z = module['position']
     at = (x, -z, y)  # Godot Y-up -> Blender Z-up.
+    material='surface_'+module['surface'] if 'surface' in module else module['material']
     if module['kind'] == 'box':
         w, h, d = module['size']
-        box(module['name'], at, (w,d,h), module['material'], module.get('bevel',0),module.get('bevel_segments',1))
+        box(module['name'], at, (w,d,h), material, module.get('bevel',0),module.get('bevel_segments',1))
     elif module['kind'] == 'basin':
         w,h,d=module['size']
         vertices=[];faces=[]
@@ -55,9 +66,25 @@ for module in layout['modules']:
         faces.append((8,9,10,11))
         mesh=bpy.data.meshes.new(module['name']);mesh.from_pydata(vertices,[],faces)
         obj=bpy.data.objects.new(module['name'],mesh);bpy.context.collection.objects.link(obj)
-        obj.location=at;mesh.materials.append(kit['MATS'][module['material']])
+        obj.location=at;mesh.materials.append(kit['MATS'][material])
+    elif module['kind'] == 'tube':
+        from mathutils import Vector
+        points=[Vector((p[0],-p[2],p[1])) for p in module['points']]
+        vertices=[];faces=[]
+        for i,point in enumerate(points):
+            tangent=(points[min(i+1,len(points)-1)]-points[max(i-1,0)]).normalized()
+            normal=Vector((0,1,0));side=tangent.cross(normal).normalized()
+            for j in range(8):
+                v=point+(normal*math.cos(j*math.tau/8)+side*math.sin(j*math.tau/8))*module['radius']
+                vertices.append(tuple(v))
+        for i in range(len(points)-1):
+            for j in range(8):faces.append((i*8+j,i*8+(j+1)%8,(i+1)*8+(j+1)%8,(i+1)*8+j))
+        faces += [tuple(reversed(range(8))),tuple(range((len(points)-1)*8,len(points)*8))]
+        mesh=bpy.data.meshes.new(module['name']);mesh.from_pydata(vertices,[],faces)
+        obj=bpy.data.objects.new(module['name'],mesh);bpy.context.collection.objects.link(obj)
+        obj.location=at;mesh.materials.append(kit['MATS'][material])
     elif module['kind'] == 'cylinder':
-        cylinder(module['name'],at,module['radius'],module['depth'],module['material'],module['vertices'])
+        cylinder(module['name'],at,module['radius'],module['depth'],material,module['vertices'])
     else:
         raise RuntimeError('Unknown primitive '+module['kind'])
 save('house_details')

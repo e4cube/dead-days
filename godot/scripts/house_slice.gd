@@ -8,6 +8,7 @@ static func build(game: Node3D) -> Node3D:
         if definition.id == layout.building:
             origin.x = definition.x
     var details := Assets.attach(game.world, "house_details", origin)
+    preload("res://scripts/interior_surfaces.gd").apply(details,layout)
     var crowns: Array = []
     for obstacle in layout.obstacles:
         var at: Array = obstacle.position

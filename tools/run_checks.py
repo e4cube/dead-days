@@ -105,6 +105,7 @@ def main():
         run(command + ['--path', 'godot', '--script', 'res://tests/test_clinic_slice.gd'], 'CLINIC_SLICE_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_shop_slice.gd'], 'SHOP_SLICE_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_interior_lights.gd'], 'INTERIOR_LIGHTS_OK')
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_interior_surfaces.gd'], 'INTERIOR_SURFACES_OK')
         if args.visual:
             run(command + ['--path', 'godot', '--script', 'res://tests/preview_assets.gd'], 'ASSET_GALLERY_OK')
             run(command + ['--path', 'godot', '--script', 'res://tests/preview_street.gd'], 'STREET_PREVIEW_OK')

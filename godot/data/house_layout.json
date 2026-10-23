@@ -82,7 +82,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -98,7 +99,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -114,7 +116,8 @@
         6.9
       ],
       "material": "oak_warm",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -130,7 +133,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -146,7 +150,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -162,7 +167,8 @@
         6.9
       ],
       "material": "oak_warm",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -178,7 +184,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -194,7 +201,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -210,7 +218,8 @@
         6.9
       ],
       "material": "oak_warm",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -226,7 +235,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -242,7 +252,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -258,7 +269,8 @@
         6.9
       ],
       "material": "oak_warm",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -274,7 +286,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -290,7 +303,8 @@
         6.9
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_Floorboard",
@@ -306,7 +320,8 @@
         6.9
       ],
       "material": "oak_warm",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Rug",
@@ -339,7 +354,8 @@
       ],
       "material": "cloth",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "upholstery"
     },
     {
       "name": "DD_Keep_SofaBack",
@@ -356,7 +372,8 @@
       ],
       "material": "cloth",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "upholstery"
     },
     {
       "name": "DD_Keep_SofaArm",
@@ -373,7 +390,8 @@
       ],
       "material": "cloth",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "upholstery"
     },
     {
       "name": "DD_Keep_SofaArm",
@@ -390,7 +408,8 @@
       ],
       "material": "cloth",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "upholstery"
     },
     {
       "name": "DD_Keep_CoffeeTable",
@@ -406,7 +425,8 @@
         1
       ],
       "material": "wood_light",
-      "bevel": 0.025
+      "bevel": 0.025,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_CoffeeLeg",
@@ -422,7 +442,8 @@
         0.1
       ],
       "material": "wood",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_CoffeeLeg",
@@ -438,23 +459,8 @@
         0.1
       ],
       "material": "wood",
-      "bevel": 0
-    },
-    {
-      "name": "DD_Keep_Kitchen",
-      "kind": "box",
-      "position": [
-        2.25,
-        0.46,
-        -3.25
-      ],
-      "size": [
-        0.8,
-        0.92,
-        1.7
-      ],
-      "material": "white",
-      "bevel": 0.025
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_Sink",
@@ -470,7 +476,8 @@
         0.52
       ],
       "material": "steel",
-      "bevel": 0.02
+      "bevel": 0.02,
+      "surface": "steel"
     },
     {
       "name": "DD_Keep_Hob",
@@ -960,7 +967,8 @@
         0.4
       ],
       "material": "linen",
-      "bevel": 0.02
+      "bevel": 0.02,
+      "surface": "linen"
     },
     {
       "name": "DD_Keep_Paper",
@@ -1072,7 +1080,8 @@
         0.65
       ],
       "material": "wood_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_light"
     },
     {
       "name": "DD_Keep_DeskLegA",
@@ -1088,7 +1097,8 @@
         0.5
       ],
       "material": "wood",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_DeskLegB",
@@ -1104,7 +1114,8 @@
         0.5
       ],
       "material": "wood",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak"
     },
     {
       "name": "DD_Keep_DeskPaper",
@@ -1136,7 +1147,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1152,7 +1164,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1168,7 +1181,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1184,7 +1198,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1200,7 +1215,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1216,7 +1232,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1232,7 +1249,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1248,7 +1266,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1264,7 +1283,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1280,7 +1300,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1296,7 +1317,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1312,7 +1334,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1328,7 +1351,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1344,7 +1368,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1360,7 +1385,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1376,7 +1402,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1392,7 +1419,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1408,7 +1436,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1424,7 +1453,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1440,7 +1470,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1456,7 +1487,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1472,7 +1504,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1488,7 +1521,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1504,7 +1538,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1520,7 +1555,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1536,7 +1572,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1552,7 +1589,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1568,7 +1606,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1584,7 +1623,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1600,7 +1640,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1616,7 +1657,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1632,7 +1674,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1648,7 +1691,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1664,7 +1708,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1680,7 +1725,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1696,7 +1742,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1712,7 +1759,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1728,7 +1776,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1744,7 +1793,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1760,7 +1810,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1776,7 +1827,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1792,7 +1844,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1808,7 +1861,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1824,7 +1878,8 @@
         0.497
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_KitchenTile",
@@ -1840,7 +1895,8 @@
         0.497
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Keep_RugInset",
@@ -1856,7 +1912,8 @@
         1.07
       ],
       "material": "rug_inner",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "linen"
     },
     {
       "name": "DD_Keep_SofaCushion",
@@ -1873,7 +1930,8 @@
       ],
       "material": "linen",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "linen"
     },
     {
       "name": "DD_Keep_SofaCushion",
@@ -1890,7 +1948,8 @@
       ],
       "material": "linen",
       "bevel": 0.05,
-      "bevel_segments": 3
+      "bevel_segments": 3,
+      "surface": "linen"
     },
     {
       "name": "DD_Hide_BackSkirting",
@@ -1954,7 +2013,8 @@
         0.425
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Hide_EastBacksplash",
@@ -1970,7 +2030,8 @@
         0.425
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Hide_EastBacksplash",
@@ -1986,7 +2047,8 @@
         0.425
       ],
       "material": "tile_dark",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic_dark"
     },
     {
       "name": "DD_Hide_EastBacksplash",
@@ -2002,7 +2064,8 @@
         0.425
       ],
       "material": "tile_light",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "ceramic"
     },
     {
       "name": "DD_Keep_CabinetPanel",
@@ -2018,7 +2081,8 @@
         0.72
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_vertical"
     },
     {
       "name": "DD_Keep_CabinetPull",
@@ -2050,7 +2114,8 @@
         0.72
       ],
       "material": "oak_pale",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "oak_vertical"
     },
     {
       "name": "DD_Keep_CabinetPull",
@@ -2064,35 +2129,6 @@
         0.05,
         0.04,
         0.23
-      ],
-      "material": "steel",
-      "bevel": 0
-    },
-    {
-      "name": "DD_Keep_Faucet",
-      "kind": "cylinder",
-      "position": [
-        2.46,
-        1.13,
-        -3.65
-      ],
-      "radius": 0.026,
-      "depth": 0.25,
-      "material": "steel",
-      "vertices": 10
-    },
-    {
-      "name": "DD_Keep_FaucetSpout",
-      "kind": "box",
-      "position": [
-        2.37,
-        1.25,
-        -3.65
-      ],
-      "size": [
-        0.21,
-        0.035,
-        0.035
       ],
       "material": "steel",
       "bevel": 0
@@ -2428,7 +2464,8 @@
         1.8
       ],
       "material": "steel",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "steel"
     },
     {
       "name": "DD_Keep_CounterSideB",
@@ -2444,7 +2481,8 @@
         1.8
       ],
       "material": "steel",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "steel"
     },
     {
       "name": "DD_Keep_CounterRear",
@@ -2460,7 +2498,8 @@
         0.25
       ],
       "material": "steel",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "steel"
     },
     {
       "name": "DD_Keep_CounterFront",
@@ -2476,7 +2515,269 @@
         1.05
       ],
       "material": "steel",
-      "bevel": 0
+      "bevel": 0,
+      "surface": "steel"
+    },
+    {
+      "name": "DD_Keep_SofaFoot",
+      "kind": "box",
+      "position": [
+        -2.37,
+        0.17,
+        -0.4
+      ],
+      "size": [
+        0.09,
+        0.32,
+        0.09
+      ],
+      "material": "wood",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_SofaFoot",
+      "kind": "box",
+      "position": [
+        -2.37,
+        0.17,
+        -1.6
+      ],
+      "size": [
+        0.09,
+        0.32,
+        0.09
+      ],
+      "material": "wood",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_SofaFoot",
+      "kind": "box",
+      "position": [
+        -1.87,
+        0.17,
+        -0.4
+      ],
+      "size": [
+        0.09,
+        0.32,
+        0.09
+      ],
+      "material": "wood",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_SofaFoot",
+      "kind": "box",
+      "position": [
+        -1.87,
+        0.17,
+        -1.6
+      ],
+      "size": [
+        0.09,
+        0.32,
+        0.09
+      ],
+      "material": "wood",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_KitchenBack",
+      "kind": "box",
+      "position": [
+        2.61,
+        0.5,
+        -3.25
+      ],
+      "size": [
+        0.08,
+        0.84,
+        1.7
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_KitchenSide",
+      "kind": "box",
+      "position": [
+        2.25,
+        0.5,
+        -4.06
+      ],
+      "size": [
+        0.8,
+        0.84,
+        0.08
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_KitchenSide",
+      "kind": "box",
+      "position": [
+        2.25,
+        0.5,
+        -2.44
+      ],
+      "size": [
+        0.8,
+        0.84,
+        0.08
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_KitchenBottom",
+      "kind": "box",
+      "position": [
+        2.25,
+        0.12,
+        -3.25
+      ],
+      "size": [
+        0.8,
+        0.08,
+        1.7
+      ],
+      "material": "wood_light",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_KitchenPlinth",
+      "kind": "box",
+      "position": [
+        1.88,
+        0.07,
+        -3.25
+      ],
+      "size": [
+        0.06,
+        0.14,
+        1.6
+      ],
+      "material": "wood",
+      "bevel": 0,
+      "surface": "oak"
+    },
+    {
+      "name": "DD_Keep_KitchenFrontRail",
+      "kind": "box",
+      "position": [
+        1.86,
+        0.18,
+        -3.25
+      ],
+      "size": [
+        0.08,
+        0.06,
+        1.7
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_KitchenFrontRail",
+      "kind": "box",
+      "position": [
+        1.86,
+        0.87,
+        -3.25
+      ],
+      "size": [
+        0.08,
+        0.06,
+        1.7
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_KitchenDivider",
+      "kind": "box",
+      "position": [
+        1.86,
+        0.5,
+        -3.26
+      ],
+      "size": [
+        0.08,
+        0.7,
+        0.08
+      ],
+      "material": "white",
+      "bevel": 0,
+      "surface": "ceramic"
+    },
+    {
+      "name": "DD_Keep_FaucetPipe",
+      "kind": "tube",
+      "position": [
+        2.46,
+        1.02,
+        -3.65
+      ],
+      "points": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0.18,
+          0
+        ],
+        [
+          -0.02,
+          0.23,
+          0
+        ],
+        [
+          -0.12,
+          0.23,
+          0
+        ],
+        [
+          -0.18,
+          0.2,
+          0
+        ],
+        [
+          -0.18,
+          0.15,
+          0
+        ]
+      ],
+      "radius": 0.018,
+      "material": "steel",
+      "surface": "steel"
+    },
+    {
+      "name": "DD_Keep_SinkDrain",
+      "kind": "cylinder",
+      "position": [
+        2.25,
+        0.865,
+        -3.65
+      ],
+      "radius": 0.035,
+      "depth": 0.006,
+      "vertices": 16,
+      "material": "boots"
     }
   ],
   "obstacles": [
@@ -2656,5 +2957,48 @@
     "zoom_scale": 0.62,
     "min_size": 8.5,
     "max_size": 17.5
+  },
+  "surface_profiles": {
+    "oak": {
+      "color": "786346",
+      "kind": 0,
+      "roughness": 0.86
+    },
+    "oak_light": {
+      "color": "8b7657",
+      "kind": 0,
+      "roughness": 0.84
+    },
+    "upholstery": {
+      "color": "4e6965",
+      "kind": 1,
+      "roughness": 0.95
+    },
+    "linen": {
+      "color": "aaa68a",
+      "kind": 1,
+      "roughness": 0.96
+    },
+    "ceramic": {
+      "color": "a9ac9c",
+      "kind": 2,
+      "roughness": 0.72
+    },
+    "ceramic_dark": {
+      "color": "657468",
+      "kind": 2,
+      "roughness": 0.78
+    },
+    "steel": {
+      "color": "78817c",
+      "kind": 3,
+      "roughness": 0.42
+    },
+    "oak_vertical": {
+      "color": "8b7657",
+      "kind": 0,
+      "roughness": 0.86,
+      "grain_axis": 1
+    }
   }
 }
