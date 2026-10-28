@@ -1,0 +1,76 @@
+{
+  "sample_rate": 22050,
+  "voices": 8,
+  "volume_db": -10.0,
+  "step_distance": 1.25,
+  "effects": {
+    "step": {
+      "duration": 0.11,
+      "frequency": 100.0,
+      "noise": 0.7,
+      "gain": 0.28,
+      "decay": 32.0,
+      "shape": "foot"
+    },
+    "run": {
+      "duration": 0.13,
+      "frequency": 85.0,
+      "noise": 0.65,
+      "gain": 0.4,
+      "decay": 30.0,
+      "shape": "foot"
+    },
+    "door": {
+      "duration": 0.26,
+      "frequency": 150.0,
+      "noise": 0.3,
+      "gain": 0.43,
+      "decay": 17.0
+    },
+    "melee": {
+      "duration": 0.22,
+      "frequency": 220.0,
+      "noise": 0.8,
+      "gain": 0.3,
+      "decay": 19.0,
+      "shape": "swing"
+    },
+    "gunshot": {
+      "duration": 0.65,
+      "frequency": 72.0,
+      "noise": 0.8,
+      "gain": 0.76,
+      "decay": 22.0,
+      "shape": "shot"
+    },
+    "hurt": {
+      "duration": 0.24,
+      "frequency": 125.0,
+      "noise": 0.2,
+      "gain": 0.38,
+      "decay": 14.0
+    },
+    "loot": {
+      "duration": 0.14,
+      "frequency": 750.0,
+      "noise": 0.15,
+      "gain": 0.2,
+      "decay": 25.0
+    },
+    "reload": {
+      "duration": 0.18,
+      "frequency": 1100.0,
+      "noise": 0.6,
+      "gain": 0.25,
+      "decay": 30.0
+    },
+    "impact": {
+      "shape": "impact",
+      "duration": 0.26,
+      "frequency": 95.0,
+      "noise": 0.6,
+      "gain": 0.6,
+      "decay": 26
+    }
+  }
+}

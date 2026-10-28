@@ -1,0 +1,5 @@
+*.json text eol=lf
+*.glb -text
+*.blend -text
+*.png -text
+*.log -text -whitespace

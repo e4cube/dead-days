@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "types": {
+    "civilian": {"name": "普通僵尸", "shirt_material": "zombie_cloth"},
+    "worker": {"name": "工人僵尸", "shirt_material": "zombie_cloth"},
+    "police": {"name": "警员僵尸", "shirt_material": "denim"}
+  },
+  "scope": "Visual identities only. Shared health, perception, collision, navigation and loot rules. Original generic workwear and uniform, no copied emblems."
+}

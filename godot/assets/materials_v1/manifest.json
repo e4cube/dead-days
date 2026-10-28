@@ -1,0 +1,334 @@
+{
+  "version": 1,
+  "seed": 421,
+  "size": 512,
+  "source": "Original structural map generator tools/generate_surface_maps.py",
+  "license": "Original project artwork; project owner determines release terms; no third-party images",
+  "ao": "Not baked; no geometry AO claimed",
+  "maps": [
+    {
+      "file": "study_wood_base.png",
+      "sha256": "f38f7178ccd94d4865b916b56a9ad9a68adf70a2b8b73b28536a6fa269300d91",
+      "family": "wood",
+      "channel": "base"
+    },
+    {
+      "file": "wood_normal.png",
+      "sha256": "d2131fa675a064ed0e33b2680f4c60da2d8ccab0813eb4daafe8ff714f494ce1",
+      "family": "wood",
+      "channel": "normal"
+    },
+    {
+      "file": "study_wood_roughness.png",
+      "sha256": "3183ad2c789bff9c0a4a0ca977222c01c6c9705130e6abfd30e743b9f91d99f5",
+      "family": "wood",
+      "channel": "roughness"
+    },
+    {
+      "file": "study_road_base.png",
+      "sha256": "e8c796a96d097706b0a59ebcec6ab90a12ecfa1a1c8513422cfbd7d76f09bb69",
+      "family": "road",
+      "channel": "base"
+    },
+    {
+      "file": "road_normal.png",
+      "sha256": "49279e54bab352418691a1584460e7ce76e88c8f750818f369b7303849bbb53f",
+      "family": "road",
+      "channel": "normal"
+    },
+    {
+      "file": "study_road_roughness.png",
+      "sha256": "f68d3706db1d36ca08d1066a657f999a33f5c2878864c32f24648c89add9a8d9",
+      "family": "road",
+      "channel": "roughness"
+    },
+    {
+      "file": "study_masonry_base.png",
+      "sha256": "730dbf95dfedee1b3176f36801762d7fecc86d4b549596d73c6722614a0e046d",
+      "family": "masonry",
+      "channel": "base"
+    },
+    {
+      "file": "masonry_normal.png",
+      "sha256": "36a6d1b52f8eae1b4f827aba332689a14738997498ebad3cd5dd7af98b76f31d",
+      "family": "masonry",
+      "channel": "normal"
+    },
+    {
+      "file": "study_masonry_roughness.png",
+      "sha256": "9c22d075ae2c4d5290389aa35007fb7ecb4f28f5fe34f6efc458ca821e871e7f",
+      "family": "masonry",
+      "channel": "roughness"
+    },
+    {
+      "file": "study_metal_base.png",
+      "sha256": "96fcab6f8627ef13ee04b705a951468519019d3dad73b61bace521e83063c292",
+      "family": "metal",
+      "channel": "base"
+    },
+    {
+      "file": "metal_normal.png",
+      "sha256": "c82edc493edc4459774b0026d9dbd646ac4b6116dbaed4f1851dbf86b00aa176",
+      "family": "metal",
+      "channel": "normal"
+    },
+    {
+      "file": "study_metal_roughness.png",
+      "sha256": "150afec26c133a4cf694ef0f6d502a461cf20cb9f6d4554a49f0c5d5ed466931",
+      "family": "metal",
+      "channel": "roughness"
+    },
+    {
+      "file": "study_fabric_base.png",
+      "sha256": "a1f93d775348606f4d6df45a2c5a245b4786d9f37457bd4d8fd7720bd69cd75c",
+      "family": "fabric",
+      "channel": "base"
+    },
+    {
+      "file": "fabric_normal.png",
+      "sha256": "105012929b0a94459a39dd9a7672424a370a4c4bd01da0497e07c987dce88059",
+      "family": "fabric",
+      "channel": "normal"
+    },
+    {
+      "file": "study_fabric_roughness.png",
+      "sha256": "c66013c7ad48d4da1906893dcce1466d003e350a00500149a228faf48f0ebef0",
+      "family": "fabric",
+      "channel": "roughness"
+    },
+    {
+      "file": "study_ground_base.png",
+      "sha256": "f6fec2205c809d2a3fdddb0dd3733358cbeae74cc86e2cf746e72089e4aa842b",
+      "family": "ground",
+      "channel": "base"
+    },
+    {
+      "file": "ground_normal.png",
+      "sha256": "2c4d29439924770dbafe78350201a9231e80633bfc3734cd1132be17ff258670",
+      "family": "ground",
+      "channel": "normal"
+    },
+    {
+      "file": "study_ground_roughness.png",
+      "sha256": "956ad34bcb606f990ce2e88cf9c25472a5007952c2249ab974e064e50820fe47",
+      "family": "ground",
+      "channel": "roughness"
+    },
+    {
+      "file": "safety_vest_base.png",
+      "sha256": "7674ca3ba5f4c12148990232c35af36136ff9043cf0cd0e6a1834fe7e935dee4",
+      "material": "safety_vest",
+      "channel": "base"
+    },
+    {
+      "file": "safety_vest_roughness.png",
+      "sha256": "35c7879afe95407c1a7c88e7cda26b6e7cd3f09388d864e1415054d95b601023",
+      "material": "safety_vest",
+      "channel": "roughness"
+    },
+    {
+      "file": "hard_hat_base.png",
+      "sha256": "b4104c99cb18d6dff27c1c8ecae1f16027b8fc6f0d379d5ea2d4737453f94283",
+      "material": "hard_hat",
+      "channel": "base"
+    },
+    {
+      "file": "hard_hat_roughness.png",
+      "sha256": "ed210563b1e5c46cf221f6a9feb767510002211c7649252c5b1db5c1bcbc9e56",
+      "material": "hard_hat",
+      "channel": "roughness"
+    },
+    {
+      "file": "asphalt_base.png",
+      "sha256": "36119c84917e2b8485695ea71d37ec7b808eb39230f8a8e815994e91c0c70e31",
+      "material": "asphalt",
+      "channel": "base"
+    },
+    {
+      "file": "asphalt_roughness.png",
+      "sha256": "a83ae1c1f066a0b8095db406986eb97f8928fd251e19829c0e4d49098907964e",
+      "material": "asphalt",
+      "channel": "roughness"
+    },
+    {
+      "file": "road_patch_base.png",
+      "sha256": "0058c5f854555ae246c2917e268665df4f4645e09f0db797ca2f60807186e03c",
+      "material": "road_patch",
+      "channel": "base"
+    },
+    {
+      "file": "road_patch_roughness.png",
+      "sha256": "46a9b08fd763c9e43532d98c1fb1a9ff9c5d02138527263488219900822dc7c7",
+      "material": "road_patch",
+      "channel": "roughness"
+    },
+    {
+      "file": "concrete_base.png",
+      "sha256": "9c118b904e40b9cc6242f5ff84ca1e9b114baa7c1f40223d6025304b0e52c787",
+      "material": "concrete",
+      "channel": "base"
+    },
+    {
+      "file": "concrete_roughness.png",
+      "sha256": "9cc0add43335349d606a696a949d9b90305e1433be32d62957b24eaf644b0d1b",
+      "material": "concrete",
+      "channel": "roughness"
+    },
+    {
+      "file": "old_wall_base.png",
+      "sha256": "48548ea9198b722e02089ec7e276b63787bcc61d360a2b2a8b812e6b9700475f",
+      "material": "old_wall",
+      "channel": "base"
+    },
+    {
+      "file": "old_wall_roughness.png",
+      "sha256": "765d22928c007203f4d77771ba52c2b8d4e469b3cfb7e982009a8c03c0e428e9",
+      "material": "old_wall",
+      "channel": "roughness"
+    },
+    {
+      "file": "old_wood_base.png",
+      "sha256": "9b48c279de359ffa6eb676bddef31c61810c8c0a8948e2612d74ef77e42f92cb",
+      "material": "old_wood",
+      "channel": "base"
+    },
+    {
+      "file": "old_wood_roughness.png",
+      "sha256": "c05c02832512a93caaba161207d957b06753acf73154f157b2f5d8854d7c5d27",
+      "material": "old_wood",
+      "channel": "roughness"
+    },
+    {
+      "file": "light_wood_base.png",
+      "sha256": "ab380b59d235ba8b268d8fd7c2a7a14c05d85a57f9cf28601107a51025a87226",
+      "material": "light_wood",
+      "channel": "base"
+    },
+    {
+      "file": "light_wood_roughness.png",
+      "sha256": "a93ae31d59ffbdc0ea63cbcf41bf418b96087ca5e1780f0f66e09952571caa1c",
+      "material": "light_wood",
+      "channel": "roughness"
+    },
+    {
+      "file": "rust_base.png",
+      "sha256": "c21ecc124cabbfe601b3f30c5a6912a1bd2f73bef514290fde057523bd16cad2",
+      "material": "rust",
+      "channel": "base"
+    },
+    {
+      "file": "rust_roughness.png",
+      "sha256": "e775ffdd6d46196dfa9f1b2c5f838e6697aa303832c545f1a595edbdd73c29ac",
+      "material": "rust",
+      "channel": "roughness"
+    },
+    {
+      "file": "metal_base.png",
+      "sha256": "6dd52992cd475e780cdd904102df2a464741e23ba439066442a46b653b329fe6",
+      "material": "metal",
+      "channel": "base"
+    },
+    {
+      "file": "metal_roughness.png",
+      "sha256": "6fcc6a310c4127b1faad1522a62e1878a21a44b1128dfb3d902e5286a5bca9c7",
+      "material": "metal",
+      "channel": "roughness"
+    },
+    {
+      "file": "painted_metal_base.png",
+      "sha256": "7628b543f38b3c7b779a7e6d661df285d153eaaf2c2421523c088aedaddfd8e9",
+      "material": "painted_metal",
+      "channel": "base"
+    },
+    {
+      "file": "painted_metal_roughness.png",
+      "sha256": "d925767ab841e79002ca907d547841a3b06bdeb748873d73abd25f4885da2052",
+      "material": "painted_metal",
+      "channel": "roughness"
+    },
+    {
+      "file": "cloth_base.png",
+      "sha256": "f7db25ab12380d7077adf6ec72854bf9188eb7294094d1c05c03175389753899",
+      "material": "cloth",
+      "channel": "base"
+    },
+    {
+      "file": "cloth_roughness.png",
+      "sha256": "609e55ddda9fe9615cb41ec1cf842980e27eb30693c7ea4465986459c67c76a0",
+      "material": "cloth",
+      "channel": "roughness"
+    },
+    {
+      "file": "canvas_base.png",
+      "sha256": "8e7bc43358548028433a44ceab48ce648cafd5922fb2368f015b03ba50f0ad28",
+      "material": "canvas",
+      "channel": "base"
+    },
+    {
+      "file": "canvas_roughness.png",
+      "sha256": "35c7879afe95407c1a7c88e7cda26b6e7cd3f09388d864e1415054d95b601023",
+      "material": "canvas",
+      "channel": "roughness"
+    },
+    {
+      "file": "denim_base.png",
+      "sha256": "678d615c1ac39d75c6ec89a6b8c275237c290d9d7428c6c7e1d3aa897d8d2f62",
+      "material": "denim",
+      "channel": "base"
+    },
+    {
+      "file": "denim_roughness.png",
+      "sha256": "07740f0590c113ecb5f7fba3d499c986517ace2cf95c2f28786650ad956a4c75",
+      "material": "denim",
+      "channel": "roughness"
+    },
+    {
+      "file": "zombie_cloth_base.png",
+      "sha256": "0953515efc8ee3d3dcb473beb26728bee67253b8fe9a689247bcd24d569826a3",
+      "material": "zombie_cloth",
+      "channel": "base"
+    },
+    {
+      "file": "zombie_cloth_roughness.png",
+      "sha256": "1d371a21cbbef0c478ce100229a336b54bd312512eb66f14e0b2e607fd0c3fdb",
+      "material": "zombie_cloth",
+      "channel": "roughness"
+    },
+    {
+      "file": "linen_base.png",
+      "sha256": "acfc0fd617d49c263bf3885e517be48a691662f1c26e326f2927f95e19f5f5f5",
+      "material": "linen",
+      "channel": "base"
+    },
+    {
+      "file": "linen_roughness.png",
+      "sha256": "29f5ca0419cb0a7d4290df29b2cb9bd071d4be25026e0c82f85a70198419df5b",
+      "material": "linen",
+      "channel": "roughness"
+    },
+    {
+      "file": "leather_base.png",
+      "sha256": "0f5fe160a42a62a5582c4cfb836714017d2ac183ff487578e0a1c7bbcd2e0a64",
+      "material": "leather",
+      "channel": "base"
+    },
+    {
+      "file": "leather_roughness.png",
+      "sha256": "770dc89d5b4eef55edf8715c164659321c7492aad837cb747cf34084ef8762c6",
+      "material": "leather",
+      "channel": "roughness"
+    },
+    {
+      "file": "soil_base.png",
+      "sha256": "12b3121cf320a44edbc2284088952b1bdcd10d588c3d290bc3f924745d88b15f",
+      "material": "soil",
+      "channel": "base"
+    },
+    {
+      "file": "soil_roughness.png",
+      "sha256": "3b3d24e8f7768f7915816ee17acfca970b24c4d3b84548aebd83194fedb64830",
+      "material": "soil",
+      "channel": "roughness"
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "render": {
+    "normal_strength": 0.35
+  },
+  "color_space": "sRGB hex; convert once to linear for Blender/glTF factors",
+  "source": "Original Dead Days parameter recipes; no third-party maps added",
+  "license": "Original project recipes; project owner determines release terms; external grass tracked separately",
+  "materials": {
+    "safety_vest": {
+      "color": "9b5933",
+      "roughness": 0.94,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "hard_hat": {
+      "color": "b08a41",
+      "roughness": 0.68,
+      "metallic": 0.0,
+      "category": "metal",
+      "scale_m": 0.3
+    },
+    "asphalt": {
+      "color": "414547",
+      "roughness": 0.94,
+      "metallic": 0.0,
+      "category": "road",
+      "scale_m": 2.0
+    },
+    "road_patch": {
+      "color": "303638",
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "category": "road",
+      "scale_m": 2.0
+    },
+    "concrete": {
+      "color": "77756b",
+      "roughness": 0.89,
+      "metallic": 0.0,
+      "category": "masonry",
+      "scale_m": 1.0
+    },
+    "old_wall": {
+      "color": "a39c87",
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "category": "masonry",
+      "scale_m": 1.0
+    },
+    "old_wood": {
+      "color": "6b4f3a",
+      "roughness": 0.82,
+      "metallic": 0.0,
+      "category": "wood",
+      "scale_m": 0.32,
+      "normal_strength": 0.18
+    },
+    "light_wood": {
+      "color": "8b7657",
+      "roughness": 0.84,
+      "metallic": 0.0,
+      "category": "wood",
+      "scale_m": 0.32,
+      "normal_strength": 0.18
+    },
+    "rust": {
+      "color": "754a36",
+      "roughness": 0.84,
+      "metallic": 0.08,
+      "category": "metal",
+      "scale_m": 0.5
+    },
+    "metal": {
+      "color": "727775",
+      "roughness": 0.42,
+      "metallic": 0.82,
+      "category": "metal",
+      "scale_m": 0.5
+    },
+    "painted_metal": {
+      "color": "50625e",
+      "roughness": 0.64,
+      "metallic": 0.15,
+      "category": "metal",
+      "scale_m": 0.5
+    },
+    "cloth": {
+      "color": "4e5b4b",
+      "roughness": 0.93,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "canvas": {
+      "color": "65543c",
+      "roughness": 0.94,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "denim": {
+      "color": "3c4545",
+      "roughness": 0.92,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "zombie_cloth": {
+      "color": "5c6668",
+      "roughness": 0.97,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "linen": {
+      "color": "aaa68a",
+      "roughness": 0.96,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "leather": {
+      "color": "393c32",
+      "roughness": 0.76,
+      "metallic": 0.0,
+      "category": "fabric",
+      "scale_m": 0.25
+    },
+    "foliage": {
+      "color": "626b4b",
+      "roughness": 0.94,
+      "metallic": 0.0,
+      "category": "vegetation",
+      "scale_m": 0.5
+    },
+    "soil": {
+      "color": "635c45",
+      "roughness": 0.97,
+      "metallic": 0.0,
+      "category": "ground",
+      "scale_m": 1.0
+    },
+    "skin": {
+      "color": "a3734d",
+      "roughness": 0.61,
+      "metallic": 0.0,
+      "category": "character",
+      "scale_m": 0.25
+    },
+    "zombie_skin": {
+      "color": "7c8270",
+      "roughness": 0.68,
+      "metallic": 0.0,
+      "category": "character",
+      "scale_m": 0.25
+    },
+    "glass": {
+      "color": "33484c",
+      "roughness": 0.3,
+      "metallic": 0.0,
+      "category": "glass",
+      "scale_m": 1.0
+    },
+    "ceramic": {
+      "color": "a9ac9c",
+      "roughness": 0.57,
+      "metallic": 0.0,
+      "category": "ceramic",
+      "scale_m": 0.5
+    },
+    "survivor_hair": {
+      "color": "24201c",
+      "roughness": 0.86,
+      "metallic": 0.0,
+      "category": "character",
+      "scale_m": 0.25
+    }
+  },
+  "variants": {
+    "clean": {
+      "roughness_delta": -0.06
+    },
+    "aged": {
+      "roughness_delta": 0.04
+    },
+    "wet": {
+      "roughness_delta": -0.2
+    },
+    "rusted": {
+      "material": "rust"
+    },
+    "broken": {
+      "requires_geometry": true
+    }
+  },
+  "textures": {
+    "base_color": "assets/materials_v1/{id}_base.png",
+    "normal": "assets/materials_v1/{family}_normal.png",
+    "roughness": "assets/materials_v1/{id}_roughness.png",
+    "ao": null,
+    "families": {
+      "wood": "wood",
+      "road": "road",
+      "masonry": "masonry",
+      "metal": "metal",
+      "fabric": "fabric",
+      "ground": "ground"
+    },
+    "status": "Original deterministic 512px structural maps; unlisted categories use factors. AO not baked. This is not final surface-quality acceptance."
+  },
+  "aliases": {
+    "safety_vest": "safety_vest",
+    "hard_hat": "hard_hat",
+    "foundation": "concrete",
+    "linen": "linen",
+    "wood": "old_wood",
+    "wood_light": "light_wood",
+    "steel": "metal",
+    "rust": "rust",
+    "paving": "concrete",
+    "soil": "soil",
+    "asphalt": "road_patch",
+    "cream": "old_wall",
+    "roof": "painted_metal",
+    "glass": "glass",
+    "cloth": "painted_metal",
+    "white": "ceramic",
+    "home": "old_wall",
+    "clinic": "old_wall",
+    "shop": "old_wall",
+    "skin": "skin",
+    "player_jacket": "cloth",
+    "jacket": "foliage",
+    "canvas": "canvas",
+    "trousers": "denim",
+    "boots": "leather",
+    "zskin": "zombie_skin",
+    "zshirt": "zombie_cloth",
+    "zpants": "denim",
+    "hair_player": "survivor_hair"
+  },
+  "house_aliases": {
+    "oak": "old_wood",
+    "oak_light": "light_wood",
+    "oak_vertical": "light_wood",
+    "upholstery": "cloth",
+    "linen": "linen",
+    "ceramic": "ceramic",
+    "ceramic_dark": "painted_metal",
+    "steel": "metal"
+  },
+  "sharing": "One cached runtime material per ID; no per-instance copies. Source and runtime share these factors. Variants are opt-in, not globally applied. No noise-only surface qualifies as finished."
+}

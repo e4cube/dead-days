@@ -1,0 +1,35 @@
+[
+  {
+    "name": "OpenGameArt",
+    "url": "https://opengameart.org",
+    "phase": 1,
+    "mode": "manual-per-asset",
+    "notes": "核对作者、许可版本、多许可选择、署名及包内 LICENSE；不把站点许可当资产许可。"
+  },
+  {
+    "name": "itch.io",
+    "url": "https://itch.io/game-assets",
+    "phase": 1,
+    "mode": "manual-per-asset",
+    "notes": "免费不是授权；核对作者页面、包内条款、商用和再分发权限；不自动结账或登录。"
+  },
+  {
+    "name": "Poly Haven",
+    "url": "https://polyhaven.com",
+    "phase": 1,
+    "mode": "manual-per-asset",
+    "notes": "CC0 仅为优先候选；核对原页、作者、文件与第三方权利；不使用批量 API。"
+  },
+  {
+    "name": "Fab",
+    "url": "https://www.fab.com",
+    "phase": 2,
+    "mode": "disabled"
+  },
+  {
+    "name": "Sketchfab",
+    "url": "https://sketchfab.com",
+    "phase": 2,
+    "mode": "disabled"
+  }
+]

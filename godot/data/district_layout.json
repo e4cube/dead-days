@@ -1,0 +1,515 @@
+{
+  "version": 1,
+  "name": "北区 / NORTH DISTRICT 07",
+  "spawn": [
+    0,
+    0.12,
+    40.0
+  ],
+  "spawn_yaw": 180.0,
+  "camera": {
+    "offset": [
+      24,
+      32,
+      30
+    ],
+    "size": 58.0,
+    "min_zoom": 32.0,
+    "max_zoom": 92.0,
+    "focus_height": 0.6
+  },
+  "environment": {
+    "sun_rotation": [
+      -48,
+      -35,
+      0
+    ],
+    "sun_color": "ffe4c4",
+    "sun_energy": 1.03,
+    "ambient_color": "b7c7cb",
+    "ambient_energy": 0.5,
+    "background": "1c272d",
+    "fog_density": 0.0045
+  },
+  "placements": [
+    {
+      "asset": "district_commons",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "asset": "track_field",
+      "position": [
+        0,
+        0,
+        -25
+      ]
+    },
+    {
+      "asset": "market_square",
+      "position": [
+        -23,
+        0,
+        8
+      ]
+    },
+    {
+      "asset": "villa_courtyard",
+      "position": [
+        24,
+        0,
+        8
+      ]
+    }
+  ],
+  "module_layouts": "res://data/simple_locations.json",
+  "commons_colliders": [
+    {
+      "id": "gate_pillar",
+      "position": [
+        -4.4,
+        1.45,
+        46.0
+      ],
+      "size": [
+        0.8,
+        2.9,
+        0.8
+      ]
+    },
+    {
+      "id": "gate_pillar",
+      "position": [
+        4.4,
+        1.45,
+        46.0
+      ],
+      "size": [
+        0.8,
+        2.9,
+        0.8
+      ]
+    },
+    {
+      "id": "boundary_south",
+      "position": [
+        -32.875,
+        0.6,
+        46.0
+      ],
+      "size": [
+        32.25,
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "id": "boundary_south",
+      "position": [
+        -12.0,
+        0.6,
+        46.0
+      ],
+      "size": [
+        9.5,
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "id": "boundary_south",
+      "position": [
+        12.0,
+        0.6,
+        46.0
+      ],
+      "size": [
+        9.5,
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "id": "boundary_south",
+      "position": [
+        32.875,
+        0.6,
+        46.0
+      ],
+      "size": [
+        32.25,
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "id": "boundary_side",
+      "position": [
+        -49.0,
+        1.25,
+        -13.8
+      ],
+      "size": [
+        0.5,
+        2.5,
+        68.4
+      ]
+    },
+    {
+      "id": "boundary_side",
+      "position": [
+        -49.0,
+        1.25,
+        39.3
+      ],
+      "size": [
+        0.5,
+        2.5,
+        17.4
+      ]
+    },
+    {
+      "id": "side_gate_pillar",
+      "position": [
+        -49.0,
+        1.55,
+        20.4
+      ],
+      "size": [
+        0.85,
+        3.1,
+        0.85
+      ]
+    },
+    {
+      "id": "side_gate_pillar",
+      "position": [
+        -49.0,
+        1.55,
+        30.6
+      ],
+      "size": [
+        0.85,
+        3.1,
+        0.85
+      ]
+    },
+    {
+      "id": "boundary_side",
+      "position": [
+        49.0,
+        1.25,
+        -13.8
+      ],
+      "size": [
+        0.5,
+        2.5,
+        68.4
+      ]
+    },
+    {
+      "id": "boundary_side",
+      "position": [
+        49.0,
+        1.25,
+        39.3
+      ],
+      "size": [
+        0.5,
+        2.5,
+        17.4
+      ]
+    },
+    {
+      "id": "side_gate_pillar",
+      "position": [
+        49.0,
+        1.55,
+        20.4
+      ],
+      "size": [
+        0.85,
+        3.1,
+        0.85
+      ]
+    },
+    {
+      "id": "side_gate_pillar",
+      "position": [
+        49.0,
+        1.55,
+        30.6
+      ],
+      "size": [
+        0.85,
+        3.1,
+        0.85
+      ]
+    },
+    {
+      "id": "boundary_north",
+      "position": [
+        0,
+        1.25,
+        -49.0
+      ],
+      "size": [
+        98.0,
+        2.5,
+        0.5
+      ]
+    },
+    {
+      "id": "StreetTree_trunk",
+      "position": [
+        -39.0,
+        0.84,
+        30.0
+      ],
+      "size": [
+        0.385,
+        1.68,
+        0.385
+      ]
+    },
+    {
+      "id": "StreetTree_trunk",
+      "position": [
+        -15.0,
+        0.84,
+        30.0
+      ],
+      "size": [
+        0.385,
+        1.68,
+        0.385
+      ]
+    },
+    {
+      "id": "StreetTree_trunk",
+      "position": [
+        15.0,
+        0.84,
+        30.0
+      ],
+      "size": [
+        0.385,
+        1.68,
+        0.385
+      ]
+    },
+    {
+      "id": "StreetTree_trunk",
+      "position": [
+        39.0,
+        0.84,
+        30.0
+      ],
+      "size": [
+        0.385,
+        1.68,
+        0.385
+      ]
+    },
+    {
+      "id": "street_lamp",
+      "position": [
+        -32.0,
+        2.5,
+        29.7
+      ],
+      "size": [
+        0.3,
+        5.0,
+        0.3
+      ]
+    },
+    {
+      "id": "street_lamp",
+      "position": [
+        -8.0,
+        2.5,
+        29.7
+      ],
+      "size": [
+        0.3,
+        5.0,
+        0.3
+      ]
+    },
+    {
+      "id": "street_lamp",
+      "position": [
+        8.0,
+        2.5,
+        29.7
+      ],
+      "size": [
+        0.3,
+        5.0,
+        0.3
+      ]
+    },
+    {
+      "id": "street_lamp",
+      "position": [
+        32.0,
+        2.5,
+        29.7
+      ],
+      "size": [
+        0.3,
+        5.0,
+        0.3
+      ]
+    },
+    {
+      "id": "bench",
+      "position": [
+        -27.0,
+        0.3,
+        30.2
+      ],
+      "size": [
+        2.2,
+        0.6,
+        0.7
+      ]
+    },
+    {
+      "id": "bench",
+      "position": [
+        27.0,
+        0.3,
+        30.2
+      ],
+      "size": [
+        2.2,
+        0.6,
+        0.7
+      ]
+    },
+    {
+      "id": "bin",
+      "position": [
+        -11.5,
+        0.38,
+        31.5
+      ],
+      "size": [
+        0.5,
+        0.8,
+        0.5
+      ]
+    },
+    {
+      "id": "bin",
+      "position": [
+        11.5,
+        0.38,
+        31.5
+      ],
+      "size": [
+        0.5,
+        0.8,
+        0.5
+      ]
+    },
+    {
+      "id": "promenade_planter",
+      "position": [
+        -5.8,
+        0.4,
+        8.0
+      ],
+      "size": [
+        1.4,
+        0.8,
+        4.6
+      ]
+    },
+    {
+      "id": "promenade_planter",
+      "position": [
+        5.8,
+        0.4,
+        8.0
+      ],
+      "size": [
+        1.4,
+        0.8,
+        4.6
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "id": "gate",
+      "position": [
+        0,
+        3.4,
+        44.0
+      ],
+      "color": "ffd3a0",
+      "energy": 1.4,
+      "range": 8.0
+    },
+    {
+      "id": "street_w",
+      "position": [
+        -20,
+        4.6,
+        28.8
+      ],
+      "color": "ffd3a0",
+      "energy": 1.1,
+      "range": 7.0
+    },
+    {
+      "id": "street_e",
+      "position": [
+        20,
+        4.6,
+        28.8
+      ],
+      "color": "ffd3a0",
+      "energy": 1.1,
+      "range": 7.0
+    }
+  ],
+  "villa": {
+    "position": [
+      24,
+      0,
+      8
+    ],
+    "inside_bounds": {
+      "min_x": 19.65,
+      "max_x": 32.35,
+      "min_z": -3.8499999999999996,
+      "max_z": 4.85
+    },
+    "interior_focus": [
+      26.0,
+      1.25,
+      0.6
+    ],
+    "interior_size": 13.5,
+    "upper_focus": [
+      26.0,
+      4.55,
+      0.6
+    ],
+    "upper_size": 13.5,
+    "upper_y": 2.15,
+    "cutaway": {
+      "roof": "DD_Villa_Roof",
+      "front": "DD_Villa_FrontWall",
+      "east": "DD_Villa_EastWall",
+      "upper": "DD_Villa_UpperFloor"
+    }
+  }
+}

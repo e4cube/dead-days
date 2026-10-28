@@ -1,0 +1,101 @@
+[
+  {
+    "id": 1,
+    "file": "user-01.png",
+    "available": true,
+    "sha256": "c19dead401987a5e2ff7b41e5659655f809f5c46d32baacc754797556f6e418f",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 2,
+    "file": "user-02.png",
+    "available": true,
+    "sha256": "168100510b1728c8ba7ef309cbf610801b7206f700f3880d6cfa855588fe9571",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 3,
+    "file": "user-03.png",
+    "available": true,
+    "sha256": "168100510b1728c8ba7ef309cbf610801b7206f700f3880d6cfa855588fe9571",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 4,
+    "file": "user-04.png",
+    "available": true,
+    "sha256": "e21eee360d56fd32c8c1ba2902b699795e42285ad2ff08f5e0dee8b8eadb518e",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 5,
+    "file": "user-05.png",
+    "available": true,
+    "sha256": "6df1b2234cf826d379b1b99c76387e5742f342193065d96613f9a68f46136cc7",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 6,
+    "file": "user-06.png",
+    "available": true,
+    "sha256": "67b7ae739093ceb9c17c1f5a9d8779d674381f545d4ac639a52e6ea9e0e18a6d",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 7,
+    "file": "user-07.png",
+    "available": true,
+    "sha256": "4134148f7b10a910ab174d700467f9418a863d96fd69ecf3d2eb9de6d0e5e339",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 8,
+    "file": "user-08.png",
+    "available": true,
+    "sha256": "0dbd8f3ab59805870e1d7ce51d75fc3b809c67c1627f5c3af7f6ba2ac85d68e2",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 9,
+    "file": "user-09.png",
+    "available": true,
+    "sha256": "b8db70a256f0bfa7742c8066782a0809fca4378353f466a153dbd8091ee2972b",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": 10,
+    "file": "user-10.png",
+    "available": true,
+    "sha256": "a5a2f90521c1f2dba0750280870b45dd790e4e7f7feb424dbda16cd271899db8",
+    "source": "User supplied social-media screenshot; third-party artwork",
+    "license": "Reference-only; no redistribution or runtime-asset license established",
+    "runtime_use": false
+  },
+  {
+    "id": "character-sheet",
+    "file": "user-character-sheet.png",
+    "available": true,
+    "sha256": "bcd02377f029f3bd1cdcc839b342c52b31a13daf8ab0499ed508ad87c09a525f",
+    "source": "User supplied AI-generated appearance reference",
+    "license": "Reference-only; not integrated as a game asset",
+    "runtime_use": false
+  }
+]

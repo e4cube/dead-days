@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "blender": "5.2.2 LTS",
+  "assets": {
+    "player": {
+      "file": "player.glb",
+      "source": "art/source/player.blend",
+      "triangles": 6952,
+      "meshes": 3,
+      "clips": [
+        "stand",
+        "move",
+        "attack",
+        "hurt",
+        "death",
+        "run"
+      ],
+      "bones": 16
+    },
+    "zombie": {
+      "file": "zombie.glb",
+      "source": "art/source/zombie.blend",
+      "triangles": 2920,
+      "meshes": 4,
+      "clips": [
+        "stand",
+        "move",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "bones": 16
+    },
+    "building_home": {
+      "file": "building_home.glb",
+      "source": "art/source/building_home.blend",
+      "triangles": 1736,
+      "meshes": 92,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "building_clinic": {
+      "file": "building_clinic.glb",
+      "source": "art/source/building_clinic.blend",
+      "triangles": 656,
+      "meshes": 44,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "building_shop": {
+      "file": "building_shop.glb",
+      "source": "art/source/building_shop.blend",
+      "triangles": 704,
+      "meshes": 48,
+      "cutaway_prefixes": [
+        "DD_Hide_",
+        "DD_Cut_"
+      ]
+    },
+    "door": {
+      "file": "door.glb",
+      "source": "art/source/door.blend",
+      "triangles": 112,
+      "meshes": 4
+    },
+    "bed": {
+      "file": "bed.glb",
+      "source": "art/source/bed.blend",
+      "triangles": 1864,
+      "meshes": 22
+    },
+    "cabinet": {
+      "file": "cabinet.glb",
+      "source": "art/source/cabinet.blend",
+      "triangles": 1124,
+      "meshes": 11
+    },
+    "table": {
+      "file": "table.glb",
+      "source": "art/source/table.blend",
+      "triangles": 220,
+      "meshes": 5
+    },
+    "loot_crate": {
+      "file": "loot_crate.glb",
+      "source": "art/source/loot_crate.blend",
+      "triangles": 36,
+      "meshes": 1
+    }
+  }
+}

@@ -1,0 +1,1238 @@
+{
+  "id": "east_expanse_v1",
+  "revision": 3,
+  "bounds": {
+    "min_x": -13.5,
+    "max_x": 195,
+    "min_z": -76,
+    "max_z": 48
+  },
+  "navigation": {
+    "origin": [
+      -14,
+      -77
+    ],
+    "size": [
+      280,
+      168
+    ],
+    "cell_size": 0.75,
+    "clearance": 0.36
+  },
+  "containers": [
+    {
+      "id": "villa_fridge",
+      "name": "别墅冰箱",
+      "building": "villa_07",
+      "area": "villa",
+      "position": [
+        115.95,
+        1.05,
+        -25.2
+      ],
+      "contents": {
+        "food": 2,
+        "water": 2
+      },
+      "capacity": 6.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "villa_cabinet",
+      "name": "别墅厨房柜",
+      "building": "villa_07",
+      "area": "villa",
+      "position": [
+        112.75,
+        1.0,
+        -25.3
+      ],
+      "contents": {
+        "food": 1,
+        "water": 1,
+        "bandage": 1
+      },
+      "capacity": 6.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "villa_bedside",
+      "name": "别墅床头柜",
+      "building": "villa_07",
+      "area": "villa",
+      "position": [
+        118.3,
+        0.8,
+        -24.9
+      ],
+      "contents": {
+        "bandage": 1,
+        "ammo_9mm": 8
+      },
+      "capacity": 4.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "villa_wardrobe",
+      "name": "别墅衣柜",
+      "building": "villa_07",
+      "area": "villa",
+      "position": [
+        121.4,
+        1.15,
+        -23.5
+      ],
+      "contents": {
+        "club": 1,
+        "ammo_9mm": 6
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "villa_upstairs_chest",
+      "name": "二楼储物箱",
+      "building": "villa_07",
+      "area": "villa",
+      "position": [
+        119.0,
+        3.75,
+        -23.8
+      ],
+      "contents": {
+        "pistol": 1,
+        "ammo_9mm": 12,
+        "bandage": 2
+      },
+      "capacity": 10.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "market_produce_a",
+      "name": "市集果蔬摊",
+      "building": "market_07",
+      "area": "market",
+      "position": [
+        57.5,
+        1.0,
+        -17.4
+      ],
+      "contents": {
+        "food": 4,
+        "water": 2
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "market_produce_b",
+      "name": "市集杂货摊",
+      "building": "market_07",
+      "area": "market",
+      "position": [
+        63.4,
+        1.0,
+        -17.4
+      ],
+      "contents": {
+        "food": 2,
+        "water": 2,
+        "bandage": 1
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "market_lockbox",
+      "name": "市集钱箱",
+      "building": "market_07",
+      "area": "market",
+      "position": [
+        69.5,
+        1.0,
+        -17.4
+      ],
+      "contents": {
+        "ammo_9mm": 10,
+        "bandage": 1
+      },
+      "capacity": 5.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "market_shop_counter",
+      "name": "市集店铺柜台",
+      "building": "market_07",
+      "area": "market",
+      "position": [
+        67.0,
+        1.05,
+        -25.2
+      ],
+      "contents": {
+        "food": 2,
+        "water": 2,
+        "bandage": 2,
+        "ammo_9mm": 8
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "factory_toolchest",
+      "name": "工厂工具箱",
+      "building": "factory_07",
+      "area": "factory",
+      "position": [
+        163.65,
+        1.0,
+        18.8
+      ],
+      "contents": {
+        "club": 1,
+        "bandage": 2
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "factory_parts_crate",
+      "name": "工厂零件箱",
+      "building": "factory_07",
+      "area": "factory",
+      "position": [
+        155.35,
+        1.05,
+        28.5
+      ],
+      "contents": {
+        "food": 1,
+        "water": 1,
+        "ammo_9mm": 14
+      },
+      "capacity": 8.0,
+      "introduced_revision": 3
+    },
+    {
+      "id": "factory_locker",
+      "name": "工厂储物柜",
+      "building": "factory_07",
+      "area": "factory",
+      "position": [
+        166.2,
+        1.0,
+        17.2
+      ],
+      "contents": {
+        "pistol": 1,
+        "ammo_9mm": 18,
+        "bandage": 3
+      },
+      "capacity": 10.0,
+      "introduced_revision": 3
+    }
+  ],
+  "regions": [
+    {
+      "id": "old_street",
+      "name": "灰湾街区",
+      "rect": [
+        -13.5,
+        -10.5,
+        48,
+        19
+      ]
+    },
+    {
+      "id": "district_07",
+      "name": "北区街坊",
+      "rect": [
+        41,
+        -76,
+        98,
+        84
+      ]
+    },
+    {
+      "id": "market_07",
+      "name": "市集",
+      "rect": [
+        51.4,
+        -27,
+        31.2,
+        25
+      ]
+    },
+    {
+      "id": "villa_07",
+      "name": "别墅",
+      "rect": [
+        109.65,
+        -26.35,
+        12.7,
+        8.7
+      ]
+    },
+    {
+      "id": "track_07",
+      "name": "操场",
+      "rect": [
+        74,
+        -63,
+        32,
+        30
+      ]
+    },
+    {
+      "id": "factory_07",
+      "name": "工厂",
+      "rect": [
+        140.5,
+        2,
+        50,
+        40
+      ]
+    }
+  ],
+  "beds": [
+    {
+      "id": "villa_upstairs_bed",
+      "building": "villa_07",
+      "position": [
+        119.55,
+        3.62,
+        -24.78
+      ],
+      "use_radius": 2,
+      "area": {
+        "min_x": 109.65,
+        "max_x": 122.35,
+        "min_z": -26.35,
+        "max_z": -17.65,
+        "min_y": 2.15,
+        "max_y": 6
+      }
+    }
+  ],
+  "enemy_spawns": [
+    {
+      "id": "market_z_001",
+      "position": [
+        53.0,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_002",
+      "position": [
+        57.8,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_003",
+      "position": [
+        62.6,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_004",
+      "position": [
+        67.4,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_005",
+      "position": [
+        72.2,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_006",
+      "position": [
+        77.0,
+        0,
+        -23
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_007",
+      "position": [
+        53.0,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_008",
+      "position": [
+        57.8,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_009",
+      "position": [
+        62.6,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_010",
+      "position": [
+        67.4,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_011",
+      "position": [
+        72.2,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_012",
+      "position": [
+        77.0,
+        0,
+        -18
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_013",
+      "position": [
+        53.0,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_014",
+      "position": [
+        57.8,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_015",
+      "position": [
+        62.6,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_016",
+      "position": [
+        67.4,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_017",
+      "position": [
+        72.2,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_018",
+      "position": [
+        77.0,
+        0,
+        -13
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_019",
+      "position": [
+        53.0,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_020",
+      "position": [
+        57.8,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_021",
+      "position": [
+        62.6,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_022",
+      "position": [
+        67.4,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_023",
+      "position": [
+        72.2,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "market_z_024",
+      "position": [
+        77.0,
+        0,
+        -8
+      ],
+      "appearance": "civilian",
+      "region": "market"
+    },
+    {
+      "id": "factory_z_001",
+      "position": [
+        147.0,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_002",
+      "position": [
+        152.1,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_003",
+      "position": [
+        157.2,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_004",
+      "position": [
+        162.3,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_005",
+      "position": [
+        167.4,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_006",
+      "position": [
+        172.5,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_007",
+      "position": [
+        177.6,
+        0,
+        9
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_008",
+      "position": [
+        147.0,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_009",
+      "position": [
+        152.1,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_010",
+      "position": [
+        157.2,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_011",
+      "position": [
+        162.3,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_012",
+      "position": [
+        167.4,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_013",
+      "position": [
+        172.5,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_014",
+      "position": [
+        177.6,
+        0,
+        16
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_015",
+      "position": [
+        147.0,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_016",
+      "position": [
+        152.1,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_017",
+      "position": [
+        157.2,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_018",
+      "position": [
+        162.3,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_019",
+      "position": [
+        167.4,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_020",
+      "position": [
+        172.5,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_021",
+      "position": [
+        177.6,
+        0,
+        23
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_022",
+      "position": [
+        147.0,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_023",
+      "position": [
+        152.1,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_024",
+      "position": [
+        157.2,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_025",
+      "position": [
+        162.3,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_026",
+      "position": [
+        167.4,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_027",
+      "position": [
+        172.5,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "factory_z_028",
+      "position": [
+        177.6,
+        0,
+        30
+      ],
+      "appearance": "worker",
+      "region": "factory"
+    },
+    {
+      "id": "villa_z_001",
+      "position": [
+        110.0,
+        0,
+        -28
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_002",
+      "position": [
+        113.5,
+        0,
+        -28
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_003",
+      "position": [
+        117.0,
+        0,
+        -28
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_004",
+      "position": [
+        120.5,
+        0,
+        -28
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_005",
+      "position": [
+        110.0,
+        0,
+        -14
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_006",
+      "position": [
+        113.5,
+        0,
+        -14
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_007",
+      "position": [
+        117.0,
+        0,
+        -14
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "villa_z_008",
+      "position": [
+        120.5,
+        0,
+        -14
+      ],
+      "appearance": "civilian",
+      "region": "villa"
+    },
+    {
+      "id": "track_z_001",
+      "position": [
+        80,
+        0,
+        -58
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "track_z_002",
+      "position": [
+        90,
+        0,
+        -58
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "track_z_003",
+      "position": [
+        100,
+        0,
+        -58
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "track_z_004",
+      "position": [
+        80,
+        0,
+        -40
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "track_z_005",
+      "position": [
+        90,
+        0,
+        -40
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "track_z_006",
+      "position": [
+        100,
+        0,
+        -40
+      ],
+      "appearance": "civilian",
+      "region": "track"
+    },
+    {
+      "id": "district_z_001",
+      "position": [
+        48,
+        0,
+        -35
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_002",
+      "position": [
+        68,
+        0,
+        -35
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_003",
+      "position": [
+        88,
+        0,
+        -35
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_004",
+      "position": [
+        108,
+        0,
+        -35
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_005",
+      "position": [
+        128,
+        0,
+        -35
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_006",
+      "position": [
+        48,
+        0,
+        -1
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_007",
+      "position": [
+        68,
+        0,
+        -1
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_008",
+      "position": [
+        88,
+        0,
+        -1
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_009",
+      "position": [
+        108,
+        0,
+        -1
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "district_z_010",
+      "position": [
+        128,
+        0,
+        -1
+      ],
+      "appearance": "police",
+      "region": "district"
+    },
+    {
+      "id": "connector_z_001",
+      "position": [
+        37,
+        0,
+        3
+      ],
+      "appearance": "civilian",
+      "region": "connector"
+    },
+    {
+      "id": "connector_z_002",
+      "position": [
+        74,
+        0,
+        3
+      ],
+      "appearance": "civilian",
+      "region": "connector"
+    },
+    {
+      "id": "connector_z_003",
+      "position": [
+        111,
+        0,
+        3
+      ],
+      "appearance": "civilian",
+      "region": "connector"
+    },
+    {
+      "id": "connector_z_004",
+      "position": [
+        148,
+        0,
+        3
+      ],
+      "appearance": "civilian",
+      "region": "connector"
+    },
+    {
+      "id": "connector_z_005",
+      "position": [
+        185,
+        0,
+        3
+      ],
+      "appearance": "civilian",
+      "region": "connector"
+    }
+  ],
+  "simulation": {
+    "active_radius": 32,
+    "far_tick_seconds": 1.0,
+    "render_radius": 60
+  },
+  "drop_floors": [
+    {
+      "rect": [
+        109.65,
+        -26.35,
+        12.7,
+        8.7
+      ],
+      "height": 3.62
+    }
+  ],
+  "roads": [
+    {
+      "id": "main_street",
+      "rect": [
+        -13.5,
+        1.0,
+        48.0,
+        4.0
+      ]
+    },
+    {
+      "id": "east_link",
+      "rect": [
+        34.3,
+        0.65,
+        7.4,
+        4.7
+      ]
+    },
+    {
+      "id": "north_spine",
+      "rect": [
+        88.0,
+        -67.0,
+        4.0,
+        71.0
+      ]
+    },
+    {
+      "id": "factory_lane",
+      "rect": [
+        163.0,
+        3.0,
+        4.0,
+        15.0
+      ]
+    },
+    {
+      "id": "factory_yard",
+      "rect": [
+        139.0,
+        -2.0,
+        31.0,
+        4.0
+      ]
+    }
+  ],
+  "structures": [
+    {
+      "id": "market_hall",
+      "name": "市集",
+      "rect": [
+        51.4,
+        -27.0,
+        31.2,
+        25.0
+      ],
+      "floor": 0
+    },
+    {
+      "id": "villa_block",
+      "name": "别墅",
+      "rect": [
+        109.65,
+        -26.35,
+        12.7,
+        8.7
+      ],
+      "floor": 0
+    },
+    {
+      "id": "villa_upper",
+      "name": "别墅二层",
+      "rect": [
+        109.65,
+        -26.35,
+        12.7,
+        8.7
+      ],
+      "floor": 1
+    },
+    {
+      "id": "factory_shed",
+      "name": "工厂",
+      "rect": [
+        152.95,
+        15.25,
+        25.1,
+        14.2
+      ],
+      "floor": 0
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+extends SceneTree
+const Model=preload("res://scripts/survival.gd")
+const Store=preload("res://scripts/save_store.gd")
+var failures:=0
+func check(value: bool,message: String):
+    if not value:
+        failures+=1
+        printerr("FAIL: ",message)
+func _initialize():
+    var m=Model.new()
+    m.start()
+    check(m.state.inventory.is_empty() and Model.Firearms.loaded(m)==0,"new survivor has no free gun or ammo")
+    check(m.transfer_item("shop","pistol",false),"find finite gun in real store stock")
+    for i in 12: check(m.transfer_item("shop","ammo_9mm",false),"collect twelve individual rounds")
+    check(m.use_item("pistol") and not m.begin_attack(),"empty gun cannot fire")
+    var weight: float=m.weight()
+    check(Model.Firearms.begin_reload(m),"start timed reload")
+    m.tick_combat(1)
+    check(Model.Firearms.loaded(m)==0 and not m.begin_attack(),"reload has no early rounds or shooting")
+    var store=Store.new("user://tests/firearms_%d"%Time.get_ticks_usec())
+    check(not store.save(m).is_empty(),"save mid-reload")
+    var restored=Model.new()
+    check(store.load_latest(restored),"restore mid-reload")
+    check(is_equal_approx(restored.state.firearms.reload_left,1.0),"reload progress retained")
+    m=restored
+    m.tick_combat(1)
+    check(Model.Firearms.loaded(m)==6 and m.state.inventory.ammo_9mm==6,"six rounds moved from reserve")
+    check(is_equal_approx(m.weight(),weight),"loaded rounds still weigh the same")
+    check(not m.transfer_item("home","pistol",true),"cannot duplicate loaded gun through storage")
+    check(Model.Firearms.unload(m) and m.state.inventory.ammo_9mm==12,"unloading conserves ammunition")
+    for magazine in 2:
+        check(Model.Firearms.begin_reload(m),"reload existing rounds")
+        m.tick_combat(2)
+        for shot in 6:
+            check(m.begin_attack(),"one successful shot")
+            check(not m.begin_attack(),"cooldown blocks double fire")
+            m.tick_combat(.5)
+        check(not m.begin_attack(),"empty magazine blocks fire")
+    check(m.state.inventory.ammo_9mm==0 and not Model.Firearms.begin_reload(m),"no reserve means no reload")
+    check(m.state.containers.shop.ammo_9mm==6,"uncollected rounds remain finite in world")
+    check(m.transfer_item("shop","ammo_9mm",false),"return and collect another round")
+    check(Model.Firearms.begin_reload(m),"single spare round can load")
+    m.tick_combat(2)
+    check(Model.Firearms.loaded(m)==1 and m.state.inventory.ammo_9mm==0,"partial magazine supported")
+    check(m.begin_attack(),"last single round fires")
+    m.tick_combat(.5)
+    check(not m.begin_attack(),"last round exhausted")
+    var bad=m.state.duplicate(true)
+    bad.firearms.loaded=7
+    check(not m.valid(bad),"overfilled magazine rejected")
+    bad=m.state.duplicate(true)
+    bad.firearms.reload_left=-1
+    check(not m.valid(bad),"negative reload timer rejected")
+    var old=m.state.duplicate(true)
+    old.erase("firearms")
+    check(m.valid(old),"old snapshot accepted")
+    m.restore(old)
+    check(Model.Firearms.loaded(m)==0 and m.state.containers.shop.ammo_9mm==5,"old migration does not refill stock")
+    print("FIREARMS_OK" if failures==0 else "FIREARMS_FAILED")
+    quit(0 if failures==0 else 1)

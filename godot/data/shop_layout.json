@@ -1,0 +1,1788 @@
+{
+  "version": 1,
+  "building": "shop",
+  "modules": [
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -2.475,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.925,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -1.375,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.825,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        -0.2749999999999999,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.2749999999999999,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        0.8250000000000002,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.3750000000000004,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        1.9250000000000003,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -0.28
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -0.8300000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -1.3800000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -1.9300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -2.4800000000000004
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -3.0300000000000002
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -3.58
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -4.130000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_ShopTile",
+      "position": [
+        2.475,
+        0.054,
+        -4.680000000000001
+      ],
+      "size": [
+        0.535,
+        0.024,
+        0.535
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Cut_Back",
+      "position": [
+        0,
+        0.39,
+        -5
+      ],
+      "size": [
+        5.7,
+        0.78,
+        0.2
+      ],
+      "material": "shop"
+    },
+    {
+      "name": "DD_Cut_West",
+      "position": [
+        -2.75,
+        0.39,
+        -2.5
+      ],
+      "size": [
+        0.2,
+        0.78,
+        5
+      ],
+      "material": "shop"
+    },
+    {
+      "name": "DD_Keep_RackUpright",
+      "position": [
+        -2.23,
+        0.85,
+        -4.0
+      ],
+      "size": [
+        0.65,
+        1.7,
+        0.07
+      ],
+      "material": "steel"
+    },
+    {
+      "name": "DD_Keep_RackUpright",
+      "position": [
+        -2.23,
+        0.85,
+        -1.8
+      ],
+      "size": [
+        0.65,
+        1.7,
+        0.07
+      ],
+      "material": "steel"
+    },
+    {
+      "name": "DD_Keep_RackShelf",
+      "position": [
+        -2.23,
+        0.12,
+        -2.9
+      ],
+      "size": [
+        0.65,
+        0.06,
+        2.25
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_RackShelf",
+      "position": [
+        -2.23,
+        0.65,
+        -2.9
+      ],
+      "size": [
+        0.65,
+        0.06,
+        2.25
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_RackShelf",
+      "position": [
+        -2.23,
+        1.18,
+        -2.9
+      ],
+      "size": [
+        0.65,
+        0.06,
+        2.25
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_Checkout",
+      "position": [
+        1.95,
+        0.47,
+        -1.05
+      ],
+      "size": [
+        1.1,
+        0.94,
+        0.7
+      ],
+      "material": "wood"
+    },
+    {
+      "name": "DD_Keep_CheckoutTop",
+      "position": [
+        1.95,
+        0.98,
+        -1.05
+      ],
+      "size": [
+        1.16,
+        0.08,
+        0.76
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_Register",
+      "position": [
+        2.05,
+        1.12,
+        -1.05
+      ],
+      "size": [
+        0.4,
+        0.21,
+        0.36
+      ],
+      "material": "steel"
+    },
+    {
+      "name": "DD_Keep_RegisterKeys",
+      "position": [
+        1.86,
+        1.17,
+        -0.94
+      ],
+      "size": [
+        0.16,
+        0.02,
+        0.2
+      ],
+      "material": "boots"
+    },
+    {
+      "name": "DD_Keep_RegisterScreen",
+      "position": [
+        2.1,
+        1.3,
+        -1.1
+      ],
+      "size": [
+        0.27,
+        0.2,
+        0.08
+      ],
+      "material": "glass"
+    },
+    {
+      "name": "DD_Keep_FoodCan",
+      "position": [
+        -2.23,
+        1.34,
+        -2.15
+      ],
+      "size": [
+        0.23,
+        0.25,
+        0.23
+      ],
+      "material": "steel",
+      "kind": "cylinder",
+      "radius": 0.12,
+      "depth": 0.25
+    },
+    {
+      "name": "DD_Keep_FoodLabel",
+      "position": [
+        -2.105,
+        1.34,
+        -2.15
+      ],
+      "size": [
+        0.014,
+        0.14,
+        0.18
+      ],
+      "material": "cross"
+    },
+    {
+      "name": "DD_Keep_WaterBody",
+      "position": [
+        1.65,
+        0.97,
+        -3.7
+      ],
+      "size": [
+        0.15,
+        0.36,
+        0.15
+      ],
+      "material": "glass",
+      "kind": "cylinder",
+      "radius": 0.075,
+      "depth": 0.3
+    },
+    {
+      "name": "DD_Keep_WaterCap",
+      "position": [
+        1.65,
+        1.18,
+        -3.7
+      ],
+      "size": [
+        0.09,
+        0.05,
+        0.09
+      ],
+      "material": "white",
+      "kind": "cylinder",
+      "radius": 0.045,
+      "depth": 0.04
+    },
+    {
+      "name": "DD_Keep_FoodCan",
+      "position": [
+        -2.23,
+        1.34,
+        -2.8
+      ],
+      "size": [
+        0.23,
+        0.25,
+        0.23
+      ],
+      "material": "steel",
+      "kind": "cylinder",
+      "radius": 0.12,
+      "depth": 0.25
+    },
+    {
+      "name": "DD_Keep_FoodLabel",
+      "position": [
+        -2.105,
+        1.34,
+        -2.8
+      ],
+      "size": [
+        0.014,
+        0.14,
+        0.18
+      ],
+      "material": "cross"
+    },
+    {
+      "name": "DD_Keep_WaterBody",
+      "position": [
+        1.9,
+        0.97,
+        -3.7
+      ],
+      "size": [
+        0.15,
+        0.36,
+        0.15
+      ],
+      "material": "glass",
+      "kind": "cylinder",
+      "radius": 0.075,
+      "depth": 0.3
+    },
+    {
+      "name": "DD_Keep_WaterCap",
+      "position": [
+        1.9,
+        1.18,
+        -3.7
+      ],
+      "size": [
+        0.09,
+        0.05,
+        0.09
+      ],
+      "material": "white",
+      "kind": "cylinder",
+      "radius": 0.045,
+      "depth": 0.04
+    },
+    {
+      "name": "DD_Keep_FoodCan",
+      "position": [
+        -2.23,
+        1.34,
+        -3.45
+      ],
+      "size": [
+        0.23,
+        0.25,
+        0.23
+      ],
+      "material": "steel",
+      "kind": "cylinder",
+      "radius": 0.12,
+      "depth": 0.25
+    },
+    {
+      "name": "DD_Keep_FoodLabel",
+      "position": [
+        -2.105,
+        1.34,
+        -3.45
+      ],
+      "size": [
+        0.014,
+        0.14,
+        0.18
+      ],
+      "material": "cross"
+    },
+    {
+      "name": "DD_Keep_WaterBody",
+      "position": [
+        2.15,
+        0.97,
+        -3.7
+      ],
+      "size": [
+        0.15,
+        0.36,
+        0.15
+      ],
+      "material": "glass",
+      "kind": "cylinder",
+      "radius": 0.075,
+      "depth": 0.3
+    },
+    {
+      "name": "DD_Keep_WaterCap",
+      "position": [
+        2.15,
+        1.18,
+        -3.7
+      ],
+      "size": [
+        0.09,
+        0.05,
+        0.09
+      ],
+      "material": "white",
+      "kind": "cylinder",
+      "radius": 0.045,
+      "depth": 0.04
+    },
+    {
+      "name": "DD_Hide_BackSign",
+      "position": [
+        0,
+        1.8,
+        -4.86
+      ],
+      "size": [
+        1.8,
+        0.5,
+        0.045
+      ],
+      "material": "wood"
+    },
+    {
+      "name": "DD_Hide_BackSignMark",
+      "position": [
+        -0.5,
+        1.8,
+        -4.82
+      ],
+      "size": [
+        0.28,
+        0.07,
+        0.02
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Hide_BackSignMark",
+      "position": [
+        0,
+        1.8,
+        -4.82
+      ],
+      "size": [
+        0.28,
+        0.07,
+        0.02
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Hide_BackSignMark",
+      "position": [
+        0.5,
+        1.8,
+        -4.82
+      ],
+      "size": [
+        0.28,
+        0.07,
+        0.02
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Hide_WestPriceRail",
+      "position": [
+        -2.64,
+        1.25,
+        -2.8
+      ],
+      "size": [
+        0.03,
+        0.16,
+        3.8
+      ],
+      "material": "cream"
+    },
+    {
+      "name": "DD_Keep_EmptyCarton",
+      "position": [
+        1.2,
+        0.82,
+        -3.7
+      ],
+      "size": [
+        0.28,
+        0.1,
+        0.4
+      ],
+      "material": "wood_light"
+    },
+    {
+      "name": "DD_Keep_WaterNeck",
+      "kind": "cylinder",
+      "position": [
+        1.65,
+        1.14,
+        -3.7
+      ],
+      "radius": 0.035,
+      "depth": 0.06,
+      "material": "glass"
+    },
+    {
+      "name": "DD_Keep_WaterNeck",
+      "kind": "cylinder",
+      "position": [
+        1.9,
+        1.14,
+        -3.7
+      ],
+      "radius": 0.035,
+      "depth": 0.06,
+      "material": "glass"
+    },
+    {
+      "name": "DD_Keep_WaterNeck",
+      "kind": "cylinder",
+      "position": [
+        2.15,
+        1.14,
+        -3.7
+      ],
+      "radius": 0.035,
+      "depth": 0.06,
+      "material": "glass"
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "supply_rack",
+      "position": [
+        -2.23,
+        0.85,
+        -2.9
+      ],
+      "size": [
+        0.65,
+        1.7,
+        2.27
+      ]
+    },
+    {
+      "id": "checkout",
+      "position": [
+        1.95,
+        0.65,
+        -1.05
+      ],
+      "size": [
+        1.16,
+        1.3,
+        0.76
+      ]
+    }
+  ],
+  "camera": {
+    "center": [
+      0,
+      0.55,
+      -2.5
+    ],
+    "player_weight": 0.28,
+    "zoom_scale": 0.62,
+    "min_size": 8.5,
+    "max_size": 17.5
+  }
+}

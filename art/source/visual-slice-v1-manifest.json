@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "baseline": "076dc3241afb315ed3e9521acdfe4935908926f7",
+  "assets": [
+    {
+      "id": "abandoned_car",
+      "source": "art/source/abandoned_car.blend",
+      "source_sha256": "c53cc7e82114ad5b036f833c32e7f5483e220bdbe9790743d3cdaa4e242b254c",
+      "glb": "godot/assets/abandoned_car.glb",
+      "glb_sha256": "6729362e851b5e05c343d6f6f142fae1f56b0b804c6a5e0670fcc0d4f8a5af98",
+      "bytes": 3524156,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "bed",
+      "source": "art/source/bed.blend",
+      "source_sha256": "bd689fb93930eca39e74171cf679959c149a826d629d149812417773b3c70228",
+      "glb": "godot/assets/bed.glb",
+      "glb_sha256": "4b792b409dbb7bd66548a0a262ac5741a5c4aacbc07a335033873992c31f1300",
+      "bytes": 2826560,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "building_clinic",
+      "source": "art/source/building_clinic.blend",
+      "source_sha256": "38aea7ec0db28351fbbcc254f3da78208b13e4c5bb9c87a1e5cf894f239766d0",
+      "glb": "godot/assets/building_clinic.glb",
+      "glb_sha256": "5e73bdc6cf4c13cbd2a638a9c8a2ea66df3048bf9078242368023f3d08a88a57",
+      "bytes": 3059904,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "building_home",
+      "source": "art/source/building_home.blend",
+      "source_sha256": "610f12645da5e8ddf369b9184cea94ca444372010b9a7ee0df6ae7b3ab2164fe",
+      "glb": "godot/assets/building_home.glb",
+      "glb_sha256": "21bd1eea0e636417269a80f3d38c69b466971a06e72096b21ca6c6d780a70ac9",
+      "bytes": 3595816,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "building_shop",
+      "source": "art/source/building_shop.blend",
+      "source_sha256": "cd17ebb45b4ad3ff5c85dffa6a577ebd82dced1fd09b8720d37a65f6d23f2a3b",
+      "glb": "godot/assets/building_shop.glb",
+      "glb_sha256": "685a26093a37d83694e68c357a6e7e942f9d40b0ff5e0ff8c3c83c0bc3ae6a6f",
+      "bytes": 3065644,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "cabinet",
+      "source": "art/source/cabinet.blend",
+      "source_sha256": "c738fde25a129a3acdef468cbffac84296e2242465d2a8977083b4d33713850c",
+      "glb": "godot/assets/cabinet.glb",
+      "glb_sha256": "446ee976c6cd189a52a41b9c98a1ef56188bdfad760c92117dce9407e99bc1a3",
+      "bytes": 2224676,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "clinic_details",
+      "source": "art/source/clinic_details.blend",
+      "source_sha256": "9db1999f13f5bc63551869f19dc54b529c3287927579579b7ee5b7f657fe6d54",
+      "glb": "godot/assets/clinic_details.glb",
+      "glb_sha256": "1be1617477ae367d934c7814de000ba2ede43ae7b2e7e47389449d68b98bc25e",
+      "bytes": 3180028,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "door",
+      "source": "art/source/door.blend",
+      "source_sha256": "d870c4a25cf02836a1f4b2cbd7fbfe8753eed0f93a1c19e44b532236b7026b59",
+      "glb": "godot/assets/door.glb",
+      "glb_sha256": "0852ede34150378d00714b13161253b22ded04af04694ff8f89b8d824f5b0e08",
+      "bytes": 2152132,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "fence_panel",
+      "source": "art/source/fence_panel.blend",
+      "source_sha256": "23e030384bdaae0ab25195e0b76b848051f88269582738a6c5cac541dbc250b4",
+      "glb": "godot/assets/fence_panel.glb",
+      "glb_sha256": "3223486fbea9d30a91fca74adc71278410dc1aa2da738308e23cf884ee4482bd",
+      "bytes": 1378036,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "grass_clump",
+      "source": "art/source/grass_clump.blend",
+      "source_sha256": "0874785ce0f68848ea04204ecb69c474b2d53991c74fd2e5154c12e0d7e103b1",
+      "glb": "godot/assets/grass_clump.glb",
+      "glb_sha256": "b20d41cec1c4640378910cdfc967249fdbd12be2043059c624009f44ee843749",
+      "bytes": 939144,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "house_details",
+      "source": "art/source/house_details.blend",
+      "source_sha256": "07e18a28c54bf85d3a47c930934e9f29c0bae55e9bddac8cb93678c7b6d3bd3a",
+      "glb": "godot/assets/house_details.glb",
+      "glb_sha256": "963ecfc117e39e5fee2fd9dd06cafde4cfada1b22a7184ee126d66cfc64c97ce",
+      "bytes": 5655576,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "loot_crate",
+      "source": "art/source/loot_crate.blend",
+      "source_sha256": "310fba50d6be94756ed12f93f7229a69d14297d6c41e26887a8a5d54b4342332",
+      "glb": "godot/assets/loot_crate.glb",
+      "glb_sha256": "8c7ad4e5fdfbe49ea3f76e2db57f6a99cbe14aad30c90dad64eac9016a5a23be",
+      "bytes": 1713680,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "player",
+      "source": "art/source/player.blend",
+      "source_sha256": "747f230f863f7e2dcde623bf5ac4357a6cc3e759ec3d49bc880db556f797789f",
+      "glb": "godot/assets/player.glb",
+      "glb_sha256": "97e39e7ea3ff851becfd0de0536382bae7dd824b2275135cba38173db1aaa69b",
+      "bytes": 5513068,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "road_debris",
+      "source": "art/source/road_debris.blend",
+      "source_sha256": "75a2bd7cba3f739c8571ad952d16061b7873033c6839fb7f35240fc217a53904",
+      "glb": "godot/assets/road_debris.glb",
+      "glb_sha256": "2b9a85a54833b930eab934d86c87a7d648de00ef206d8503877e2614ca826e67",
+      "bytes": 1669284,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "shop_details",
+      "source": "art/source/shop_details.blend",
+      "source_sha256": "92793055be3c5b682f16ddbb8613aa310f266af9fd8618d8c7c8431c53244465",
+      "glb": "godot/assets/shop_details.glb",
+      "glb_sha256": "80aea912ef5bfe8b027151fb6861676bfa76fc04bdcf90d5b35ad2f9f4a0f0bf",
+      "bytes": 4101260,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "street_ground",
+      "source": "art/source/street_ground.blend",
+      "source_sha256": "a6ca04598064c5f00be3cf60399d8c4cd3f01d95a3ad6628f4031d0a35616a73",
+      "glb": "godot/assets/street_ground.glb",
+      "glb_sha256": "078226e9ab0931adae421016e040d68a556ec5aa8d4fd9f24874aad5f28f43fd",
+      "bytes": 2649916,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "street_lamp",
+      "source": "art/source/street_lamp.blend",
+      "source_sha256": "8fd4387efe98b7730d19971c9e3f90053dca0752b47c613954907047e4227f55",
+      "glb": "godot/assets/street_lamp.glb",
+      "glb_sha256": "501d1a7f1b7045aa72832f18f09166e81d506714fbc83bc8ffad740b3685d1ae",
+      "bytes": 1676016,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "table",
+      "source": "art/source/table.blend",
+      "source_sha256": "e32c8ce394363603ff9e6676a6d76d9432bcf8b7f6d73b642232ceae37d99fe2",
+      "glb": "godot/assets/table.glb",
+      "glb_sha256": "a8be4f41b50ad50aaaced201c1714a81e26728e9854351d1743987bfd7d16061",
+      "bytes": 1359284,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "trash_bin",
+      "source": "art/source/trash_bin.blend",
+      "source_sha256": "1563c3d2b76d1e984ade785fb4fdc5644775812358aeee3524680614ac6ceede",
+      "glb": "godot/assets/trash_bin.glb",
+      "glb_sha256": "518580642e70a802f2142b3a7edc07f13ac8beb1db7275d71f91a468f23d4f3e",
+      "bytes": 1710292,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "tree_oak",
+      "source": "art/source/tree_oak.blend",
+      "source_sha256": "2aa594517fd2b1e721e8e7751167ad1ccf18cf5c1e8461f7ba1f51f1f730e0d2",
+      "glb": "godot/assets/tree_oak.glb",
+      "glb_sha256": "4a11e3545d668d702bbd2f0d3351ac4df4c583557ce650b46b5199e9da8d6f50",
+      "bytes": 1139224,
+      "provenance": "Original project generator; no third-party model"
+    },
+    {
+      "id": "zombie",
+      "source": "art/source/zombie.blend",
+      "source_sha256": "404f66a782f403f15f2397e2fb4cadec3c72d5521442201379b08124aa07c6e4",
+      "glb": "godot/assets/zombie.glb",
+      "glb_sha256": "4d07eccc73b8984b88ccad4ef7c44a790152c1b249ed28d5e52b2eaa5eb896d3",
+      "bytes": 4144016,
+      "provenance": "Original project generator; no third-party model"
+    }
+  ],
+  "materials": {
+    "file": "godot/data/material_library_v1.json",
+    "sha256": "f1d3f734b91351e61943bb4c2cab5309dd100aa91196c1a1624a651a4fd7f2ef",
+    "maps_manifest": "godot/assets/materials_v1/manifest.json",
+    "maps_manifest_sha256": "e8b68b10112963a4b559d33eb07e0cfe5ba45b284e046bbd2d33e8929aecc2d0"
+  },
+  "external_runtime_assets": "Unchanged approved CC0 Poly Haven ground diffuse; art-library/index/LICENSE_LEDGER.md",
+  "references": "art/references/manifest.json \u2014 design-only; excluded from game resources",
+  "acceptance": "See docs/visual-slice-v1-report.md; inventory is not an aesthetic quality pass"
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "polyhaven-aerial-grass-rock",
+  "name": "Aerial Grass Rock — 1K Diffuse",
+  "author": "Rob Tuytel",
+  "source_platform": "Poly Haven",
+  "source_url": "https://polyhaven.com/a/aerial_grass_rock",
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+  "download_date": "2026-10-22",
+  "commercial_use": true,
+  "modification": true,
+  "redistribution": true,
+  "attribution_required": false,
+  "attribution": {
+    "text": "",
+    "changes": "",
+    "notice": "",
+    "placement": ""
+  },
+  "category": "Textures",
+  "styles": [
+    "realistic"
+  ],
+  "tags": [
+    "ground",
+    "rock",
+    "grass",
+    "terrain"
+  ],
+  "formats": [
+    "PNG"
+  ],
+  "files": [
+    {
+      "path": "aerial_grass_rock_diff_1k.png",
+      "sha256": "375dcb05aaced6f690ae53016a45f9a6b780a5b66f77f0a53a90ce840b4d71bc",
+      "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/aerial_grass_rock/aerial_grass_rock_diff_1k.png",
+      "role": "base_color",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "evidence": [
+    {
+      "path": "evidence/source-review.md",
+      "kind": "source",
+      "url": "https://polyhaven.com/a/aerial_grass_rock",
+      "captured_date": "2026-10-22",
+      "sha256": "703cd7779a00e4a0d0a328c7de356e90702fccc665e2372c08e61f31606d1805"
+    },
+    {
+      "path": "evidence/platform-license-review.md",
+      "kind": "review",
+      "url": "https://polyhaven.com/license",
+      "captured_date": "2026-10-22",
+      "sha256": "b483b770d4844219cb297650f19e40d0275acd6f2e8e8c40f8ff135d2c79e19c"
+    },
+    {
+      "path": "evidence/cc0-review.md",
+      "kind": "license",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+      "captured_date": "2026-10-22",
+      "sha256": "baf5a126753a60f5482ab5664896f537b252939dda1c7fdfcda2fea1e86eb5aa"
+    },
+    {
+      "path": "evidence/risk-review.md",
+      "kind": "review",
+      "url": "https://polyhaven.com/a/aerial_grass_rock",
+      "captured_date": "2026-10-22",
+      "sha256": "d3321ee6f6306a5845454f9c8455365a0a2c4a6d4a73cb279a5d46cd4d0a9097"
+    }
+  ],
+  "review": {
+    "status": "APPROVED",
+    "reviewer": "Codex-assisted source and visual review",
+    "reviewed_date": "2026-10-22",
+    "source_verified": true,
+    "trademark_checked": true,
+    "likeness_checked": true,
+    "third_party_checked": true,
+    "notes": "Official asset page + platform CC0 checked; downloaded PNG visually inspected: natural ground only, no visible marks or people. See evidence/risk-review.md. Approval applies only to listed bytes."
+  }
+}
