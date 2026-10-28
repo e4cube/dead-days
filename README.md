@@ -1,4 +1,30 @@
-# Dead Days 重构分支
+# Dead Days
+
+俯视角僵尸生存游戏，Godot 4.7.2 单机。一片连起来的街区——街道与四栋住宅、杂货店、诊所、市集大厅、废弃工厂，外加街区外一栋两层别墅。搜刮、搬物资、设据点、修门加固，然后在一整片没人的城里把日子过下去。
+
+## 当前版本
+
+`27b546d`（2026-10-28）。存档 schema 6，世界数据 revision 5。
+
+- **连片世界**：默认启动整图，独立存档、分类背包、双栏容器、Tab 地图与备注。
+- **楼层追击 V1**：导航按层分网格，僵尸能走楼梯上二楼，隔层伤害与听觉衰减已修正。
+- **据点建设 V1**：据点从街道四栋住宅扩展到任意地点（含别墅二层）；修门、加固、四条据点配方。
+- **别墅工事 V1**：院子 4.6m 铁门、别墅前门 1.3m 缺口、泳池市政供水三处工事，材料从工厂与市集搬回来自行安装。
+
+细节见 [别墅工事](docs/villa-works.md)、[据点建设](docs/base-building-v1.md)、[楼层追击](docs/floor-chase-v1.md)、[玩法路线图](docs/gameplay-roadmap-v1.md)。
+
+## 跑起来
+
+```powershell
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --editor --import --quit
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot
+```
+
+或双击根目录 `play.bat`。WASD 移动、Shift 跑步、空格攻击、E 交互、B 存取、I 背包、J 日志、F3 画质、F5 存档。
+
+## 版本记录
+
+以下条目按时间倒序，逐条记录当时的状态；schema 版本与分支归属以「当前版本」为准。
 
 连片世界玩法V1：默认启动整图，独立存档、分类背包与双栏容器、Tab地图和备注；初始84只僵尸，市集/工厂52只，远处分频更新。沿用原人物和僵尸版本。操作、实机证据及限制见 [整图玩法接入](docs/connected-gameplay-v1.md)。
 
@@ -20,7 +46,7 @@
 
 视觉切片V1在独立分支 `feature/dead-days-visual-slice-v1`：共享PBR库、原始贴图生成、角色比例/关节轮廓、汽车截面车身、路缘与连续裂缝已接入实际街区。镜头遵循用户最终确认：室内外统一斜俯视正交，进屋隐藏屋顶与近侧高墙，离开恢复。见 [正式美术标准](docs/art-direction-v1.md) 和 [实施/验收报告](docs/visual-slice-v1-report.md)；仍有美术门禁待完善，不等同于最终画质验收。
 
-本分支默认启动视觉切片；也可执行 `D:\GameDev\Godot_v4.7.2-stable_win64.exe --path godot res://visual_slice_v1.tscn`，从菜单新游戏即可操作。`python tools/run_visual_slice.py capture` 生成1920×1080实机截图、连续输入试玩记录及真实采样数据到 `work/visual-slice/`。该分支未自动合并或推送。
+本分支默认启动视觉切片；也可执行 `D:\GameDev\Godot_v4.7.2-stable_win64.exe --path godot res://visual_slice_v1.tscn`，从菜单新游戏即可操作。`python tools/run_visual_slice.py capture` 生成1920×1080实机截图、连续输入试玩记录及真实采样数据到 `work/visual-slice/`。该分支已推送远端，并已更新为 `main` 的当前内容。
 
 住宅厨房/客厅新增板件橱柜、弯管龙头、排水口与沙发支脚，并接入八份共享材质配方；住宅166个模型部件，原碰撞与生存机制保留。见 [材质与结构增量](docs/house-surface-pass.md)。
 
@@ -44,14 +70,9 @@
 
 住宅为5.5×7米，包含客厅/厨房/卧室家具和实际动线，支持灯光、Q/V镜头旋转、滚轮缩放与方向遮挡。模型与碰撞布局来自 `godot/data/house_layout.json`，改动后需重跑Blender导出。项目保留21份Blender源工程及GLB；玩家6个动作、僵尸5个动作。见 [住宅空间](docs/house-space-pass.md)、[人物美术](docs/character-art-pass.md)、[资源管线](docs/assets.md)。
 
-容器按 **E** 批量搜刮、**B** 逐件存取，冰箱有独立库存，背包与容器均有重量上限。新快照采用schema4，旧快照只在内存迁移；已有容器物资超限不删除，可取出腾空。见 [家具容器](docs/furniture-containers.md)、[存取操作](docs/storage-loop.md)、[容器承重](docs/storage-capacity.md)。下方Pygame文档为历史参考，当前能力与缺失项见 [状态清单](docs/status.md)。
+容器按 **E** 批量搜刮、**B** 逐件存取，冰箱有独立库存，背包与容器均有重量上限。新快照采用schema4（现行 schema 6），旧快照只在内存迁移；已有容器物资超限不删除，可取出腾空。见 [家具容器](docs/furniture-containers.md)、[存取操作](docs/storage-loop.md)、[容器承重](docs/storage-capacity.md)。下方Pygame文档为历史参考，当前能力与缺失项见 [状态清单](docs/status.md)。
 
-在仓库根目录运行（本机已验证路径）：
-
-```powershell
-& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --editor --import --quit
-& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot
-```
+## 第一次开局
 
 新游戏后：走近住宅门按 E 开门，W 进入，靠近柜子按 E 搜刮；I 打开背包使用物品；4 装备搜到的木棍，空格攻击。街道东端有僵尸，跑步与战斗会吸引它们；进入房屋后离开门洞，再按 E 关门、停止制造声音以脱离追击。J 查看和手写日志；Esc 保存回主菜单后可继续。室外WASD按世界方向移动，室内W/S前后、A/D转向，Shift 跑步。新旧存档隔离，新游戏不删除已有快照。住宅床边按 R 休息一小时，18:00后按 T 睡到次日06:00；先关门、清除附近威胁。休息时T或移动可起身。新游戏从第1天08:00开始。
 
@@ -66,9 +87,11 @@
 
 ---
 
-## 以下为原 Pygame v0.3 文档
+## 历史：原 Pygame v0.3 版本
 
-# 末日生存日志 · Dead Days
+Pygame 阶段的完整代码留档在 `legacy-pygame-v03` 分支。下列文档仅作历史参考，不代表当前版本能力。
+
+### 末日生存日志 · Dead Days
 
 俯视角 **2.5D 等距**僵尸生存 + 生存日志 单机游戏（Python + Pygame）。
 
