@@ -344,6 +344,8 @@ func _collider_box(id: String, at: Vector3, size: Vector3) -> void:
             "body": body,
             "rect": Rect2(at.x - size.x * .5, at.z - size.z * .5,
                 size.x, size.z),
+            "min_y": at.y - size.y * .5,
+            "max_y": at.y + size.y * .5,
         })
 
 func _ramp_body(id: String, at: Vector3, size: Array, rotation_x: float) -> void:

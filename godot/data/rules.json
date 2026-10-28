@@ -219,7 +219,9 @@
     "separation_strength": 1.2,
     "repath_seconds": 0.4,
     "patrol_seconds": 4.0,
-    "night_sight_multiplier": 0.65
+    "night_sight_multiplier": 0.65,
+    "climb_speed": 2.6,
+    "floor_reach": 1.2
   },
   "zombie_spawns": [
     {

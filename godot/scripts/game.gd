@@ -259,7 +259,12 @@ func box(parent: Node3D, pos: Vector3, size: Vector3, color: Color, solid: bool 
         collision.shape = shape
         root.add_child(collision)
     if solid and parent == world and pos.y + size.y * 0.5 > 0.3:
-        nav_sources.append({"body": root, "rect": Rect2(Vector2(pos.x - size.x * 0.5, pos.z - size.z * 0.5), Vector2(size.x, size.z))})
+        nav_sources.append({
+            "body": root,
+            "rect": Rect2(Vector2(pos.x - size.x * 0.5, pos.z - size.z * 0.5), Vector2(size.x, size.z)),
+            "min_y": pos.y - size.y * 0.5,
+            "max_y": pos.y + size.y * 0.5,
+        })
     return root
 
 func label3(parent: Node3D, text: String, pos: Vector3) -> void:

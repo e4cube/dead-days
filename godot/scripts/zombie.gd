@@ -16,6 +16,9 @@ var show_state_label := false
 var visual_root: Node3D
 var excepted: Dictionary = {}
 var label_shown := false
+## Set while walking a stair flight.  A storey-high ramp is too steep for the
+## capsule to walk, so the climb is a direct move toward this point.
+var climb_point := Vector3.INF
 
 func setup(owner_game: Node3D, data: Dictionary) -> void:
     game = owner_game
@@ -58,7 +61,10 @@ func sees_player() -> bool:
     if record.health <= 0 or game.model.state.stats.health <= 0:
         return false
     var offset: Vector3 = game.player.position - position
-    if absf(offset.y)>2.0: return false # Planar AI cannot attack a different floor.
+    # Sight stays planar: a slab between the two of them is opaque.  A zombie
+    # only joins the chase on the player's floor after walking the stairs, which
+    # is driven by hearing and by path() planning across floors.
+    if absf(offset.y)>2.0: return false
     offset.y = 0
     var distance := offset.length()
     if distance > float(rule.sight_range) * lerpf(float(rule.night_sight_multiplier), 1.0, Timeline.daylight(game.model)):
@@ -75,7 +81,7 @@ func hear() -> bool:
             continue
         var target := vector(sound.position)
         var radius: float = sound.radius
-        if not game.line_clear(position, target):
+        if not game.line_clear(position, target) and not _through_floor(target):
             radius *= float(game.model.rules.noise.wall_multiplier)
         if Vector2(position.x - target.x, position.z - target.z).length() <= radius:
             heard = sound
@@ -91,6 +97,33 @@ func hear() -> bool:
         record.mode = "search"
     replan_left = 0
     return true
+
+## Sound carries through the structure: inside one building a floor slab does
+## not muffle footsteps the way an exterior wall does.  Without this the ground
+## floor goes deaf the moment the player walks upstairs, and nothing ever climbs.
+func _region_of(at: Vector3) -> String:
+    var definition: Variant = game.model.get("world_definition")
+    if definition == null:
+        return ""
+    for region in definition.get("regions", []):
+        var rect: Array = region.rect
+        if at.x >= float(rect[0]) and at.x <= float(rect[0]) + float(rect[2]) \
+                and at.z >= float(rect[1]) and at.z <= float(rect[1]) + float(rect[3]):
+            return str(region.id)
+    return ""
+
+## Sound carries through the slab but not through the shelves.  Only a source on
+## another storey of the same building skips the wall attenuation; on one floor
+## the old occlusion still applies, otherwise a market hall turns into a single
+## open room and every swing pulls the whole district.
+func _through_floor(other: Vector3) -> bool:
+    if absf(other.y - position.y) < 1.5:
+        return false
+    return _same_room(other)
+
+func _same_room(other: Vector3) -> bool:
+    var here := _region_of(position)
+    return not here.is_empty() and here == _region_of(other)
 
 func blocked_door() -> Dictionary:
     if record.mode not in ["chase","search"] or record.memory<=0: return {}
@@ -109,12 +142,26 @@ func tick(delta: float) -> void:
     if record.health <= 0:
         update_visual(delta)
         return
+    if climb_point != Vector3.INF:
+        # Mid-flight: move along the stair line directly.  Collision would pin
+        # the capsule against the ramp's vertical flank instead.
+        var step := float(rule.get("climb_speed", 2.6)) * delta
+        position = position.move_toward(climb_point, step)
+        velocity = Vector3.ZERO
+        if position.distance_to(climb_point) < 0.06:
+            climb_point = Vector3.INF
+            route_index = mini(route_index + 1, route.size())
+        write_position()
+        update_visual(delta)
+        return
     hit_flash = maxf(0, hit_flash - delta)
     record.attack_cd = maxf(0, record.attack_cd - delta)
     var visible_target := sees_player()
     if visible_target:
         record.mode = "chase"
-        record.target = [game.player.position.x, 0, game.player.position.z]
+        # Keep the real height: path() needs it to decide whether the target
+        # stands on another floor and the stairs have to be walked first.
+        record.target = [game.player.position.x, game.player.position.y, game.player.position.z]
         record.memory = rule.search_seconds
         record.had_target = true
     elif hear():
@@ -146,6 +193,11 @@ func tick(delta: float) -> void:
     var barrier:=blocked_door()
     var bash_near: bool=not barrier.is_empty() and Vector2(position.x-barrier.goal.x,position.z).length()<=float(game.model.rules.door_damage.reach)
     var distance: float = Vector2(position.x - game.player.position.x, position.z - game.player.position.z).length()
+    # A zombie on the floor below shares the player's XZ, so a planar distance
+    # alone reads as "in range" and hits through the slab.  A stair flight is
+    # about one metre of height difference, which still counts as reachable.
+    var in_reach: bool = distance <= rule.attack_range \
+        and absf(game.player.position.y - position.y) <= float(rule.get("floor_reach", 1.2))
     if record.windup > 0:
         record.windup = maxf(0, record.windup - delta)
         if record.windup <= 0:
@@ -153,11 +205,11 @@ func tick(delta: float) -> void:
             if not committed_door.is_empty():
                 if bash_near and barrier.id==committed_door:
                     game.hit_door(committed_door,record.id)
-            elif distance <= rule.attack_range and visible_target:
+            elif in_reach and visible_target:
                 game.model.damage_player(rule.attack_damage, record.id)
             record.attack_door=""
             record.attack_cd = rule.attack_cooldown
-    elif visible_target and distance <= rule.attack_range and record.attack_cd <= 0:
+    elif visible_target and in_reach and record.attack_cd <= 0:
         record.attack_door=""
         record.windup = rule.attack_windup
         visual_root.trigger("attack")
@@ -166,7 +218,7 @@ func tick(delta: float) -> void:
         record.windup=rule.attack_windup
         visual_root.trigger("attack")
     var movement := Vector3.ZERO
-    if record.windup <= 0 and not (visible_target and distance < rule.attack_range * 0.8):
+    if record.windup <= 0 and not (visible_target and in_reach and distance < rule.attack_range * 0.8):
         movement = follow_path(delta,barrier.goal if not barrier.is_empty() else vector(record.target)) if not bash_near else Vector3.ZERO
     var separation := Vector3.ZERO
     var close_pairs: Array = []
@@ -210,7 +262,12 @@ func tick(delta: float) -> void:
 
 func follow_path(delta: float,goal: Vector3) -> Vector3:
     replan_left -= delta
-    if replan_left <= 0 or nav_revision != game.navigation.revision or path_goal.distance_squared_to(goal)>.01:
+    # Compare goals on the plane only.  The recorded target keeps the player's
+    # height so path() can plan across floors, but that height jitters every
+    # frame; comparing it made every zombie replan each frame, eat the shared
+    # A* budget and starve its neighbours (and the player's own route preview).
+    var flat_goal := Vector3(goal.x, 0.0, goal.z)
+    if replan_left <= 0 or nav_revision != game.navigation.revision or path_goal.distance_squared_to(flat_goal)>.01:
         var fresh: PackedVector3Array = game.navigation.path(position, goal)
         if fresh.size() > 0:
             route = fresh
@@ -223,14 +280,30 @@ func follow_path(delta: float,goal: Vector3) -> Vector3:
             if direct.length() > 0.05:
                 var direct_speed: float = rule.walk_speed if record.mode == "wander" else rule.chase_speed
                 return direct.normalized() * minf(direct_speed, direct.length() / maxf(delta, 0.001))
-        path_goal=goal
+        path_goal=flat_goal
         replan_left = rule.repath_seconds
         nav_revision = game.navigation.revision
-    while route_index < route.size() and Vector2(position.x - route[route_index].x, position.z - route[route_index].z).length() < 0.13:
+    while route_index < route.size():
+        var point: Vector3 = route[route_index]
+        var flat := Vector2(position.x - point.x, position.z - point.z).length()
+        # Height guards the case where a route point on another floor shares
+        # this XZ: passing under the player must not count as arriving.
+        if flat >= 0.13 or absf(position.y - point.y) > 0.6:
+            break
         route_index += 1
     if route_index >= route.size() or record.mode == "alert":
         return Vector3.ZERO
     var toward := route[route_index] - position
+    if toward.y > 0.5:
+        # Storey-high step.  Climb straight to the end of the rising run in one
+        # move: pausing at each ramp sample lets a replan drop the actor back
+        # down the flight, which reads as shivering on the stairs.
+        var top := route_index
+        while top + 1 < route.size() and route[top + 1].y > route[top].y + 0.1:
+            top += 1
+        climb_point = route[top]
+        route_index = top
+        return Vector3.ZERO
     toward.y = 0
     var speed: float = rule.walk_speed if record.mode == "wander" else rule.chase_speed
     return toward.normalized() * minf(speed, toward.length() / maxf(delta, 0.001))

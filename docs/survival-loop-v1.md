@@ -92,7 +92,10 @@ D:/GameDev/Godot_v4.7.2-stable_win64.exe --headless --fixed-fps 60 --path godot 
 
 ### 这一趟暴露的关卡缺陷（下一步要修）
 
-1. **别墅厨房柜搜不到**：`navigation.nearest()` 在柜子 ±2 格内找不到任何可站格，
+1. ~~**别墅厨房柜搜不到**~~（**已在 `docs/floor-chase-v1.md` 修掉**）：真正的原因不是净空余量，
+   而是二楼地板 `upper_floor_main` 被当成障碍盖进了那张唯一的平面导航网格，
+   把别墅一楼整片标成不可走。导航分层后一楼恢复，柜前 0.32 ~ 0.96 m 都有可站格。
+   原文保留如下：`navigation.nearest()` 在柜子 ±2 格内找不到任何可站格，
    而可达的西侧过道最近点距柜 2.37 m > 交互半径 1.65 m。等于这个柜子**在实机里
    永远打不开**。东侧卧室（`villa_wardrobe` / `villa_bedside`）也被隔断与净空余量
    （0.32 m）挤死，导航会把人绕到房子外面去。
