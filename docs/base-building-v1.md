@@ -109,7 +109,7 @@ python tools/run_checks.py --godot D:\GameDev\Godot_v4.7.2-stable_win64.exe
 
 `test_base_ui.gd`（`BASE_UI_OK`）额外验证接线：在连通世界场景里站到门口 → C 打开共享面板 → 面板确实列出修门/加固且按钮可用 → 点击后材料扣除、面板关闭、`state.craft` 记录正确 → 通过真实场景循环推进 20 分钟后门耐久回到 120 → 走进室内再开面板只列 2 条据点配方且缺料原因精确。这两个测试都注册在 `test_base_v1` 之后。
 
-全套 35 个成功标记与 `ALL_CHECKS_OK` 通过，`FAIL:` 计数为 0。`test_playthrough` 的超时从 90 秒放宽到 150 秒：物理闭环本身要跑满 900 个真实物理帧，整图装配完成后 90 秒已经贴边，先前一次偶发失败并非断言失败。
+全套 36 个成功标记与 `ALL_CHECKS_OK` 通过，`FAIL:` 计数为 0。`test_playthrough` 的超时从 90 秒放宽到 150 秒：物理闭环本身要跑满 900 个真实物理帧，整图装配完成后 90 秒已经贴边，先前一次偶发失败并非断言失败。
 
 另外修正了 `test_world_expansion.gd` 的历史存档夹具：它此前复制的是当前 schema 的状态再删字段，现在显式降到 `schema = 4` 并移除 `craft` / `door_level`，与真实的升级前快照一致。生产校验没有放宽。
 
