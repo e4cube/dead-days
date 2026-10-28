@@ -236,6 +236,14 @@ func build_craft() -> void:
         label(body,"附近没有门：修门与加固需要站到门旁。")
     else:
         label(body,"%s 门 耐久 %.0f/%.0f · 加固 %d/%d"%[model.building_name(door),DoorDamage.health(model,door),DoorDamage.max_health(model,door),DoorDamage.level(model,door),DoorDamage.limit(model)])
+    for definition in model.sites():
+        var site_id := str(definition.id)
+        if model.site_distance(site_id, game.player.position) > 14.0:
+            continue
+        var site_text := "已完工" if model.site_done(site_id) else "待施工：带齐材料站到%s旁按 E" % str(definition.name)
+        if str(definition.get("kind",""))=="service" and model.site_done(site_id):
+            site_text += " · 今日剩 %d 份水" % model.pool_left()
+        label(body,"%s：%s"%[str(definition.name),site_text])
     var scroll:=ScrollContainer.new()
     scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
     body.add_child(scroll)
@@ -245,6 +253,9 @@ func build_craft() -> void:
     for entry in Crafting.entries():
         var recipe_id := str(entry.id)
         if str(entry.get("target","item"))=="door" and door.is_empty():
+            continue
+        # Site work is only worth listing while the villa plot is in sight.
+        if str(entry.get("target","item"))=="site" and model.site_distance(str(entry.get("site","")), game.player.position) > 14.0:
             continue
         var row:=HBoxContainer.new()
         rows.add_child(row)

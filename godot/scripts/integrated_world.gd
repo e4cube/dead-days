@@ -22,6 +22,7 @@ const VILLA_UPPER_Y := 2.15
 const STAIR_LABEL_POS := Vector3(110.40, 2.25, -18.10)
 
 const WORLD = preload("res://scripts/connected_model.gd")
+const DoorDamage = preload("res://scripts/door_damage.gd")
 
 var district_data: Dictionary = {}
 var simple_data: Dictionary = {}
@@ -40,6 +41,9 @@ var factory_south: Node3D
 var factory_east: Node3D
 var custom_containers: Array[Dictionary] = []
 var custom_labels: Array[Label3D] = []
+var gate_nodes: Dictionary = {}
+var site_labels: Dictionary = {}
+var water_node: MeshInstance3D
 var module_lights: Array[OmniLight3D] = []
 var stair_label: Label3D
 var bed_label: Label3D
@@ -201,6 +205,7 @@ func _extend_east() -> void:
     _add_stairs_label()
     _add_villa_bed()
     _register_custom_containers()
+    _build_sites()
     _rebuild_navigation()
 
 func _rebuild_navigation() -> void:
@@ -208,6 +213,9 @@ func _rebuild_navigation() -> void:
     navigation.rebuild(nav_sources, rule)
 
 func apply_door(id: String, impact: bool = false) -> void:
+    if gate_nodes.has(id):
+        sync_sites()
+        return
     super.apply_door(id, impact)
     if not assembling: call_deferred("refresh_door_navigation", id)
 
@@ -494,6 +502,279 @@ func _rules_has_container(id: String) -> bool:
             return true
     return false
 
+## Authored works (yard gate, villa door, pool supply) are assembled with the world
+## and then only switched on. The gate body always exists; its collision layer is
+## the single switch that both physics and the navigation grid read, exactly like
+## the street doors.
+func _build_sites() -> void:
+    gate_nodes.clear()
+    site_labels.clear()
+    water_node = null
+    for definition in model.sites():
+        match str(definition.get("kind", "")):
+            "gate":
+                _build_gate(definition)
+            "service":
+                _build_water(definition)
+    sync_sites()
+
+func _build_gate(definition: Dictionary) -> void:
+    var id := str(definition.id)
+    var p: Array = definition.position
+    var at := Vector3(float(p[0]), float(p[1]), float(p[2]))
+    var span := float(definition.get("span", 1.0))
+    var height := float(definition.get("height", 2.1))
+    var thickness := float(definition.get("thickness", 0.2))
+    var body := StaticBody3D.new()
+    body.name = "SiteGate_" + id
+    body.collision_layer = 0
+    body.collision_mask = 0
+    body.position = at + Vector3(0.0, height * 0.5, 0.0)
+    var shape := CollisionShape3D.new()
+    var box := BoxShape3D.new()
+    box.size = Vector3(span, height, thickness)
+    shape.shape = box
+    body.add_child(shape)
+    world.add_child(body)
+    nav_sources.append({"body": body,
+        "rect": Rect2(at.x - span * 0.5, at.z - thickness * 0.5, span, thickness),
+        "min_y": 0.0, "max_y": height})
+    var leaves: Array = []
+    for index in 2:
+        var side := -1.0 if index == 0 else 1.0
+        var pivot := Node3D.new()
+        pivot.name = "SiteLeaf_%s_%d" % [id, index]
+        pivot.position = Vector3(at.x + side * span * 0.5, at.y, at.z)
+        world.add_child(pivot)
+        _gate_leaf(pivot, side, span * 0.5, height, thickness)
+        leaves.append(pivot)
+    var label := _site_label(str(definition.name), Vector3(at.x, height + 0.65, at.z))
+    site_labels[id] = label
+    gate_nodes[id] = {"body": body, "leaves": leaves, "label": label,
+        "blocked": false, "definition": definition}
+
+## Cheap procedural joinery: a wide opening gets bars between rails, a narrow one
+## gets a solid panel, so the yard gate and the villa door never read as the same
+## prop scaled up.
+func _gate_leaf(pivot: Node3D, side: float, leaf_width: float, height: float, thickness: float) -> void:
+    var metal := StandardMaterial3D.new()
+    metal.albedo_color = Color("363b3f")
+    metal.roughness = 0.5
+    metal.metallic = 0.6
+    if leaf_width >= 1.1:
+        for rail in [0.28, 0.62, 0.92]:
+            _leaf_box(pivot, Vector3(-side * leaf_width * 0.5, height * rail, 0.0),
+                Vector3(leaf_width, 0.10, thickness * 0.7), metal)
+        var bars := maxi(3, int(leaf_width / 0.42))
+        for index in range(bars + 1):
+            var t := float(index) / float(bars)
+            _leaf_box(pivot, Vector3(-side * leaf_width * (0.06 + t * 0.88), height * 0.5, 0.0),
+                Vector3(0.06, height * 0.86, thickness * 0.55), metal)
+        return
+    var wood := StandardMaterial3D.new()
+    wood.albedo_color = Color("6b4f38")
+    wood.roughness = 0.85
+    _leaf_box(pivot, Vector3(-side * leaf_width * 0.5, height * 0.5, 0.0),
+        Vector3(leaf_width - 0.04, height - 0.05, thickness * 0.9), wood)
+    _leaf_box(pivot, Vector3(-side * leaf_width * 0.82, height * 0.48, -thickness * 0.7),
+        Vector3(0.05, 0.16, 0.05), metal)
+
+func _leaf_box(parent: Node3D, at: Vector3, size: Vector3, material: Material) -> void:
+    var mesh := MeshInstance3D.new()
+    var box := BoxMesh.new()
+    box.size = size
+    mesh.mesh = box
+    mesh.position = at
+    mesh.material_override = material
+    parent.add_child(mesh)
+
+func _build_water(definition: Dictionary) -> void:
+    var id := str(definition.id)
+    var rect: Array = definition.rect
+    var cx := float(rect[0]) + float(rect[2]) * 0.5
+    var cz := float(rect[1]) + float(rect[3]) * 0.5
+    var water := MeshInstance3D.new()
+    water.name = "SiteWater_" + id
+    var plane := PlaneMesh.new()
+    plane.size = Vector2(float(rect[2]) - 0.25, float(rect[3]) - 0.25)
+    water.mesh = plane
+    water.position = Vector3(cx, float(definition.get("water_y", 0.34)), cz)
+    var mat := StandardMaterial3D.new()
+    mat.albedo_color = Color(0.33, 0.70, 0.76, 0.62)
+    mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    mat.roughness = 0.06
+    mat.metallic = 0.2
+    water.material_override = mat
+    water.visible = false
+    world.add_child(water)
+    water_node = water
+    site_labels[id] = _site_label(str(definition.name), Vector3(cx, 1.25, cz))
+
+func _site_label(text: String, at: Vector3) -> Label3D:
+    var label := Label3D.new()
+    label.text = text
+    label.position = at
+    label.font_size = 21
+    label.pixel_size = .011
+    label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+    label.modulate = Color("f0dfb6")
+    label.outline_size = 3
+    world.add_child(label)
+    return label
+
+## Presentation only: the model owns the flags, this reads them back.
+func sync_sites() -> void:
+    if model == null or model.state.is_empty():
+        return
+    for id in gate_nodes:
+        var node: Dictionary = gate_nodes[id]
+        var definition: Dictionary = node.definition
+        var installed: bool = model.site_done(id)
+        var opened: bool = installed and bool(model.state.doors.get(id, true))
+        var blocked: bool = installed and not opened
+        var body: StaticBody3D = node.body
+        body.collision_layer = 1 if blocked else 0
+        var broken: bool = installed and DoorDamage.broken(model, id)
+        var leaves: Array = node.leaves
+        for index in leaves.size():
+            var pivot: Node3D = leaves[index]
+            pivot.visible = installed
+            var swing := 78.0 if opened else 0.0
+            # A breached gate lies flat on the yard instead of standing politely
+            # open, so a broken entrance reads differently from an opened one.
+            pivot.rotation = Vector3(deg_to_rad(-88.0) if broken else 0.0,
+                deg_to_rad(0.0 if broken else swing) * (1.0 if index == 0 else -1.0), 0.0)
+        var label: Label3D = node.label
+        label.text = str(definition.get("name", "门")) + ("  [E]" if installed else "（未装）  [E]")
+        if bool(node.blocked) != blocked:
+            node.blocked = blocked
+            _patch_gate(id)
+    _sync_water()
+
+func _sync_water() -> void:
+    if water_node == null:
+        return
+    var service := model.service_site()
+    if service.is_empty():
+        water_node.visible = false
+        return
+    water_node.visible = model.site_done(service)
+    var label: Label3D = site_labels.get(service, null)
+    if label != null:
+        var definition: Dictionary = model.site(service)
+        label.text = "%s（尚未接水）  [E]" % str(definition.name) if not water_node.visible \
+            else "%s  今日剩 %d 份  [E]" % [str(definition.name), model.pool_left()]
+
+## Re-stamp only the cells a gate covers. The grid reads collision_layer, so the
+## same call seals the yard and reopens it.
+func _patch_gate(id: String) -> void:
+    if assembling or not gate_nodes.has(id):
+        return
+    var definition: Dictionary = gate_nodes[id].definition
+    var p: Array = definition.position
+    var span := float(definition.get("span", 1.0))
+    var thickness := float(definition.get("thickness", 0.2))
+    navigation.patch(nav_sources, model.rules.navigation,
+        Rect2(float(p[0]) - span * 0.5 - 1.2, float(p[2]) - thickness * 0.5 - 1.2,
+            span + 2.4, thickness + 2.4))
+
+func refresh_door_navigation(id: String) -> void:
+    if gate_nodes.has(id):
+        _patch_gate(id)
+        return
+    super.refresh_door_navigation(id)
+
+func on_sites_changed() -> void:
+    sync_sites()
+
+func site_hint(kind: String, id: String) -> String:
+    if kind != "site":
+        return ""
+    var definition: Dictionary = model.site(id)
+    if definition.is_empty():
+        return ""
+    if not model.site_done(id):
+        return "[E] " + ("安装%s" % str(definition.name)) + " · 材料：" + _recipe_text(str(definition.get("recipe", "")))
+    if str(definition.get("kind", "")) == "service":
+        var left := model.pool_left()
+        return "[E] 从泳池接水 · 今日还剩 %d 份" % left if left > 0 else "[E] 今天的水接完了"
+    if DoorDamage.broken(model, id):
+        return "[C] %s已被撞坏，先在制作面板修门" % str(definition.name)
+    return "[E] %s · 耐久 %.0f/%.0f · [C] 修门/加固" % [str(definition.name),
+        DoorDamage.health(model, id), DoorDamage.max_health(model, id)]
+
+func _recipe_text(recipe_id: String) -> String:
+    var entry := Crafting.recipe(recipe_id)
+    if entry.is_empty():
+        return "未知"
+    var parts := PackedStringArray()
+    for item in entry.get("inputs", {}):
+        parts.append("%s×%d" % [model.rules.items[item].name, int(entry.inputs[item])])
+    for tool in entry.get("tools", []):
+        parts.append("工具 " + str(model.rules.items[tool].name))
+    return "、".join(parts)
+
+func interact() -> void:
+    if model.state.stats.health <= 0 or model.state.rest.active:
+        return
+    var target := nearby()
+    if str(target.get("kind", "")) == "site":
+        use_site(str(target.id))
+        return
+    super.interact()
+
+func use_site(id: String) -> void:
+    var definition: Dictionary = model.site(id)
+    if definition.is_empty() or not active:
+        return
+    if not model.site_done(id):
+        begin_site_work(str(definition.get("recipe", "")))
+        return
+    if str(definition.get("kind", "")) == "service":
+        var why := model.pool_reason()
+        if not why.is_empty():
+            last_notice = why
+            refresh_hud(true)
+            return
+        if model.draw_pool_water():
+            last_notice = model.state.events.back().text
+        sync_sites()
+        refresh_hud(true)
+        return
+    if DoorDamage.broken(model, id):
+        last_notice = "%s已经撞坏了，先在制作面板修门。" % str(definition.name)
+        refresh_hud(true)
+        return
+    if not model.state.doors[id]:
+        if model.site_distance(id, player.position) < 0.35:
+            last_notice = "先离开门口，避免关门夹住自己。"
+            refresh_hud(true)
+            return
+        for zombie in zombie_bodies:
+            if zombie.record.health > 0 and model.site_distance(id, zombie.position) < 0.6:
+                last_notice = "有僵尸挡在门洞，无法关门。"
+                refresh_hud(true)
+                return
+    model.toggle_door(id)
+    apply_door(id)
+    model.noise(player.position, model.rules.noise.door_radius, "door")
+    last_notice = model.state.events.back().text
+    refresh_hud(true)
+
+func begin_site_work(recipe_id: String) -> void:
+    if recipe_id.is_empty() or not active:
+        return
+    sync_position()
+    var blocked := Crafting.begin(model, recipe_id, "")
+    if not blocked.is_empty():
+        last_notice = blocked
+        refresh_hud(true)
+        return
+    last_notice = model.state.events.back().text
+    close_panel()
+    update_player_visual(0)
+    refresh_hud(true)
+
 func _container_label(text: String, at: Vector3) -> Label3D:
     var label := Label3D.new()
     label.text = text + "  [E]"
@@ -523,6 +804,8 @@ func _inside_villa() -> bool:
 func _inside_factory() -> bool:
     return FACTORY_INNER.has_point(Vector2(player.position.x, player.position.z)) and player.position.y < 4.4
 
+## A work the player can stand next to is an interaction target of its own kind:
+## installing it, opening its gate, or drawing its water.
 func nearby() -> Dictionary:
     var best: Dictionary = super.nearby()
     var closest := float(model.rules.interaction_range)
@@ -536,6 +819,12 @@ func nearby() -> Dictionary:
         if offset.length() < closest and container_line_clear(str(container.id), at):
             closest = offset.length()
             best = {"id": str(container.id), "kind": "container"}
+    for definition in model.sites():
+        var id := str(definition.id)
+        var distance: float = model.site_distance(id, player.position)
+        if distance < closest and absf(model.site_position(id).y - player.position.y) < 1.8:
+            closest = distance
+            best = {"id": id, "kind": "site"}
     return best
 
 func update_camera(delta: float = 0.0) -> void:
@@ -618,3 +907,7 @@ func update_cutaways() -> void:
         stair_label.visible = player.position.distance_to(STAIR_LABEL_POS) < 8.0
     if is_instance_valid(bed_label):
         bed_label.visible = player.position.distance_to(bed_label.position) < 6.0
+    for id in site_labels:
+        var label: Label3D = site_labels[id]
+        if is_instance_valid(label):
+            label.visible = player.position.distance_to(label.position) < 11.0

@@ -9,6 +9,7 @@ func _init() -> void:
     rules.navigation = world_definition.navigation.duplicate(true)
     for spawn in world_definition.enemy_spawns: rules.zombie_spawns.append(spawn.duplicate(true))
     rules.drop_floors = world_definition.drop_floors.duplicate(true)
+    rules.sites = world_definition.get("sites", []).duplicate(true)
     for definition in world_definition.containers:
         rules.containers.append(definition.duplicate(true))
     for definition in world_definition.beds:

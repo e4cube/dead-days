@@ -46,9 +46,13 @@ static func danger(model: RefCounted, position: Vector3) -> String:
             return "附近有僵尸，无法安心做手上的活"
     return ""
 
-## Street doors hang at z=0 in front of their building. Returning INF for an
-## unknown door keeps the reach test closed instead of silently allowing it.
+## Street doors hang at z=0 in front of their building, while authored sites
+## (a yard gate, a pool pump) carry their own anchor. The model resolves both, so
+## the reach test never has to know which kind of opening it is looking at.
+## Returning INF for an unknown id keeps the test closed instead of allowing it.
 static func door_position(model: RefCounted, id: String) -> Vector3:
+    if model.has_method("door_anchor"):
+        return model.door_anchor(id)
     for building in model.rules.buildings:
         if str(building.id) == id:
             return Vector3(float(building.x), 0.0, 0.0)
@@ -64,6 +68,16 @@ static func reason(model: RefCounted, id: String, door_id: String = "") -> Strin
         return "正在休息"
     if active(model):
         return "已经在制作中"
+    if str(entry.get("target", "item")) == "site":
+        var site_id := str(entry.get("site", ""))
+        var definition: Dictionary = model.site(site_id) if model.has_method("site") else {}
+        if definition.is_empty():
+            return "这里没有可以施工的工事"
+        if model.site_done(site_id):
+            return "这项工事已经做完"
+        var here := Vector3(model.state.position[0], model.state.position[1], model.state.position[2])
+        if model.site_distance(site_id, here) > float(model.rules.interaction_range):
+            return "需要站到%s旁" % str(definition.get("name", "工事"))
     for tool in entry.get("tools", []):
         if model.state.inventory.get(tool, 0) <= 0:
             return "缺少工具：" + str(model.rules.items[tool].name)
@@ -79,6 +93,11 @@ static func reason(model: RefCounted, id: String, door_id: String = "") -> Strin
             return "需要站到门旁"
         var anchor := door_position(model, door_id)
         var reach := Vector2(float(model.state.position[0]) - anchor.x, float(model.state.position[2]) - anchor.z).length()
+        # A wide yard gate is a line, not a point: measure from the nearest part of
+        # its opening instead of from the middle of a 4.6m span.
+        if model.has_method("site") and not model.site(door_id).is_empty():
+            reach = model.site_distance(door_id,
+                Vector3(model.state.position[0], model.state.position[1], model.state.position[2]))
         if reach > float(model.rules.interaction_range):
             return "需要站到门旁"
         if id == "repair_door":
@@ -106,16 +125,23 @@ static func begin(model: RefCounted, id: String, door_id: String = "") -> String
     if not blocked.is_empty():
         return blocked
     var entry := recipe(id)
+    var target := str(entry.get("target", "item"))
+    # Only door work records a door; a site craft names its site in the recipe.
+    var target_door := door_id if target == "door" else ""
     var spent := {}
     for item in entry.get("inputs", {}):
         var count := int(entry.inputs[item])
         model.state.inventory[item] = int(model.state.inventory.get(item, 0)) - count
         spent[item] = count
     model.state.craft = {"active": true, "recipe": id, "minutes_left": float(entry.minutes),
-        "door": door_id, "spent": spent}
-    var where := "" if door_id.is_empty() else "（" + str(model.building_name(door_id)) + "的门）"
+        "door": target_door, "spent": spent}
+    var where := ""
+    if not target_door.is_empty():
+        where = "（" + str(model.building_name(target_door)) + "的门）"
+    elif target == "site":
+        where = "（" + str(model.site(str(entry.get("site", ""))).get("name", "")) + "）"
     model.event("craft_started", "开始%s%s，预计 %d 分钟。" % [str(entry.name), where, int(entry.minutes)],
-        "平静", {"recipe": id, "door": door_id, "minutes": entry.minutes})
+        "平静", {"recipe": id, "door": target_door, "minutes": entry.minutes})
     return ""
 
 ## Returns true on the step that finishes the work.
@@ -139,6 +165,9 @@ static func finish(model: RefCounted) -> void:
             DoorDamage.repair(model, door)
         else:
             DoorDamage.reinforce(model, door)
+        return
+    if str(entry.get("target", "item")) == "site":
+        model.complete_site(str(entry.get("site", "")))
         return
     var outputs: Dictionary = entry.get("outputs", {})
     var names := PackedStringArray()

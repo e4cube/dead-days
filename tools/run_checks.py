@@ -103,6 +103,8 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_base_v1.gd'], 'BASE_V1_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_base_ui.gd'], 'BASE_UI_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_sites_v1.gd'], 'SITES_V1_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_sites_scene.gd'], 'SITES_SCENE_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_door_attack_intent.gd'], 'DOOR_ATTACK_INTENT_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_door_damage.gd'], 'DOOR_DAMAGE_OK')

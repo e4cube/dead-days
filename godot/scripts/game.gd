@@ -809,6 +809,15 @@ func cached_bed() -> String:
     bed_cache = closest_bed()
     return bed_cache
 
+## Scenes with authored works (a yard gate, a pool) answer with their own prompt;
+## the street has none, so the default stays empty and the old hints are untouched.
+func site_hint(_kind: String, _id: String) -> String:
+    return ""
+
+## Called once a scheduled craft finishes so scenes can refresh what they built.
+func on_sites_changed() -> void:
+    pass
+
 func refresh_hud(force: bool = false) -> void:
     audio.sync(model.state.events)
     var paused := ui_paused()
@@ -831,7 +840,9 @@ func refresh_hud(force: bool = false) -> void:
         hud_text_cache = hud_line
         hud.text = hud_line
     var target := cached_nearby()
-    var hint_line := "[E] " + ("开关门 / " + model.building_name(target.id) if target.get("kind") == "door" else "搜刮 / " + model.container_name(target.id)) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
+    var hint_line := site_hint(str(target.get("kind", "")), str(target.get("id", "")))
+    if hint_line.is_empty():
+        hint_line = "[E] " + ("开关门 / " + model.building_name(target.id) if target.get("kind") == "door" else "搜刮 / " + model.container_name(target.id)) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
     if target.get("kind")=="door":
         hint_line+=" · 门已损坏，无法关闭 · [C] 修门" if Model.DoorDamage.broken(model,target.id) else " · 门耐久 %.0f/%.0f · [C] 修门/加固"%[Model.DoorDamage.health(model,target.id),Model.DoorDamage.max_health(model,target.id)]
     if target.get("kind") == "container":
@@ -1060,9 +1071,10 @@ func advance_craft(delta: float) -> void:
     tick_world(delta, false)
     if not Crafting.tick(model, delta * float(model.rules.time.minutes_per_second)):
         return
+    on_sites_changed()
     var text := ""
     for index in range(model.state.events.size() - 1, -1, -1):
-        if str(model.state.events[index].kind) in ["crafted", "door_repaired", "door_reinforced"]:
+        if str(model.state.events[index].kind) in ["crafted", "door_repaired", "door_reinforced", "site_built"]:
             text = str(model.state.events[index].text)
             break
     if save_run():

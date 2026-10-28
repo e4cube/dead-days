@@ -39,6 +39,36 @@
       "inputs": {"cloth": 2},
       "outputs": {"bandage": 1},
       "note": "把布条裁成可用绷带。"
+    },
+    {
+      "id": "install_villa_gate",
+      "name": "安装院子门",
+      "target": "site",
+      "site": "villa_gate",
+      "minutes": 40.0,
+      "inputs": {"gate_panel": 1, "metal_scrap": 1},
+      "tools": ["hammer"],
+      "note": "把铁艺门吊到院子的立柱之间，装好合页和门闩。门板在市集或工厂找。"
+    },
+    {
+      "id": "install_villa_door",
+      "name": "给别墅装大门",
+      "target": "site",
+      "site": "villa_door",
+      "minutes": 30.0,
+      "inputs": {"wood_plank": 2, "metal_scrap": 1},
+      "tools": ["hammer"],
+      "note": "用木板拼一扇前门，配上铁件铰链，把别墅的门洞堵上。"
+    },
+    {
+      "id": "connect_villa_water",
+      "name": "接通泳池供水",
+      "target": "site",
+      "site": "villa_water",
+      "minutes": 60.0,
+      "inputs": {"pipe": 2, "valve_kit": 2},
+      "tools": ["hammer"],
+      "note": "沿院墙铺管线、装阀门，把泳池接到市政水管。管线和五金件都在工厂。"
     }
   ]
 }

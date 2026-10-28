@@ -191,6 +191,10 @@ func tick(delta: float) -> void:
             record.patrol_left = rule.patrol_seconds
             replan_left = 0
     var barrier:=blocked_door()
+    # Yard gates stand in the open, not in a doorway; they are asked for separately
+    # so a fenced villa is not a free safe zone.
+    if barrier.is_empty() and record.mode in ["chase","search"] and record.memory>0:
+        barrier=game.model.barrier_at(position,Vector3(record.target[0],0,record.target[2]))
     var bash_near: bool=not barrier.is_empty() and Vector2(position.x-barrier.goal.x,position.z).length()<=float(game.model.rules.door_damage.reach)
     var distance: float = Vector2(position.x - game.player.position.x, position.z - game.player.position.z).length()
     # A zombie on the floor below shares the player's XZ, so a planar distance
@@ -251,7 +255,9 @@ func tick(delta: float) -> void:
         if motion.length_squared() < 0.0000001:
             break
     if bash_near:
-        var toward_door: Vector3=Vector3(barrier.goal.x,0,0)-position
+        # Face the barrier itself, on either axis: street doors sit on z=0 while a
+        # yard gate sits wherever it was built.
+        var toward_door: Vector3=Vector3(barrier.goal.x,0,barrier.goal.z)-position
         rotation.y=lerp_angle(rotation.y,atan2(toward_door.x,toward_door.z),minf(1,delta*12))
     elif movement.length() > 0.1:
         rotation.y = lerp_angle(rotation.y, atan2(movement.x, movement.z), minf(1, delta * 8))

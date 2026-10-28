@@ -25,6 +25,7 @@ func start() -> void:
     GroundDrops.ensure(self)
     DoorDamage.ensure(self)
     add_base_state()
+    add_site_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -46,6 +47,9 @@ func building_name(id: String) -> String:
     for b in rules.buildings:
         if b.id == id:
             return b.name
+    for definition in sites():
+        if str(definition.id) == id:
+            return str(definition.get("door_name", definition.get("name", id)))
     return id
 
 func enter(id: String) -> void:
@@ -158,6 +162,168 @@ func add_base_state() -> void:
     if not state.has("base"): state.base = "home"
     DoorDamage.ensure(self)
 
+## Site works are base improvements that live in the authored world rather than in
+## the street: a yard gate and a pool supply. Each one is remembered as a flag, and
+## an installed gate also becomes a real door with its own durability, so it is
+## repaired, reinforced and battered by exactly the same rules as a house entrance.
+func add_site_state() -> void:
+    state.schema = 6
+    if not state.get("base_works") is Dictionary:
+        state.base_works = {}
+    for definition in sites():
+        var id := str(definition.id)
+        if not state.base_works.has(id):
+            state.base_works[id] = false
+    if not state.get("pool") is Dictionary:
+        # A freshly claimed villa has no water: the counter only fills once the
+        # supply work is finished.
+        state.pool = {"day": int(state.day), "left": 0}
+    DoorDamage.ensure(self)
+
+func sites() -> Array:
+    return rules.get("sites", [])
+
+func site(id: String) -> Dictionary:
+    for definition in sites():
+        if str(definition.id) == id:
+            return definition
+    return {}
+
+func site_done(id: String) -> bool:
+    return bool(state.get("base_works", {}).get(id, false))
+
+func site_position(id: String) -> Vector3:
+    var definition := site(id)
+    if definition.is_empty():
+        return Vector3.INF
+    var p: Array = definition.position
+    return Vector3(float(p[0]), float(p[1]), float(p[2]))
+
+## Footprint of a work on the ground plane. Gates are authored as a span across the
+## x axis with a thickness, services carry an explicit rect.
+func site_rect(id: String) -> Rect2:
+    var definition := site(id)
+    if definition.is_empty():
+        return Rect2()
+    if definition.has("rect"):
+        var r: Array = definition.rect
+        return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+    var p: Array = definition.position
+    var span := float(definition.get("span", 1.0))
+    var thickness := float(definition.get("thickness", 0.3))
+    return Rect2(float(p[0]) - span * 0.5, float(p[2]) - thickness * 0.5, span, thickness)
+
+## Planar distance to the footprint; zero when standing on it. Used both by the
+## craft reach test and by the interaction prompt.
+func site_distance(id: String, at: Vector3) -> float:
+    var rect := site_rect(id)
+    if rect.size.x <= 0.0:
+        return INF
+    var center := rect.get_center()
+    var dx := maxf(0.0, absf(at.x - center.x) - rect.size.x * 0.5)
+    var dz := maxf(0.0, absf(at.z - center.y) - rect.size.y * 0.5)
+    return sqrt(dx * dx + dz * dz)
+
+## The single anchor every door consumer asks for: street doors sit at z=0 in front
+## of their building, an authored gate sits on its own line.
+func door_anchor(id: String) -> Vector3:
+    for building in rules.buildings:
+        if str(building.id) == id:
+            return Vector3(float(building.x), 0.0, 0.0)
+    var definition := site(id)
+    if not definition.is_empty() and str(definition.get("kind", "")) == "gate":
+        return site_position(id)
+    return Vector3.INF
+
+func service_site() -> String:
+    for definition in sites():
+        if str(definition.get("kind", "")) == "service":
+            return str(definition.id)
+    return ""
+
+func pool_capacity() -> int:
+    for definition in sites():
+        if str(definition.get("kind", "")) == "service":
+            return int(definition.get("capacity", 3))
+    return 0
+
+## Water is rationed per calendar day, so the pool is a reason to come back rather
+## than a free well: the counter resets the first time the day is observed.
+func pool_left() -> int:
+    var id := service_site()
+    if id.is_empty() or not site_done(id):
+        return 0
+    var pool: Dictionary = state.get("pool", {})
+    if int(pool.get("day", 0)) != int(state.day):
+        return pool_capacity()
+    return clampi(int(pool.get("left", 0)), 0, pool_capacity())
+
+func refresh_pool() -> void:
+    if not state.has("pool") or int(state.pool.get("day", 0)) == int(state.day):
+        return
+    state.pool = {"day": int(state.day), "left": pool_capacity()}
+
+func pool_reason() -> String:
+    var id := service_site()
+    if id.is_empty():
+        return "这里没有可用的供水"
+    if not site_done(id):
+        return "泳池还没有接上市政水管"
+    if pool_left() <= 0:
+        return "今天的水接完了，明天再来"
+    if weight() + float(rules.items.water.weight) > float(rules.capacity) + 0.0001:
+        return "背包负重不足，先放下东西"
+    return ""
+
+func draw_pool_water() -> bool:
+    var blocked := pool_reason()
+    if not blocked.is_empty():
+        return false
+    refresh_pool()
+    state.pool.left = pool_left() - 1
+    state.inventory["water"] = int(state.inventory.get("water", 0)) + 1
+    event("water_drawn", "从泳池接了 1 份水，今天还剩 %d 份。" % pool_left(), "平静", {"left": pool_left()})
+    return true
+
+## Finishing a work is the only place that flips the flag. A gate additionally
+## registers its own door, closed and at full health, so the yard is sealed the
+## moment the hinges are on.
+func complete_site(id: String) -> bool:
+    var definition := site(id)
+    if definition.is_empty() or site_done(id):
+        return false
+    state.base_works[id] = true
+    if str(definition.get("kind", "")) == "gate":
+        state.doors[id] = false
+        state.door_health[id] = float(rules.door_damage.health)
+        state.door_level[id] = 0
+        event("site_built", "装好了" + building_name(id) + "的门，这一侧现在能关上了。", "希望",
+            {"site": id, "door": id})
+    else:
+        state.pool = {"day": int(state.day), "left": int(pool_capacity())}
+        event("site_built", "接通了" + str(definition.name) + "，市政水开始往泳池里灌。", "希望", {"site": id})
+    return true
+
+## A closed installed gate is a barrier in the open yard, not in a doorway: the
+## zombie asks for the line it would have to break to reach its target.
+func barrier_at(from: Vector3, to: Vector3) -> Dictionary:
+    for definition in sites():
+        if str(definition.get("kind", "")) != "gate":
+            continue
+        var id := str(definition.id)
+        if not site_done(id) or not state.doors.has(id) or bool(state.doors[id]):
+            continue
+        if DoorDamage.broken(self, id):
+            continue
+        var anchor := site_position(id)
+        if (from.z < anchor.z) == (to.z < anchor.z):
+            continue
+        if absf(from.x - anchor.x) > float(definition.get("span", 0.0)) * 0.5 + 1.0:
+            continue
+        var side := -1.0 if from.z < anchor.z else 1.0
+        return {"id": id, "goal": Vector3(anchor.x, 0.0, anchor.z + side * 0.9)}
+    return {}
+
 func expand_world_state() -> void:
     var previous: int=state.get("world_revision",0)
     if previous>=int(rules.world_revision):
@@ -232,7 +398,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5 and candidate.schema != 6) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -315,6 +481,8 @@ func valid(candidate: Variant) -> bool:
         return false
     if candidate.schema >= 5 and not valid_craft(candidate):
         return false
+    if candidate.schema >= 6 and not valid_sites(candidate):
+        return false
     return true
 
 func valid_items(items: Dictionary) -> bool:
@@ -364,6 +532,14 @@ func restore(candidate: Dictionary) -> void:
     if state.schema == 4:
         add_base_state()
         event("migrated", "据点工事与制作已接入；原有门耐久与物资完整保留。", "平静")
+    # A street snapshot or a pre-villa save can already be at the current schema yet
+    # know nothing about the authored works, so the flags are filled on presence
+    # rather than on the version number alone.
+    var missing_sites: bool = not state.get("base_works") is Dictionary \
+        or state.base_works.size() < sites().size()
+    if state.schema == 5 or missing_sites:
+        add_site_state()
+        event("migrated", "别墅院子门、大门与泳池供水已接入；原有进度保留。", "平静")
     for zombie in state.zombies:
         if not zombie.has("appearance"):
             zombie.appearance="civilian"
@@ -500,6 +676,7 @@ func add_time_state() -> void:
 
 func advance_time(seconds: float, sleeping: bool = false) -> void:
     Timeline.advance(self, seconds, sleeping)
+    refresh_pool()
 
 func environment_damage(amount: float) -> void:
     if amount <= 0 or state.stats.health <= 0:
@@ -547,6 +724,36 @@ func valid_craft(candidate: Dictionary) -> bool:
         if str(entry.get("target", "item")) == "door" and not candidate.doors.has(craft.door):
             return false
     elif craft.recipe != "" or craft.door != "" or float(craft.get("minutes_left", 0.0)) != 0.0 or not craft.spent.is_empty():
+        return false
+    return true
+
+## Site flags and the daily water counter are part of the save contract: a gate that
+## is recorded as installed must own a door, and a gate that is not installed must
+## not leave a stale entrance behind.
+func valid_sites(candidate: Dictionary) -> bool:
+    var works: Variant = candidate.get("base_works")
+    var pool: Variant = candidate.get("pool")
+    if not works is Dictionary or not pool is Dictionary:
+        return false
+    for id in works:
+        if site(str(id)).is_empty() or not works[id] is bool:
+            return false
+    for definition in sites():
+        var id := str(definition.id)
+        if int(definition.get("introduced_revision", 0)) > int(candidate.get("world_revision", 0)):
+            continue
+        if not works.has(id):
+            return false
+        if str(definition.get("kind", "")) != "gate":
+            continue
+        if bool(works[id]):
+            if not candidate.doors.has(id) or not candidate.doors[id] is bool:
+                return false
+            if not candidate.door_health.has(id) or not candidate.door_level.has(id):
+                return false
+        elif candidate.doors.has(id):
+            return false
+    if not integer(pool.get("day"), 1, 1000000) or not integer(pool.get("left"), 0, maxi(1, pool_capacity())):
         return false
     return true
 

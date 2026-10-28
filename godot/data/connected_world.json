@@ -1,6 +1,6 @@
 {
   "id": "east_expanse_v1",
-  "revision": 4,
+  "revision": 5,
   "bounds": {
     "min_x": -13.5,
     "max_x": 195,
@@ -315,6 +315,63 @@
       },
       "capacity": 8.0,
       "introduced_revision": 4
+    },
+    {
+      "id": "factory_pipe_rack",
+      "name": "工厂管线架",
+      "building": "factory_07",
+      "area": "factory",
+      "position": [
+        153.2,
+        1.0,
+        22.0
+      ],
+      "contents": {
+        "pipe": 2,
+        "valve_kit": 2,
+        "metal_scrap": 1
+      },
+      "capacity": 8.0,
+      "introduced_revision": 5,
+      "asset": "loot_crate"
+    },
+    {
+      "id": "factory_gate_stack",
+      "name": "工厂铁艺门堆",
+      "building": "factory_07",
+      "area": "factory",
+      "position": [
+        162.5,
+        1.0,
+        27.0
+      ],
+      "contents": {
+        "gate_panel": 1,
+        "metal_scrap": 1,
+        "wood_plank": 1
+      },
+      "capacity": 8.0,
+      "introduced_revision": 5,
+      "asset": "loot_crate"
+    },
+    {
+      "id": "market_hardware_stall",
+      "name": "市集五金摊",
+      "building": "market_07",
+      "area": "market",
+      "position": [
+        73.4,
+        1.0,
+        -17.4
+      ],
+      "contents": {
+        "gate_panel": 1,
+        "valve_kit": 1,
+        "wood_plank": 2
+      },
+      "capacity": 8.0,
+      "introduced_revision": 5,
+      "asset": "loot_crate"
     }
   ],
   "regions": [
@@ -384,10 +441,10 @@
       "id": "villa_07",
       "name": "别墅",
       "rect": [
-        109.65,
-        -26.35,
-        12.7,
-        8.7
+        97.9,
+        -26.6,
+        32.2,
+        24.2
       ],
       "min_y": -0.5,
       "max_y": 6.7
@@ -415,6 +472,60 @@
       ],
       "min_y": -0.5,
       "max_y": 4.4
+    }
+  ],
+  "sites": [
+    {
+      "id": "villa_gate",
+      "name": "院子门",
+      "kind": "gate",
+      "introduced_revision": 5,
+      "position": [
+        106.1,
+        0.0,
+        -2.5
+      ],
+      "span": 4.6,
+      "height": 2.2,
+      "thickness": 0.24,
+      "door_name": "别墅院子",
+      "recipe": "install_villa_gate"
+    },
+    {
+      "id": "villa_door",
+      "name": "别墅大门",
+      "kind": "gate",
+      "introduced_revision": 5,
+      "position": [
+        112.85,
+        0.0,
+        -17.5
+      ],
+      "span": 1.3,
+      "height": 2.1,
+      "thickness": 0.16,
+      "door_name": "别墅",
+      "recipe": "install_villa_door"
+    },
+    {
+      "id": "villa_water",
+      "name": "泳池供水",
+      "kind": "service",
+      "introduced_revision": 5,
+      "position": [
+        123.3,
+        0.0,
+        -10.8
+      ],
+      "rect": [
+        119.6,
+        -13.25,
+        7.4,
+        4.9
+      ],
+      "water_y": 0.34,
+      "capacity": 3,
+      "recipe": "connect_villa_water"
     }
   ],
   "beds": [

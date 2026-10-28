@@ -67,6 +67,21 @@
       "weight": 0.9,
       "kind": "tool"
     },
+    "pipe": {
+      "name": "管线",
+      "weight": 1.2,
+      "kind": "material"
+    },
+    "valve_kit": {
+      "name": "五金件",
+      "weight": 0.6,
+      "kind": "material"
+    },
+    "gate_panel": {
+      "name": "铁艺院门",
+      "weight": 3.0,
+      "kind": "material"
+    },
     "hot_meal": {
       "name": "热餐",
       "weight": 0.7,
