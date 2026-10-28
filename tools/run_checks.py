@@ -101,6 +101,8 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_base_v1.gd'], 'BASE_V1_OK')
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_base_ui.gd'], 'BASE_UI_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_door_attack_intent.gd'], 'DOOR_ATTACK_INTENT_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_door_damage.gd'], 'DOOR_DAMAGE_OK')
@@ -108,7 +110,9 @@ def main():
         run(command + ['--path', 'godot', '--script', 'res://tests/test_ground_drop_playthrough.gd'], 'GROUND_DROP_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_gamevado_ground.gd'], 'GAMEVADO_GROUND_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_character_motion.gd'], 'CHARACTER_MOTION_OK')
-        run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK')
+        # Physical closed loops spend most of their budget in real physics frames;
+        # 90s is tight once the whole map has to be assembled first.
+        run(command + ['--path', 'godot', '--script', 'res://tests/test_playthrough.gd'], 'PLAYTHROUGH_OK', timeout=150)
         run(command + ['--path', 'godot', '--script', 'res://tests/test_firearm_playthrough.gd'], 'FIREARM_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_east_block.gd'], 'EAST_BLOCK_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_east_extension.gd'], 'EAST_EXTENSION_OK')

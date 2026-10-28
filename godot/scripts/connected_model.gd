@@ -73,11 +73,24 @@ func base_id() -> String:
     if not state.has("exploration"): return "home"
     return str(state.exploration.get("base","home"))
 
+## The authored interiors are claimable on the same terms as the street houses.
+## A shelter is the whole volume of the place, so the villa's upper floor counts
+## as part of the same base instead of a separate unreachable one.
+func zones() -> Array:
+    var result: Array = super.zones()
+    for zone in world_definition.get("base_zones",[]):
+        var r: Array = zone.rect
+        result.append({"id":str(zone.id),"name":str(zone.name),
+            "rect":Rect2(r[0],r[1],r[2],r[3]),
+            "min_y":float(zone.get("min_y",-0.5)),"max_y":float(zone.get("max_y",6.7))})
+    return result
+
 func set_base(id: String) -> bool:
-    for building in rules.buildings:
-        if building.id==id:
+    for zone in zones():
+        if str(zone.id)==id:
+            if not state.has("exploration"): return false
             state.exploration.base=id
-            event("base_set","把"+building_name(id)+"设为据点。","希望",{"building":id})
+            event("base_set","把"+base_name(id)+"设为据点。","希望",{"building":id})
             return true
     return false
 

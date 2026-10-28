@@ -5,6 +5,7 @@ const Firearms = preload("res://scripts/firearms.gd")
 const Appearance = preload("res://scripts/zombie_appearance.gd")
 const GroundDrops=preload("res://scripts/ground_drops.gd")
 const DoorDamage=preload("res://scripts/door_damage.gd")
+const Crafting=preload("res://scripts/crafting.gd")
 ## Scene-independent authoritative state. UI never mutates inventory directly.
 var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/rules.json"))
 var state: Dictionary = {}
@@ -23,6 +24,7 @@ func start() -> void:
     Firearms.ensure(self)
     GroundDrops.ensure(self)
     DoorDamage.ensure(self)
+    add_base_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -147,6 +149,15 @@ func add_furniture_state() -> void:
             state.containers[definition.id] = definition.contents.duplicate(true)
     state.schema = 4
 
+## Base ownership, craft progress and per-door reinforcement arrived together:
+## all three describe what the player has done to their own shelter.
+func add_base_state() -> void:
+    state.schema = 5
+    state.craft = Crafting.empty()
+    if not state.has("door_level"): state.door_level = {}
+    if not state.has("base"): state.base = "home"
+    DoorDamage.ensure(self)
+
 func expand_world_state() -> void:
     var previous: int=state.get("world_revision",0)
     if previous>=int(rules.world_revision):
@@ -195,6 +206,9 @@ func use_item(id: String) -> bool:
         return true
     if rule.get("kind", "") == "ammo":
         return Firearms.begin_reload(self)
+    # Materials and tools are never consumed by hand; they exist for crafting.
+    if rule.get("kind", "") != "":
+        return false
     if state.stats[rule.stat] >= 100.0:
         return false
     state.inventory[id] -= 1
@@ -218,7 +232,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -253,7 +267,7 @@ func valid(candidate: Variant) -> bool:
         if not candidate.doors.has(b.id) or not candidate.doors[b.id] is bool or not candidate.containers.has(b.id) or not candidate.containers[b.id] is Dictionary or not valid_items(candidate.containers[b.id]):
             return false
     for definition in rules.get("containers",[]):
-        if candidate.schema == 4 and int(candidate.get("world_revision",0))>=int(definition.get("introduced_revision",0)) and not candidate.containers.has(definition.id):
+        if candidate.schema >= 4 and int(candidate.get("world_revision",0))>=int(definition.get("introduced_revision",0)) and not candidate.containers.has(definition.id):
             return false
         if candidate.containers.has(definition.id) and (not candidate.containers[definition.id] is Dictionary or not valid_items(candidate.containers[definition.id])):
             return false
@@ -297,7 +311,11 @@ func valid(candidate: Variant) -> bool:
                 return false
     if candidate.schema >= 2 and not valid_threats(candidate):
         return false
-    return candidate.schema < 3 or valid_time(candidate)
+    if candidate.schema >= 3 and not valid_time(candidate):
+        return false
+    if candidate.schema >= 5 and not valid_craft(candidate):
+        return false
+    return true
 
 func valid_items(items: Dictionary) -> bool:
     for id in items:
@@ -343,6 +361,9 @@ func restore(candidate: Dictionary) -> void:
     if state.schema == 3:
         add_furniture_state()
         event("migrated", "住宅冰箱已接入独立库存；原有物资和世界状态保留。", "平静")
+    if state.schema == 4:
+        add_base_state()
+        event("migrated", "据点工事与制作已接入；原有门耐久与物资完整保留。", "平静")
     for zombie in state.zombies:
         if not zombie.has("appearance"):
             zombie.appearance="civilian"
@@ -507,3 +528,65 @@ func valid_time(candidate: Dictionary) -> bool:
     elif rest.kind != "" or rest.bed != "" or rest.start != 0 or rest.target != 0:
         return false
     return true
+
+func valid_craft(candidate: Dictionary) -> bool:
+    if not candidate.get("craft") is Dictionary or not candidate.get("door_level") is Dictionary:
+        return false
+    var craft: Dictionary = candidate.craft
+    if not craft.get("active") is bool or not craft.get("recipe") is String or not craft.get("door") is String:
+        return false
+    if not craft.get("spent") is Dictionary or not valid_items(craft.spent):
+        return false
+    for id in candidate.door_level:
+        if not candidate.doors.has(id) or not integer(candidate.door_level[id], 0, DoorDamage.limit(self)):
+            return false
+    if craft.active:
+        var entry: Dictionary = Crafting.recipe(craft.recipe)
+        if entry.is_empty() or not number(craft.get("minutes_left"), 0.0000001, float(entry.minutes)):
+            return false
+        if str(entry.get("target", "item")) == "door" and not candidate.doors.has(craft.door):
+            return false
+    elif craft.recipe != "" or craft.door != "" or float(craft.get("minutes_left", 0.0)) != 0.0 or not craft.spent.is_empty():
+        return false
+    return true
+
+## A claimable shelter is a place, not a door: the street houses come from the
+## building list, and the connected model appends its authored interiors.
+func zones() -> Array:
+    var result: Array = []
+    var room: Dictionary = rules.room
+    var half: float = float(room.inner_half_width)
+    for building in rules.buildings:
+        var min_z: float = -float(building.depth) + 0.25 if building.has("depth") else float(room.min_z)
+        result.append({"id": str(building.id), "name": str(building.name),
+            "rect": Rect2(float(building.x) - half, min_z, half * 2.0, float(room.max_z) - min_z),
+            "min_y": -0.5, "max_y": 0.5})
+    return result
+
+func base_at(position: Vector3) -> String:
+    for zone in zones():
+        var rect: Rect2 = zone.rect
+        if rect.has_point(Vector2(position.x, position.z)) and position.y > float(zone.min_y) and position.y < float(zone.max_y):
+            return str(zone.id)
+    return ""
+
+func base_name(id: String) -> String:
+    for zone in zones():
+        if str(zone.id) == id:
+            return str(zone.name)
+    return building_name(id)
+
+func base_id() -> String:
+    return str(state.get("base", "home"))
+
+func set_base(id: String) -> bool:
+    for zone in zones():
+        if str(zone.id) == id:
+            state.base = id
+            event("base_set", "把" + base_name(id) + "设为据点。", "希望", {"building": id})
+            return true
+    return false
+
+func in_base() -> bool:
+    if not state.has("position"): return false
+    return base_at(Vector3(state.position[0], state.position[1], state.position[2])) == base_id()

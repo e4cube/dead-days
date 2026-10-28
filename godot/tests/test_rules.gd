@@ -94,7 +94,7 @@ func _initialize() -> void:
     file.close()
     var old_bytes := FileAccess.get_file_as_bytes(old_file)
     check(Store.new(legacy_dir).load_latest(loaded), "schema 1 continues to load")
-    check(loaded.state.schema == 4 and loaded.state.inventory == JSON.parse_string(JSON.stringify(old.inventory)) and loaded.state.doors == old.doors, "migration preserves player world")
+    check(loaded.state.schema == 5 and loaded.state.inventory == JSON.parse_string(JSON.stringify(old.inventory)) and loaded.state.doors == old.doors, "migration preserves player world")
     check(FileAccess.get_file_as_bytes(old_file) == old_bytes, "migration never rewrites old snapshot")
     check(loaded.valid(loaded.state), "migrated state can be saved again")
     model.state.stats.health = 24

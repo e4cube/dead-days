@@ -11,8 +11,11 @@ func _initialize():
     model.start()
     check(model.valid(model.state) and model.state.world_revision==model.rules.world_revision,"new world revision valid")
     var old=model.state.duplicate(true)
+    old.schema=4 # Real pre-expansion snapshots predate base-building state.
     old.erase("world_revision")
     old.erase("door_health") # Historical fixture predates the durability ledger too.
+    old.erase("craft")
+    old.erase("door_level")
     old.doors.erase("east_home")
     old.containers.erase("east_home")
     old.containers.erase("east_home_fridge")

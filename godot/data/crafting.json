@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "danger_radius": 3.0,
+  "recipes": [
+    {
+      "id": "repair_door",
+      "name": "修门",
+      "target": "door",
+      "minutes": 20.0,
+      "inputs": {"wood_plank": 2},
+      "tools": ["hammer"],
+      "note": "把撞坏的入口重新装回，耐久恢复到当前上限。"
+    },
+    {
+      "id": "reinforce_door",
+      "name": "加固门",
+      "target": "door",
+      "minutes": 45.0,
+      "inputs": {"wood_plank": 3, "metal_scrap": 1},
+      "tools": ["hammer"],
+      "note": "钉上木板和铁条，耐久上限 +50，最多两层。"
+    },
+    {
+      "id": "cook_meal",
+      "name": "烹饪热餐",
+      "target": "item",
+      "requires_base": true,
+      "minutes": 15.0,
+      "inputs": {"food": 1, "water": 1},
+      "outputs": {"hot_meal": 1},
+      "note": "在据点把罐头和饮用水做成热食，比生吃更能填饱。"
+    },
+    {
+      "id": "make_bandage",
+      "name": "裁制绷带",
+      "target": "item",
+      "requires_base": true,
+      "minutes": 10.0,
+      "inputs": {"cloth": 2},
+      "outputs": {"bandage": 1},
+      "note": "把布条裁成可用绷带。"
+    }
+  ]
+}

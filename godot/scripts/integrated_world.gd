@@ -101,7 +101,7 @@ func _physics_process(delta: float) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo and active:
         if expedition!=null and expedition.is_open():
-            if event.keycode in [KEY_ESCAPE,KEY_I,KEY_B,KEY_TAB]: expedition.close()
+            if event.keycode in [KEY_ESCAPE,KEY_I,KEY_B,KEY_TAB,KEY_C]: expedition.close()
             return
         if event.keycode==KEY_TAB:
             open_panel("map")
@@ -109,7 +109,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
     super._unhandled_key_input(event)
 
 func open_panel(kind: String) -> void:
-    if expedition!=null and kind in ["inventory","storage","map"]:
+    if expedition!=null and kind in ["inventory","storage","map","craft"]:
         model.discover(player.position)
         panel.hide()
         expedition.open(kind,storage_container)
@@ -475,6 +475,11 @@ func _register_custom_containers() -> void:
     for definition in model.world_definition.containers:
         var pos: Array = definition.position
         var at := Vector3(pos[0], pos[1], pos[2])
+        # Base-building props are visual only: no collision body, so the authored
+        # walkable space and the navigation grid stay exactly as verified.
+        if definition.has("asset"):
+            var prop := Assets.attach(world, str(definition.asset), Vector3(at.x, 0.0, at.z))
+            prop.name = "BaseProp_" + str(definition.id)
         custom_containers.append({
             "id": str(definition.id),
             "name": str(definition.name),

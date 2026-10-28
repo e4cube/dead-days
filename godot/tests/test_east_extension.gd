@@ -13,6 +13,7 @@ func run():
     for id in ["pantry_home","end_home"]:
         old.doors.erase(id)
         old.door_health.erase(id)
+        old.door_level.erase(id)
         old.containers.erase(id)
         old.containers.erase(id+"_fridge")
     old.containers.east_home.ammo_9mm=0

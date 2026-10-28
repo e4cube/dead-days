@@ -1,6 +1,6 @@
 {
   "id": "east_expanse_v1",
-  "revision": 3,
+  "revision": 4,
   "bounds": {
     "min_x": -13.5,
     "max_x": 195,
@@ -260,6 +260,61 @@
       },
       "capacity": 10.0,
       "introduced_revision": 3
+    },
+    {
+      "id": "factory_workbench",
+      "name": "工厂工作台",
+      "building": "factory_07",
+      "area": "factory",
+      "asset": "table",
+      "position": [
+        161.0,
+        1.0,
+        18.4
+      ],
+      "contents": {
+        "hammer": 1,
+        "wood_plank": 2,
+        "metal_scrap": 2
+      },
+      "capacity": 8.0,
+      "introduced_revision": 4
+    },
+    {
+      "id": "villa_shed",
+      "name": "别墅工具棚",
+      "building": "villa_07",
+      "area": "villa",
+      "asset": "cabinet",
+      "position": [
+        110.8,
+        1.0,
+        -21.0
+      ],
+      "contents": {
+        "wood_plank": 3,
+        "cloth": 2
+      },
+      "capacity": 8.0,
+      "introduced_revision": 4
+    },
+    {
+      "id": "market_fabric",
+      "name": "市集布摊",
+      "building": "market_07",
+      "area": "market",
+      "asset": "loot_crate",
+      "position": [
+        57.5,
+        1.0,
+        -21.5
+      ],
+      "contents": {
+        "cloth": 4,
+        "wood_plank": 1
+      },
+      "capacity": 8.0,
+      "introduced_revision": 4
     }
   ],
   "regions": [
@@ -322,6 +377,44 @@
         50,
         40
       ]
+    }
+  ],
+  "base_zones": [
+    {
+      "id": "villa_07",
+      "name": "别墅",
+      "rect": [
+        109.65,
+        -26.35,
+        12.7,
+        8.7
+      ],
+      "min_y": -0.5,
+      "max_y": 6.7
+    },
+    {
+      "id": "market_07",
+      "name": "市集",
+      "rect": [
+        51.4,
+        -27.0,
+        31.2,
+        25.0
+      ],
+      "min_y": -0.5,
+      "max_y": 1.8
+    },
+    {
+      "id": "factory_07",
+      "name": "工厂",
+      "rect": [
+        152.95,
+        15.25,
+        25.1,
+        14.2
+      ],
+      "min_y": -0.5,
+      "max_y": 4.4
     }
   ],
   "beds": [

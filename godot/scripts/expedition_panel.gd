@@ -1,5 +1,7 @@
 extends CanvasLayer
 ## UI reads authoritative state and invokes existing model transactions.
+const Crafting=preload("res://scripts/crafting.gd")
+const DoorDamage=preload("res://scripts/door_damage.gd")
 var game
 var window: PanelContainer
 var body: VBoxContainer
@@ -63,12 +65,14 @@ func group(id: String) -> String:
     var rule: Dictionary=game.model.rules.items[id]
     if rule.get("kind","")=="weapon": return "武器"
     if rule.get("kind","")=="ammo": return "弹药"
+    if rule.get("kind","")=="tool": return "工具"
+    if rule.get("kind","")=="material": return "材料"
     return "医疗" if rule.get("stat","")=="health" else "补给"
 func refresh() -> void:
     clear()
     var header:=HBoxContainer.new()
     body.add_child(header)
-    var title:=label(header,"区域地图" if kind=="map" else ("背包" if kind=="inventory" else game.model.container_name(target)+" / 物资存取"))
+    var title:=label(header,"区域地图" if kind=="map" else ("背包" if kind=="inventory" else ("据点工事与制作" if kind=="craft" else game.model.container_name(target)+" / 物资存取")))
     title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     action(header,"关闭 [Esc]",close)
     status=label(body,"负重 %.2f / %.1f kg    生命 %.0f    饥饱 %.0f    饮水 %.0f"%[game.model.weight(),game.model.rules.capacity,game.model.state.stats.health,game.model.state.stats.hunger,game.model.state.stats.thirst])
@@ -77,9 +81,12 @@ func refresh() -> void:
     if kind=="map":
         build_map()
         return
+    if kind=="craft":
+        build_craft()
+        return
     var filters:=HBoxContainer.new()
     body.add_child(filters)
-    for name in ["全部","补给","医疗","武器","弹药"]:
+    for name in ["全部","补给","医疗","武器","弹药","材料","工具"]:
         action(filters,name,func(): category=name; refresh())
     content=HBoxContainer.new()
     content.size_flags_vertical=Control.SIZE_EXPAND_FILL
@@ -113,7 +120,7 @@ func refresh() -> void:
         action(right,"放下 1 件",drop_selected)
         action(right,"放下 5 件",func(): drop_selected(5))
         action(right,"卸下手枪弹药",func(): game.model.Firearms.unload(game.model); refresh())
-    label(body,"[E] 快速搜刮 · [B] 容器逐件/批量存取 · [I] 背包 · [Tab] 地图 · 灰色图标=当前不可用")
+    label(body,"[E] 快速搜刮 · [B] 容器逐件/批量存取 · [I] 背包 · [C] 据点制作 · [Tab] 地图 · 灰色图标=当前不可用")
 ## Selected-row highlight; the accent matches the map marker colour.
 func select_style() -> StyleBoxFlat:
     var style:=StyleBoxFlat.new()
@@ -216,6 +223,46 @@ func drop_selected(times: int = 1) -> void:
     game.last_notice="已放下 %s ×%d"%[game.model.rules.items[selected].name,moved] if moved>0 else (reason if not reason.is_empty() else "此处无法放下：请在可用楼层平地操作，或清理已满物资堆。")
     game.refresh_hud(true)
     refresh()
+func build_craft() -> void:
+    var model = game.model
+    var base := str(model.base_id())
+    var here := str(model.base_at(game.player.position))
+    var inside: bool = not here.is_empty() and here == base
+    label(body,"据点：%s（%s）"%[model.base_name(base),"在据点内" if inside else "不在据点内"])
+    if Crafting.active(model):
+        label(body,"进行中：%s。关闭面板后世界继续；移动或按空格会停手并退还材料。"%Crafting.progress(model))
+    var door: String = game.craft_door()
+    if door.is_empty():
+        label(body,"附近没有门：修门与加固需要站到门旁。")
+    else:
+        label(body,"%s 门 耐久 %.0f/%.0f · 加固 %d/%d"%[model.building_name(door),DoorDamage.health(model,door),DoorDamage.max_health(model,door),DoorDamage.level(model,door),DoorDamage.limit(model)])
+    var scroll:=ScrollContainer.new()
+    scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
+    body.add_child(scroll)
+    var rows:=VBoxContainer.new()
+    rows.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+    scroll.add_child(rows)
+    for entry in Crafting.entries():
+        var recipe_id := str(entry.id)
+        if str(entry.get("target","item"))=="door" and door.is_empty():
+            continue
+        var row:=HBoxContainer.new()
+        rows.add_child(row)
+        var left:=VBoxContainer.new()
+        left.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+        row.add_child(left)
+        label(left,"%s · %d 分钟"%[entry.name,int(entry.minutes)])
+        var parts:=PackedStringArray()
+        for item in entry.get("inputs",{}): parts.append("%s×%d"%[model.rules.items[item].name,int(entry.inputs[item])])
+        for tool in entry.get("tools",[]): parts.append("工具 "+str(model.rules.items[tool].name))
+        if entry.has("outputs"):
+            for item in entry.outputs: parts.append("产出 %s×%d"%[model.rules.items[item].name,int(entry.outputs[item])])
+        label(left,"、".join(parts))
+        label(left,str(entry.get("note","")))
+        var blocked: String = Crafting.reason(model,recipe_id,door)
+        action(row,"制作",func(): game.craft_now(recipe_id),blocked)
+    label(body,"[C] 制作 · 室内按 [G] 设据点 · 制作期间僵尸照常移动、撞门，危险会打断并退还材料")
+
 func build_map() -> void:
     var bar:=HBoxContainer.new()
     body.add_child(bar)

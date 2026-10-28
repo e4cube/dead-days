@@ -11,6 +11,7 @@ const StreetArt = preload("res://scripts/street_art.gd")
 const InteriorLighting = preload("res://scripts/interior_lighting.gd")
 const GroundVisual=preload("res://scripts/ground_drops_visual.gd")
 const Quality=preload("res://scripts/quality.gd")
+const Crafting=preload("res://scripts/crafting.gd")
 var audio=preload("res://scripts/game_audio.gd").new()
 var model = Model.new()
 var store = Store.new()
@@ -41,6 +42,9 @@ var mood: OptionButton
 var inventory_actions: HFlowContainer
 var storage_actions: VBoxContainer
 var storage_buttons := {}
+var craft_actions: VBoxContainer
+var craft_buttons := {}
+var craft_notes := {}
 var storage_container := ""
 var write_button: Button
 var export_button: Button
@@ -210,8 +214,20 @@ func build_ui() -> void:
         var store_button := button(row,"存入1件 " + model.rules.items[id].name,func(): storage_transfer(id,true))
         var take_button := button(row,"取回1件 " + model.rules.items[id].name,func(): storage_transfer(id,false))
         storage_buttons[id] = {"store":store_button,"take":take_button}
+    craft_actions = VBoxContainer.new()
+    panel.add_child(craft_actions)
+    for entry in Crafting.entries():
+        var recipe_id := str(entry.id)
+        var row := HBoxContainer.new()
+        craft_actions.add_child(row)
+        var note := Label.new()
+        note.text = str(entry.name)
+        note.custom_minimum_size.x = 120
+        row.add_child(note)
+        craft_buttons[recipe_id] = button(row, "制作（%d分钟）" % int(entry.minutes), func(): craft_now(recipe_id))
+    craft_actions.hide()
     storage_actions.hide()
-    button(panel, "关闭 [I / J / B / Esc]", close_panel)
+    button(panel, "关闭 [I / J / B / C / Esc]", close_panel)
     panel.hide()
 
 func show_menu() -> void:
@@ -591,6 +607,16 @@ func _physics_process(delta: float) -> void:
         update_lighting()
         refresh_hud()
         return
+    if Crafting.active(model):
+        if Input.get_vector("left", "right", "forward", "back").length() > 0 or Input.is_action_pressed("attack"):
+            Crafting.cancel(model, "主动停手")
+            last_notice = "已停手，材料已退还。"
+        else:
+            advance_craft(delta)
+        update_player_visual(delta)
+        update_lighting()
+        refresh_hud()
+        return
     var input := Input.get_vector("left", "right", "forward", "back")
     var running: bool = Input.is_action_pressed("run") and model.state.stats.stamina > 0
     var speed: float = model.rules.run_speed if running else model.rules.walk_speed
@@ -797,7 +823,7 @@ func refresh_hud(force: bool = false) -> void:
             preload("res://scripts/shop_slice.gd").stock(shop_details,model.state.containers.shop)
         if is_instance_valid(clinic_details):
             preload("res://scripts/clinic_slice.gd").stock(clinic_details,int(model.state.containers.clinic.get("bandage",0)))
-    var rest_text: String = " · 正在休息" if model.state.rest.active else ""
+    var rest_text: String = " · 正在休息" if model.state.rest.active else (" · 制作中" if Crafting.active(model) else "")
     var hud_line := "DEAD DAYS / 第%d天 %s%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     if model.state.combat.equipped=="pistol":
         hud_line+="\n弹匣 %d/%d · 备用 %d · F装填 / U卸弹 · 装填 %.1f秒"%[Model.Firearms.loaded(model),model.rules.weapons.pistol.magazine,model.state.inventory.get("ammo_9mm",0),model.state.firearms.reload_left]
@@ -807,7 +833,7 @@ func refresh_hud(force: bool = false) -> void:
     var target := cached_nearby()
     var hint_line := "[E] " + ("开关门 / " + model.building_name(target.id) if target.get("kind") == "door" else "搜刮 / " + model.container_name(target.id)) if not target.is_empty() else "Q/V 旋转 · 滚轮缩放 · 屋内 L 灯光 · 床边 R 短休 / 夜间 T 睡眠"
     if target.get("kind")=="door":
-        hint_line+=" · 门已损坏，无法关闭" if Model.DoorDamage.broken(model,target.id) else " · 门耐久 %.0f/%.0f"%[model.state.door_health[target.id],model.rules.door_damage.health]
+        hint_line+=" · 门已损坏，无法关闭 · [C] 修门" if Model.DoorDamage.broken(model,target.id) else " · 门耐久 %.0f/%.0f · [C] 修门/加固"%[Model.DoorDamage.health(model,target.id),Model.DoorDamage.max_health(model,target.id)]
     if target.get("kind") == "container":
         hint_line += " · [B] 存取 · 剩余：" + model.container_summary(target.id)
     if not cached_bed().is_empty():
@@ -816,6 +842,10 @@ func refresh_hud(force: bool = false) -> void:
         if inside(b.id):
             hint_line += " · [L] 照明：" + ("开" if model.light_enabled(b.id) else "关")
             hint_line += " · WASD 移动 · Q/V 旋转" if isometric_camera else " · W/S 前后 · A/D 转向 · Q/V 环视"
+    if Crafting.active(model):
+        hint_line = "制作中：" + Crafting.progress(model) + " · 移动或空格停手（材料退还）"
+    elif model.in_base():
+        hint_line += " · [C] 据点制作"
     if hint_line != hint_text_cache:
         hint_text_cache = hint_line
         hint.text = hint_line
@@ -849,12 +879,17 @@ func _unhandled_key_input(event: InputEvent) -> void:
     if code == KEY_B and panel.visible and panel_kind == "storage":
         close_panel()
         return
+    if code == KEY_C and panel.visible and panel_kind == "craft":
+        close_panel()
+        return
     if panel.visible:
         return
     if code in [KEY_T, KEY_R]:
         request_rest("night" if code == KEY_T else "hour")
         return
     if model.state.rest.active and code != KEY_F5:
+        return
+    if Crafting.active(model) and code != KEY_F5:
         return
     if code == KEY_Q or code == KEY_V:
         if camera_inside:
@@ -869,12 +904,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
                 InteriorLighting.update(self)
                 last_notice=model.state.events.back().text
     if code == KEY_G:
-        for b in model.rules.buildings:
-            if inside(b.id):
-                if model.has_method("set_base") and model.set_base(b.id):
-                    last_notice=model.state.events.back().text
-                    refresh_hud(true)
-                break
+        var zone := str(model.base_at(player.position))
+        if not zone.is_empty() and model.set_base(zone):
+            last_notice=model.state.events.back().text
+            refresh_hud(true)
+        else:
+            last_notice="这里不是可居住的室内；进屋或登楼后再按 G 设据点。"
+    if code == KEY_C:
+        open_craft()
+        return
     match code:
         KEY_E: interact()
         KEY_B: open_storage()
@@ -912,6 +950,10 @@ func item_action_reason(id: String) -> String:
         if Model.Firearms.loaded(model) >= int(model.rules.weapons.pistol.magazine):
             return "弹匣已满"
         return ""
+    if kind == "tool":
+        return "工具：修门或加固时自动使用，不消耗"
+    if kind == "material":
+        return "材料：只能在据点制作时消耗"
     if rule.has("stat"):
         if float(model.state.stats[rule.stat]) >= 100.0:
             return {"health": "生命已满", "hunger": "无需进食", "thirst": "无需饮水"}.get(rule.stat, "已达上限")
@@ -923,7 +965,8 @@ func use(id: String) -> void:
         if id=="ammo_9mm":
             last_notice="关闭背包后继续装填。"
     else:
-        last_notice = "物品不足或当前无需使用。"
+        var why: String = item_action_reason(id)
+        last_notice = why if not why.is_empty() else "物品不足或当前无需使用。"
 
 func drop_inventory_item(id: String) -> void:
     if not active or not panel.visible or panel_kind!="inventory": return
@@ -947,10 +990,83 @@ func open_panel(kind: String) -> void:
     export_button.visible = kind == "journal"
     inventory_actions.visible = kind == "inventory"
     storage_actions.visible = kind == "storage"
-    journal_text.custom_minimum_size.y = 220 if kind == "storage" else 330
+    craft_actions.visible = kind == "craft"
+    journal_text.custom_minimum_size.y = 220 if kind == "storage" else (260 if kind == "craft" else 330)
     refresh_panel()
     if active:
         refresh_hud()
+
+## The recipe list is context sensitive: door work needs a door at arm's length,
+## while cooking and bandage cutting only need the player to stand inside the base.
+func craft_door() -> String:
+    var target := nearby()
+    return str(target.id) if target.get("kind") == "door" else ""
+
+func craft_summary() -> String:
+    var base := str(model.base_id())
+    var here := str(model.base_at(player.position))
+    var text := "据点：%s（%s）\n" % [model.base_name(base), "当前在据点内" if not here.is_empty() and here == base else "当前不在据点内"]
+    var door := craft_door()
+    if door.is_empty():
+        text += "附近没有门：修门与加固需要站到门旁。\n"
+    else:
+        text += "附近的门：%s  耐久 %.0f/%.0f  加固 %d/%d\n" % [model.building_name(door),
+            Model.DoorDamage.health(model, door), Model.DoorDamage.max_health(model, door),
+            Model.DoorDamage.level(model, door), Model.DoorDamage.limit(model)]
+    if Crafting.active(model):
+        text += "进行中：%s；移动或空格会停手并退还材料。\n" % Crafting.progress(model)
+    text += "\n"
+    for entry in Crafting.entries():
+        var parts := PackedStringArray()
+        for item in entry.get("inputs", {}):
+            parts.append("%s×%d" % [model.rules.items[item].name, int(entry.inputs[item])])
+        for tool in entry.get("tools", []):
+            parts.append("工具 " + str(model.rules.items[tool].name))
+        text += "%s（%d分钟）：%s\n    %s\n" % [entry.name, int(entry.minutes), "、".join(parts), str(entry.get("note", ""))]
+    return text
+
+func open_craft() -> void:
+    if not active or model.state.stats.health <= 0:
+        return
+    if model.state.rest.active:
+        last_notice = "先起身，再开始制作。"
+        return
+    sync_position()
+    update_player_visual(0)
+    open_panel("craft")
+
+func craft_now(id: String) -> void:
+    if not active:
+        return
+    sync_position()
+    var blocked: String = Crafting.begin(model, id, craft_door())
+    if not blocked.is_empty():
+        last_notice = blocked
+        refresh_panel()
+        return
+    last_notice = model.state.events.back().text
+    # Close the panel so the player watches the workshop while zombies keep moving.
+    close_panel()
+    update_player_visual(0)
+    refresh_hud(true)
+
+func advance_craft(delta: float) -> void:
+    sync_position()
+    var blocked: String = Crafting.danger(model, player.position)
+    if not blocked.is_empty():
+        Crafting.cancel(model, blocked, true)
+        last_notice = "制作中断：" + blocked + "；材料已退还。"
+        return
+    tick_world(delta, false)
+    if not Crafting.tick(model, delta * float(model.rules.time.minutes_per_second)):
+        return
+    var text := ""
+    for index in range(model.state.events.size() - 1, -1, -1):
+        if str(model.state.events[index].kind) in ["crafted", "door_repaired", "door_reinforced"]:
+            text = str(model.state.events[index].text)
+            break
+    if save_run():
+        last_notice = text + " 已自动保存。"
 
 func open_storage() -> void:
     var target := nearby()
@@ -978,6 +1094,12 @@ func close_panel() -> void:
 func refresh_panel() -> void:
     if panel_kind == "journal":
         journal_text.text = model.markdown()
+    elif panel_kind == "craft":
+        journal_text.text = craft_summary()
+        for id in craft_buttons:
+            var why: String = Crafting.reason(model, id, craft_door())
+            craft_buttons[id].disabled = not why.is_empty()
+            craft_buttons[id].tooltip_text = why
     elif panel_kind == "storage":
         journal_text.text = "%s / 存取物资\n背包 %.1f / %.1f kg · 容器 %.1f / %.1f kg\n每次移动1件\n\n" % [model.container_name(storage_container),model.weight(),model.rules.capacity,model.container_weight(storage_container),model.container_capacity(storage_container)]
         if model.container_weight(storage_container)>model.container_capacity(storage_container)+.0001:
