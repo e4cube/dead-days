@@ -107,6 +107,7 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_sites_scene.gd'], 'SITES_SCENE_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_goals_v1.gd'], 'GOALS_V1_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_two_day_loop.gd'], 'TWO_DAY_LOOP_OK', timeout=150)
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_save_slots_v1.gd'], 'SAVE_SLOTS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_door_attack_intent.gd'], 'DOOR_ATTACK_INTENT_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_door_damage.gd'], 'DOOR_DAMAGE_OK')

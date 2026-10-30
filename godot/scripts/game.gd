@@ -7,6 +7,7 @@ const Model = preload("res://scripts/survival.gd")
 const Navigation = preload("res://scripts/navigation.gd")
 const Zombie = preload("res://scripts/zombie.gd")
 const Store = preload("res://scripts/save_store.gd")
+const Slots = preload("res://scripts/save_slots.gd")
 const StreetArt = preload("res://scripts/street_art.gd")
 const InteriorLighting = preload("res://scripts/interior_lighting.gd")
 const GroundVisual=preload("res://scripts/ground_drops_visual.gd")
@@ -15,7 +16,9 @@ const Crafting=preload("res://scripts/crafting.gd")
 const Goals=preload("res://scripts/goals.gd")
 var audio=preload("res://scripts/game_audio.gd").new()
 var model = Model.new()
-var store = Store.new()
+var slots = Slots.new()
+var store = slots.store(1)
+var slot := 1
 var active := false
 var world: Node3D
 var player: CharacterBody3D
@@ -48,6 +51,9 @@ var craft_buttons := {}
 var craft_notes := {}
 var storage_container := ""
 var write_button: Button
+var backup_button: Button
+var save_export_button: Button
+var slot_buttons: Array = []
 var export_button: Button
 var panel_kind := ""
 var house_details: Node3D
@@ -170,7 +176,11 @@ func build_ui() -> void:
     title.add_theme_font_size_override("font_size", 26)
     menu.add_child(title)
     button(menu, "新游戏（保留所有已有快照）", new_run)
-    button(menu, "继续最近有效存档", continue_run)
+    button(menu, "继续最近（自动选最新存档）", continue_newest)
+    for index in range(1, Slots.COUNT + 1):
+        var number: int = index
+        slot_buttons.append(button(menu, "存档 %d · 空槽" % number, func(): continue_slot(number)))
+    refresh_menu_slots()
     quality_button = button(menu, "画质：" + Quality.label(quality), func():
         cycle_quality()
         quality_button.text = "画质：" + Quality.label(quality))
@@ -200,6 +210,8 @@ func build_ui() -> void:
         entry.clear()
         refresh_panel())
     export_button = button(panel, "导出 Markdown", export_journal)
+    backup_button = button(panel, "备份存档", func(): backup_save())
+    save_export_button = button(panel, "导出存档", func(): export_save())
     inventory_actions = HFlowContainer.new()
     panel.add_child(inventory_actions)
     for id in model.rules.items:
@@ -234,6 +246,7 @@ func build_ui() -> void:
 func show_menu() -> void:
     active = false
     menu.show()
+    refresh_menu_slots()
     panel.hide()
     hud.text = "DEAD DAYS  /  重构分支\n新旧存档隔离；昼夜与生存时钟已接入。住宅床边可R短休、T睡到黎明。"
     hint.text = "WASD 移动 · Shift 跑步 · 空格攻击 · E 开关门/搜刮 · I 背包 · J 日志 · 1/2/3 使用物品 · F5 保存 · Esc 保存回菜单"
@@ -245,6 +258,46 @@ func new_run() -> void:
     menu.hide()
     close_panel()
     last_notice = "先搜刮住宅的木棍并装备；街道东端有僵尸。跑步和战斗会引来注意。"
+
+## Switching slots only rebinds the store; nothing is written until the player
+## actually saves. Tests keep assigning `store` directly and are unaffected.
+func use_slot(index: int) -> void:
+    if not Slots.valid_slot(index):
+        return
+    slot = index
+    store = slots.store(index)
+    refresh_menu_slots()
+
+func continue_slot(index: int) -> void:
+    use_slot(index)
+    continue_run()
+
+func continue_newest() -> void:
+    var newest := slots.newest_slot()
+    # A session whose store was rebound to another directory (tests, tools) owns
+    # exactly one slot; never reach outside it and read the player's real saves.
+    if newest == 0 or store.directory != slots.directory(slot):
+        continue_run()
+        return
+    continue_slot(newest)
+
+func refresh_menu_slots() -> void:
+    for index in slot_buttons.size():
+        var number := index + 1
+        var mark := "▸ " if number == slot else "   "
+        slot_buttons[index].text = mark + slots.label(number)
+
+func backup_save() -> bool:
+    var path: String = slots.backup(slot, model)
+    last_notice = ("已备份：" + path) if not path.is_empty() else "备份失败：状态未通过校验或目录不可写"
+    notice.text = last_notice
+    refresh_menu_slots()
+    return not path.is_empty()
+
+func export_save() -> void:
+    var result: String = slots.export_save(slot, model)
+    last_notice = ("已导出：" + result) if not result.is_empty() else "导出失败：状态未通过校验或目录不可写"
+    notice.text = last_notice
 
 func continue_run() -> void:
     if not store.load_latest(model):
@@ -1000,6 +1053,8 @@ func open_panel(kind: String) -> void:
     mood.visible = kind == "journal"
     write_button.visible = kind == "journal"
     export_button.visible = kind == "journal"
+    backup_button.visible = kind == "journal"
+    save_export_button.visible = kind == "journal"
     inventory_actions.visible = kind == "inventory"
     storage_actions.visible = kind == "storage"
     craft_actions.visible = kind == "craft"
