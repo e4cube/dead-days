@@ -139,3 +139,36 @@ python tools/build_web_fixed.py
 python -m http.server 8777 --directory web
 ```
 
+## 阶段 F1 增量验证（2026-10-30，存档可靠性）
+
+`SAVE_SLOTS_OK` 覆盖三槽隔离、快照轮转与备份导出，九组断言见 [存档可靠性 v1](save-slots-v1.md) 第六节。一条必须记住的纪律：**测试只能写 `user://tests/`**。
+
+```powershell
+& 'D://GameDev//Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_save_slots_v1.gd
+python tools/run_checks.py --godot 'D:\GameDev\Godot_v4.7.2-stable_win64.exe'
+```
+
+`run_checks.py` 末尾的指纹断言会比对 `save.json`、`user://saves`、`user://exports` 在整轮前后的 SHA-256。第一版槽位测试直接调用了默认导出目录，把七个 `dead-days-slot1_*.json` 写进了玩家真实 `exports/`，于是整轮以 `Protected player files changed!` 失败——断言工作正常，是测试写错了地方。修法是给 `Slots` 加可覆盖的 `export_root`，测试指到自己的临时目录；被污染的文件已移到 `work/test-pollution/exports/` 留档，`exports/` 恢复为空。
+
+顺带两条环境经验：
+
+- 本机 `python`（3.13.12 托管版）没有 pygame，跑 `run_checks.py` 会用
+  `C:\Users\11\.workbuddy\binaries\python\envs\default\Scripts\python.exe`（已装 pygame 2.6.1）。
+- `git push` 到 github.com:443 仍然不通，提交走 `work/api_push_tree.py`（REST API 直连）。
+
+## 阶段 F2 增量验证（2026-10-30，长时生存）
+
+`LONG_SURVIVAL_OK` 是十日实跑，断言清单见 [长时生存](long-survival-v1.md) 第四节。两个只读测量脚本不进总入口，改数值时手动跑：
+
+```powershell
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_long_survival.gd
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/audit_supply.gd
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/audit_containers.gd
+```
+
+写这条测试时踩到的两个真问题，都会影响以后写同类型脚本：
+
+- **修门的位置不是睡觉的位置**。床在家宅深处（z≈-3.5，半径 1.7），门在 z=0，站床边点修门会被判"需要站到门旁"。测试里必须真的走过去。
+- **破门之后 `toggle_door` 会拒绝**，得先修好才能关。修好的门是开着的，要自己关一次床才可用。这不是 bug，是"不能白送一间安全屋"。
+- 出门前别把水和食物塞满背包：5 kg 上限下，3 瓶水 + 2 罐头就是 4.9 kg，当天在工厂就只剩 0.1 kg，锤子和木板一件也拿不回来。测试第一版就是这么红的（第 4 天修门失败：`缺少工具：锤子`）。
+

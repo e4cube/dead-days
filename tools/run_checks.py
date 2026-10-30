@@ -107,6 +107,9 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_sites_scene.gd'], 'SITES_SCENE_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_goals_v1.gd'], 'GOALS_V1_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_two_day_loop.gd'], 'TWO_DAY_LOOP_OK', timeout=150)
+        # Ten nights of real economy: tightening one number here should show up
+        # as a red check, not as a player starving on day six.
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_long_survival.gd'], 'LONG_SURVIVAL_OK', timeout=150)
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_save_slots_v1.gd'], 'SAVE_SLOTS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_door_attack_intent.gd'], 'DOOR_ATTACK_INTENT_OK')
         command = [args.godot] + ([] if args.visual else ['--headless'])
