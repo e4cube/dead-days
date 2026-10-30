@@ -39,7 +39,7 @@ func _initialize() -> void:
 
 func fresh() -> void:
     var model = world()
-    check(model.state.schema == 6, "villa works bring the save to schema 6")
+    check(model.state.schema == 7, "villa works bring the save to schema 7")
     check(model.sites().size() == 3, "three authored works are declared")
     check(not model.site_done("villa_gate") and not model.state.doors.has("villa_gate"),
         "the yard starts without a gate")
@@ -56,7 +56,7 @@ func fresh() -> void:
         "no gate means no barrier")
     var street = Model.new()
     street.start()
-    check(street.sites().is_empty() and street.state.schema == 6, "the street scene has no works but keeps the schema")
+    check(street.sites().is_empty() and street.state.schema == 7, "the street scene has no works but keeps the schema")
     check(street.valid(street.state), "a street save without works stays valid")
 
 func hauling() -> void:
@@ -185,7 +185,7 @@ func migration() -> void:
     model.state = keep
     var loaded = World.new()
     check(Store.new(directory).load_latest(loaded), "the legacy snapshot loads")
-    check(loaded.state.schema == 6, "loading upgrades to schema 6")
+    check(loaded.state.schema == 7, "loading upgrades to schema 7")
     check(loaded.state.base_works.has("villa_gate") and not loaded.site_done("villa_gate"),
         "works are filled in as not done")
     check(loaded.state.pool.left == 0 and loaded.pool_left() == 0, "the pool stays dry after migration")

@@ -1,0 +1,35 @@
+{
+  "revision": 1,
+  "goals": [
+    {
+      "id": "stock_water",
+      "name": "储备饮水",
+      "text": "在据点容器里凑够 5 份饮用水。",
+      "kind": "stock",
+      "item": "water",
+      "count": 5
+    },
+    {
+      "id": "bring_medicine",
+      "name": "带回医疗",
+      "text": "把 2 份绷带存进据点容器。",
+      "kind": "stock",
+      "item": "bandage",
+      "count": 2
+    },
+    {
+      "id": "long_trip",
+      "name": "远途探索",
+      "text": "走到离据点 55 米以外的地方。",
+      "kind": "distance",
+      "meters": 55.0
+    },
+    {
+      "id": "seal_yard",
+      "name": "封住院子",
+      "text": "把别墅院子门装上。",
+      "kind": "site",
+      "site": "villa_gate"
+    }
+  ]
+}

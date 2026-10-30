@@ -6,6 +6,7 @@ const Appearance = preload("res://scripts/zombie_appearance.gd")
 const GroundDrops=preload("res://scripts/ground_drops.gd")
 const DoorDamage=preload("res://scripts/door_damage.gd")
 const Crafting=preload("res://scripts/crafting.gd")
+const Goals=preload("res://scripts/goals.gd")
 ## Scene-independent authoritative state. UI never mutates inventory directly.
 var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/rules.json"))
 var state: Dictionary = {}
@@ -26,6 +27,7 @@ func start() -> void:
     DoorDamage.ensure(self)
     add_base_state()
     add_site_state()
+    add_goal_state()
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -179,6 +181,12 @@ func add_site_state() -> void:
         # supply work is finished.
         state.pool = {"day": int(state.day), "left": 0}
     DoorDamage.ensure(self)
+
+## Objectives need only a place to remember what was already reported and how far
+## the player has walked; everything else is derived from state that already exists.
+func add_goal_state() -> void:
+    state.schema = 7
+    Goals.ensure(self)
 
 func sites() -> Array:
     return rules.get("sites", [])
@@ -398,7 +406,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5 and candidate.schema != 6) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5 and candidate.schema != 6 and candidate.schema != 7) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -483,6 +491,8 @@ func valid(candidate: Variant) -> bool:
         return false
     if candidate.schema >= 6 and not valid_sites(candidate):
         return false
+    if candidate.schema >= 7 and not Goals.valid(self,candidate):
+        return false
     return true
 
 func valid_items(items: Dictionary) -> bool:
@@ -540,6 +550,12 @@ func restore(candidate: Dictionary) -> void:
     if state.schema == 5 or missing_sites:
         add_site_state()
         event("migrated", "别墅院子门、大门与泳池供水已接入；原有进度保留。", "平静")
+    # Same rule as the works above: a snapshot may already carry the current
+    # schema yet know nothing about objectives, so presence decides.
+    var missing_goals: bool = not state.get("goals") is Dictionary
+    if state.schema == 6 or missing_goals:
+        add_goal_state()
+        event("migrated", "小目标已接入；据点、物资与已完成工事完整保留。", "平静")
     for zombie in state.zombies:
         if not zombie.has("appearance"):
             zombie.appearance="civilian"
@@ -677,6 +693,7 @@ func add_time_state() -> void:
 func advance_time(seconds: float, sleeping: bool = false) -> void:
     Timeline.advance(self, seconds, sleeping)
     refresh_pool()
+    Goals.check(self)
 
 func environment_damage(amount: float) -> void:
     if amount <= 0 or state.stats.health <= 0:

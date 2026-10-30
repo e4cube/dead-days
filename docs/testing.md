@@ -114,3 +114,16 @@ $env:PYTHONPATH = (Resolve-Path work/test_dependencies).Path
 & 'D://GameDev//Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_sites_v1.gd
 ```
 
+## 阶段 D2 增量验证（2026-10-29）
+
+`GOALS_V1_OK` 验证小目标：新档四个目标全未完成、背包里的水不算储备、存进据点柜子才算、达到阈值后只写一条日志；2 瓶水存进别墅柜子不会让住宅据点的目标完成（3+2 正好跨门槛，是真实判别条件），改设别墅为据点后同一批物资立刻算数；短途不触发、越过 55m 完成、回家不回退；装好院子门后完成；连续推进不重复写日志、`done` 无重复 id；schema6→7 按字段存在性迁移、写着 7 却缺 `goals` 的快照被拒绝且 `restore` 会补齐；未知 id、重复 id、负距离、超界距离、超前时间戳、`goals` 非字典六种非法状态全部拒绝；完成状态与距离记录读档后保留且不重新播报。
+
+`TWO_DAY_LOOP_OK` 是路线图要求的连续两天验收，用一份存档走完整个循环并中途存读档：确认据点 → 抵达市集触发发现 → 搜刮（件数守恒）→ 挨打记录受伤 → 脱离 → 回屋吃喝治疗 → 存物资（每条 `stored` 对应一件）→ 手写日记 → 推进到夜间 → 睡到黎明进入第 2 天。断言第 1 天 `daily_summary` 恰好一条且 `summary_day`、`searches`、`stored`、`manual` 与实际行动一致；读档后位置、背包、容器、发现记录、目标进度全部一致。第二天再出门、回家、睡第二夜进入第 3 天，`daily_summary` 变成两条，读档状态仍然合法。
+
+```powershell
+& 'D://GameDev//Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_goals_v1.gd
+& 'D://GameDev//Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_two_day_loop.gd
+```
+
+两个测试都已注册进 `tools/run_checks.py`（`TWO_DAY_LOOP_OK` 超时放宽到 150 秒）。
+

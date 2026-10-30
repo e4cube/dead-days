@@ -65,7 +65,7 @@ static func physiology(model: RefCounted, minutes: float, sleeping: bool) -> voi
 static func summarize(model: RefCounted, finished_day: int) -> void:
     if finished_day < 1 or finished_day >= model.state.day or finished_day <= model.state.calendar.last_summary_day:
         return
-    var tally := {"summary_day": finished_day, "entered": 0, "looted": 0, "searches": 0, "kills": 0, "damage": 0.0, "used": 0, "manual": 0,"stored":0,"retrieved":0}
+    var tally := {"summary_day": finished_day, "entered": 0, "looted": 0, "searches": 0, "kills": 0, "damage": 0.0, "used": 0, "manual": 0,"stored":0,"retrieved":0,"goals":0}
     for entry in model.state.events:
         if entry.day != finished_day:
             continue
@@ -81,5 +81,11 @@ static func summarize(model: RefCounted, finished_day: int) -> void:
             "manual": tally.manual += 1
             "stored": tally.stored += int(entry.payload.get("count",0))
             "retrieved": tally.retrieved += int(entry.payload.get("count",0))
+            "goal_done": tally.goals += 1
     model.state.calendar.last_summary_day = finished_day
-    model.event("daily_summary", "第%d天总结：进入%d处，搜到%d件物资，击倒%d只，受伤%.0f点，使用%d件物品，手写%d条，存入%d件、取回%d件。" % [finished_day, tally.entered, tally.looted, tally.kills, tally.damage, tally.used, tally.manual,tally.stored,tally.retrieved], "疲惫", tally)
+    var text := "第%d天总结：进入%d处，搜到%d件物资，击倒%d只，受伤%.0f点，使用%d件物品，手写%d条，存入%d件、取回%d件。" % [finished_day, tally.entered, tally.looted, tally.kills, tally.damage, tally.used, tally.manual,tally.stored,tally.retrieved]
+    # Objectives are part of the day, but a day with none should not read
+    # "completed 0 objectives": the sentence only appears when it happened.
+    if int(tally.goals) > 0:
+        text = text.left(-1) + "，完成%d个小目标。" % int(tally.goals)
+    model.event("daily_summary", text, "疲惫", tally)

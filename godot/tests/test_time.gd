@@ -132,7 +132,7 @@ func _initialize() -> void:
     file.close()
     var bytes := FileAccess.get_file_as_bytes(path)
     check(Store.new(root_dir + "/c1").load_latest(loaded), "schema2 loads")
-    check(loaded.state.schema == 6 and loaded.state.zombies == JSON.parse_string(JSON.stringify(old.zombies)) and loaded.valid(loaded.state), "schema2 enemies preserved by migration")
+    check(loaded.state.schema == 7 and loaded.state.zombies == JSON.parse_string(JSON.stringify(old.zombies)) and loaded.valid(loaded.state), "schema2 enemies preserved by migration")
     check(FileAccess.get_file_as_bytes(path) == bytes, "migration leaves source snapshot immutable")
     print("TIME_RULES_OK" if failures == 0 else "TIME_RULES_FAILED")
     quit(0 if failures == 0 else 1)

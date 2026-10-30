@@ -12,6 +12,7 @@ const InteriorLighting = preload("res://scripts/interior_lighting.gd")
 const GroundVisual=preload("res://scripts/ground_drops_visual.gd")
 const Quality=preload("res://scripts/quality.gd")
 const Crafting=preload("res://scripts/crafting.gd")
+const Goals=preload("res://scripts/goals.gd")
 var audio=preload("res://scripts/game_audio.gd").new()
 var model = Model.new()
 var store = Store.new()
@@ -1105,7 +1106,9 @@ func close_panel() -> void:
 
 func refresh_panel() -> void:
     if panel_kind == "journal":
-        journal_text.text = model.markdown()
+        # Objectives sit above the log itself: they are read from the same state
+        # the entries describe, so they belong in the same panel.
+        journal_text.text = Goals.summary(model) + model.markdown()
     elif panel_kind == "craft":
         journal_text.text = craft_summary()
         for id in craft_buttons:
@@ -1137,6 +1140,11 @@ func refresh_panel() -> void:
             drop_buttons[id].tooltip_text=reason
 
 func export_journal() -> void:
+    if OS.has_feature("web"):
+        JavaScriptBridge.download_buffer(model.markdown().to_utf8_buffer(), "dead-days-journal.md", "text/markdown")
+        last_notice = "日志下载已发起"
+        notice.text = last_notice
+        return
     if DirAccess.make_dir_recursive_absolute(export_directory) != OK:
         last_notice = "导出目录无法创建"
         return
