@@ -321,12 +321,20 @@ static func physiology(model, minutes: float) -> void:
         model.event("died", "血从指缝里流干了。" if bleeding >= sepsis else "感染烧穿了最后一点力气。",
             "绝望", {"cause": "bleeding" if bleeding >= sepsis else "infection"})
 
+## HUD 只有一行位置，所以最多列三处，剩下的合并成"等N处"：优先列感染的和
+## 还在流血的，因为那才是玩家此刻必须处理的东西。
 static func summary(model) -> String:
     var list: Array = model.state.get("wounds", [])
     if list.is_empty():
         return "无伤"
+    var ordered: Array = list.duplicate()
+    ordered.sort_custom(func(a, b):
+        var a_score := (2.0 if bool(a.get("infected", false)) else 0.0) + bleed_rate(model, a)
+        var b_score := (2.0 if bool(b.get("infected", false)) else 0.0) + bleed_rate(model, b)
+        return a_score > b_score)
     var parts := PackedStringArray()
-    for wound in list:
+    for index in mini(ordered.size(), 3):
+        var wound: Dictionary = ordered[index]
         var marks := ""
         if bool(wound.get("infected", false)):
             marks = "感染"
@@ -339,6 +347,8 @@ static func summary(model) -> String:
         else:
             marks = "未处理"
         parts.append("%s(%s)" % [kind_name(model, str(wound.kind)), marks])
+    if ordered.size() > parts.size():
+        parts.append("等%d处" % (ordered.size() - parts.size()))
     var bleeding := total_bleed(model)
     return "%d处：%s%s" % [list.size(), "、".join(parts), " 流血中" if bleeding > 0.0 else ""]
 

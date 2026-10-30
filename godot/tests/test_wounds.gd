@@ -191,6 +191,9 @@ func _initialize() -> void:
         Wounds.hit(model, "scratch", "z1")
     check(model.state.wounds.size() == int(model.rules.wounds.max), "伤口数量封顶")
     check(Wounds.hit(model, "scratch", "z1").is_empty(), "超过上限不再记账")
+    # HUD 只有一行：身上十几处伤时必须还能读。
+    check(Wounds.summary(model).find("等") >= 0, "伤口多的时候摘要会合并")
+    check(Wounds.summary(model).length() < 90, "摘要不会长到写不进 HUD：%d 字" % Wounds.summary(model).length())
 
     # --- 存档校验 ---
     model = fresh()
