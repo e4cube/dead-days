@@ -157,6 +157,9 @@ func tick(delta: float) -> void:
     hit_flash = maxf(0, hit_flash - delta)
     record.attack_cd = maxf(0, record.attack_cd - delta)
     var visible_target := sees_player()
+    if visible_target and record.mode != "chase":
+        # First sighting: the one sound that tells the player they were seen.
+        voice("growl")
     if visible_target:
         record.mode = "chase"
         # Keep the real height: path() needs it to decide whether the target
@@ -211,6 +214,7 @@ func tick(delta: float) -> void:
                     game.hit_door(committed_door,record.id)
             elif in_reach and visible_target:
                 game.model.damage_player(rule.attack_damage, record.id)
+                voice("snarl")
             record.attack_door=""
             record.attack_cd = rule.attack_cooldown
     elif visible_target and in_reach and record.attack_cd <= 0:
@@ -327,6 +331,13 @@ func _sync_collision_exceptions(pairs: Array) -> void:
             add_collision_exception_with(other)
             excepted[other] = true
 
+## Sound is one-way. The zombie speaks about what already happened; it never
+## writes a noise into the model, so a growl cannot wake the horde behind it.
+func voice(kind: String) -> void:
+    if game == null or not game.has_method("zombie_voice"):
+        return
+    game.zombie_voice(kind, global_position, str(record.id))
+
 func take_hit(damage: float) -> void:
     if game.model.damage_zombie(record, damage):
         hit_flash = 0.2
@@ -338,6 +349,9 @@ func take_hit(damage: float) -> void:
             record.target = [game.player.position.x, 0, game.player.position.z]
             record.memory = rule.search_seconds
             record.alert_left = rule.alert_seconds
+            voice("snarl")
+        else:
+            voice("death")
         update_visual(0)
 
 func update_visual(delta: float) -> void:

@@ -872,7 +872,15 @@ func site_hint(_kind: String, _id: String) -> String:
 func on_sites_changed() -> void:
     pass
 
+## Single funnel for creature voices. The scene knows nothing about mixing, and
+## nothing here writes to the model: hearing a zombie never creates a noise.
+func zombie_voice(kind: String, at: Vector3, source_id: String = "") -> void:
+    audio.zombie_voice(kind, at, source_id)
+
 func refresh_hud(force: bool = false) -> void:
+    # The ears travel with the player, never with the camera: a top-down lens
+    # does not move closer to a sound by zooming out.
+    audio.set_listener(player.position)
     audio.sync(model.state.events)
     var paused := ui_paused()
     var now := Time.get_ticks_msec()

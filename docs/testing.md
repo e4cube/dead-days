@@ -172,3 +172,19 @@ python tools/run_checks.py --godot 'D:\GameDev\Godot_v4.7.2-stable_win64.exe'
 - **破门之后 `toggle_door` 会拒绝**，得先修好才能关。修好的门是开着的，要自己关一次床才可用。这不是 bug，是"不能白送一间安全屋"。
 - 出门前别把水和食物塞满背包：5 kg 上限下，3 瓶水 + 2 罐头就是 4.9 kg，当天在工厂就只剩 0.1 kg，锤子和木板一件也拿不回来。测试第一版就是这么红的（第 4 天修门失败：`缺少工具：锤子`）。
 
+## 阶段 F3 增量验证（2026-10-31，声音空间）
+
+```powershell
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --script res://tests/test_audio_space.gd
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot --script res://tests/test_game_audio.gd
+```
+
+`AUDIO_SPACE_OK` 是纯数学 + 节点行为，无需窗口；`GAME_AUDIO_OK` 在真实场景里补了三条（看见玩家吼、挨打叫、倒下死）。断言清单见 [声音空间](audio-space-v1.md) 第五节。
+
+这一轮踩到的坑：
+
+- **正交相机下不能用引擎的 3D 衰减**。相机吊在 20 m 高空，脚边和 40 m 外到 listen 的距离只差 5 dB，动态范围整个被吃掉。改成 `ATTENUATION_DISABLED` + 自己按平面距离算 `volume_db`，只让 3D 播放器负责左右声像。
+- **测试里的僵尸 fixture 会污染后续断言**。`test_game_audio` 前半段为了测空枪把手枪装上并打空，武器就一直停在手枪上；后面再调 `try_attack()` 会静默返回 false（`begin_attack` 因空弹匣拒绝），看起来像"僵尸不叫"。真实原因是**没切回木棍**。写场景测试时，凡是跨段复用的状态（武器、体力、冷却、panel），都要在段落开头显式重置。
+- **已经在追击的僵尸永远不会再吼**。`growl` 只在 `mode != chase` 时触发，所以想验三种声音必须**换一只新僵尸**，不能在打过的那只身上接着测。
+- 远处被拒的吼叫**不该消耗冷却**：`zombie_voice` 先算能否播出，成功了才记时间戳。否则"远处吼了但你没听见"会白白吃掉下一次。
+

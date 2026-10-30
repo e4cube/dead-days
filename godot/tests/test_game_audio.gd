@@ -13,7 +13,7 @@ func run():
         var peak:=0
         for i in clip.data.size()/2: peak=maxi(peak,absi(clip.data.decode_s16(i*2)))
         check(peak>100 and peak<26215,"non-silent bounded signal "+id)
-    check(game.audio.voices.size()==8,"bounded voice pool")
+    check(game.audio.voices.size()==int(game.audio.config.voices),"bounded voice pool")
     for pair in [["step","melee"],["step","impact"],["impact","gunshot"]]:
         check(game.audio.clips[pair[0]].data!=game.audio.clips[pair[1]].data,"distinct sound recipe "+str(pair))
     await to_point(Vector2(-7,1.2))
@@ -50,6 +50,33 @@ func run():
     game.model.damage_player(5,"audio_fixture")
     game.refresh_hud()
     check(game.audio.played.get("hurt",0)==1,"real damage transaction triggers feedback")
+    # 僵尸终于有声音了：挨打会叫，倒下会死。位置取自它自己的身体，
+    # 且只读事件——声音不给自己制造噪声（那一点由 AUDIO_SPACE_OK 守着）。
+    # --- 僵尸终于有声音：看见你、挨打、倒下 ---
+    # 上一只已经在追击状态，永远不会再吼；换一只新的，让三种声音各走一次。
+    game.model.state.zombies=[game.model.make_zombie("voice_target",[game.player.position.x,0,game.player.position.z+.8])]
+    game.build_world()
+    game.audio.played.erase("growl")
+    game.audio.played.erase("snarl")
+    game.audio.played.erase("death")
+    for i in 3: await process_frame
+    check(game.audio.played.get("growl",0)>=1,"a zombie that spots you growls")
+    game.model.state.combat.equipped="club"
+    game.model.state.combat.attack_cd=0
+    game.model.state.stats.stamina=100
+    game.player.rotation.y=0
+    game.sync_position()
+    game.try_attack()
+    await process_frame
+    check(game.model.state.zombies[0].health>0 and game.model.state.zombies[0].health<70,"the club really hurt it")
+    check(game.audio.played.get("snarl",0)>=1,"a struck zombie snarls")
+    for i in 3:
+        game.model.state.combat.attack_cd=0
+        game.model.state.stats.stamina=100
+        game.try_attack()
+        await process_frame
+    check(game.model.state.zombies[0].health<=0,"the club finishes it")
+    check(game.audio.played.get("death",0)>=1,"a downed zombie dies audibly")
     var played: Dictionary=game.audio.played.duplicate()
     game.save_run()
     game.continue_run()

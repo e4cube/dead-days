@@ -115,6 +115,9 @@ def main():
         command = [args.godot] + ([] if args.visual else ['--headless'])
         run(command + ['--path', 'godot', '--script', 'res://tests/test_door_damage.gd'], 'DOOR_DAMAGE_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_game_audio.gd'], 'GAME_AUDIO_OK')
+        # Pure distance/storey maths and the one-way rule between sound and AI
+        # perception; needs no window, so it stays in the headless group.
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_audio_space.gd'], 'AUDIO_SPACE_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_ground_drop_playthrough.gd'], 'GROUND_DROP_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_gamevado_ground.gd'], 'GAMEVADO_GROUND_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_character_motion.gd'], 'CHARACTER_MOTION_OK')
