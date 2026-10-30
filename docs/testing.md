@@ -127,3 +127,15 @@ $env:PYTHONPATH = (Resolve-Path work/test_dependencies).Path
 
 两个测试都已注册进 `tools/run_checks.py`（`TWO_DAY_LOOP_OK` 超时放宽到 150 秒）。
 
+## 阶段 E1 增量验证（2026-10-30）
+
+Web 导出没法靠单元测试覆盖，只能靠真实浏览器走完点击链路，记录见 [网页版导出](web-export-v1.md) 第三节：无头 Chromium 打开静态服务后确认引擎版本、WebGL2、画布 1280×720、标题页中文完整、点「新游戏」进入街区、按 W 走动让时钟从 08:00 走到 08:11 且门交互提示出现、按 F5 后 `localStorage` 出现 31415 字节快照、页面级 JS 异常为 0。
+
+同时确认一条排查结论：`.godot/imported` 缓存过期时，实例化 glb 会刷 `texture_set_size_override: Parameter "texture" is null`（原生 GL Compatibility、Forward+/Vulkan、Web 三端行为一致，135 条），跑一次 `--import` 重新导入即归零。导出脚本第一步就是 `--import`，因此正式产物不受影响；场景压缩会把它带回来，但已用逐像素对照证明不影响画面。
+
+```powershell
+& 'D://GameDev//Godot_v4.7.2-stable_win64.exe' --headless --path godot --editor --import --quit
+python tools/build_web_fixed.py
+python -m http.server 8777 --directory web
+```
+

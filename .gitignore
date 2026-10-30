@@ -2,8 +2,8 @@ save.json
 exports/
 __pycache__/
 *.pyc
-
 work/
 godot/.godot/
 *.blend1
 _tmp_ver_*.txt
+web/

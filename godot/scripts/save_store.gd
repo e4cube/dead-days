@@ -30,10 +30,21 @@ func save(model: RefCounted) -> String:
     if result != OK or DirAccess.rename_absolute(path + ".tmp", path) != OK:
         last_error = "存档提交失败，旧快照保留"
         return ""
+    if OS.has_feature("web"):
+        var key := "deaddays:snapshot:" + directory
+        JavaScriptBridge.eval("localStorage.setItem(%s,%s)" % [JSON.stringify(key), JSON.stringify(JSON.stringify(model.state))])
     return path
 
 func load_latest(model: RefCounted) -> bool:
     last_error = ""
+    if OS.has_feature("web"):
+        var key := "deaddays:snapshot:" + directory
+        var raw = JavaScriptBridge.eval("localStorage.getItem(%s)" % JSON.stringify(key))
+        if raw is String:
+            var candidate = JSON.parse_string(raw)
+            if model.valid(candidate):
+                model.restore(candidate)
+                return true
     var dir := DirAccess.open(directory)
     if dir == null:
         last_error = "没有可用存档"
