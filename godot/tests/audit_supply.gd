@@ -37,7 +37,6 @@ func _initialize() -> void:
     var items: Dictionary = model.rules.items
     var food_units := float(totals.get("food", 0)) * float(items.food.restore) + float(totals.get("hot_meal", 0)) * float(items.hot_meal.restore)
     var water_units := float(totals.get("water", 0)) * float(items.water.restore)
-    var bandage_units := float(totals.get("bandage", 0)) * float(items.bandage.restore)
 
     print("containers %d (empty %d)" % [containers, empty])
     print("zombies %d" % model.state.zombies.size())
@@ -47,7 +46,13 @@ func _initialize() -> void:
         print("item %s %d" % [id, totals[id]])
     print("need_per_day hunger %.1f thirst %.1f" % [day_hunger, day_thirst])
     print("food_days %.1f water_days %.1f" % [food_units / day_hunger, water_units / day_thirst])
-    print("heal_from_bandages %.0f hp" % bandage_units)
+    # 绷带不再是血瓶：它只处理伤口。所以这里报的是"能处理多少处伤"，
+    # 以及一处伤处理完之后那点恢复。
+    var heal: float = float(model.rules.wounds.bandage_heal)
+    print("first_aid bandage %d antiseptic %d suture %d antibiotic %d (%d wounds dressable, %d hp)" % [
+        int(totals.get("bandage", 0)), int(totals.get("antiseptic", 0)),
+        int(totals.get("suture_kit", 0)), int(totals.get("antibiotic", 0)),
+        int(totals.get("bandage", 0)), int(totals.get("bandage", 0)) * int(heal)])
     print("door_repairs %d reinforces %d" % [
         int(totals.get("wood_plank", 0)) / 2, int(totals.get("wood_plank", 0)) / 3])
     print("SUPPLY_AUDIT_OK")

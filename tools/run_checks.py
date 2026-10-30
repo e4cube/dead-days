@@ -118,6 +118,8 @@ def main():
         # Pure distance/storey maths and the one-way rule between sound and AI
         # perception; needs no window, so it stays in the headless group.
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_audio_space.gd'], 'AUDIO_SPACE_OK')
+        # Wounds, bleeding and infection are pure model maths: no window needed.
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_wounds.gd'], 'WOUNDS_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_ground_drop_playthrough.gd'], 'GROUND_DROP_PLAYTHROUGH_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_gamevado_ground.gd'], 'GAMEVADO_GROUND_OK')
         run(command + ['--path', 'godot', '--script', 'res://tests/test_character_motion.gd'], 'CHARACTER_MOTION_OK')

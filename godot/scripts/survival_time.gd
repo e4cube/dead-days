@@ -41,6 +41,11 @@ static func advance(model: RefCounted, seconds: float, sleeping: bool) -> void:
 static func physiology(model: RefCounted, minutes: float, sleeping: bool) -> void:
     var rule: Dictionary = model.rules.survival
     var stats: Dictionary = model.state.stats
+    # Blood first: an untreated wound is the fastest way to die, and sleeping
+    # does not stop it. Wounds raise their own events and may end the run here.
+    preload("res://scripts/wounds.gd").physiology(model, minutes)
+    if float(stats.health) <= 0.0:
+        return
     var multiplier: float = rule.sleep_metabolism if sleeping else 1.0
     var hunger_rate: float = rule.hunger_per_minute * multiplier
     var thirst_rate: float = rule.thirst_per_minute * multiplier

@@ -29,8 +29,22 @@
     "bandage": {
       "name": "绷带",
       "weight": 0.1,
-      "stat": "health",
-      "restore": 25.0
+      "kind": "medical"
+    },
+    "antiseptic": {
+      "name": "消毒酒精",
+      "weight": 0.3,
+      "kind": "medical"
+    },
+    "suture_kit": {
+      "name": "缝合包",
+      "weight": 0.4,
+      "kind": "medical"
+    },
+    "antibiotic": {
+      "name": "抗生素",
+      "weight": 0.05,
+      "kind": "medical"
     },
     "club": {
       "name": "木棍",
@@ -117,7 +131,10 @@
       "x": 0.0,
       "color": "688b91",
       "container": {
-        "bandage": 3
+        "bandage": 3,
+        "antiseptic": 2,
+        "suture_kit": 1,
+        "antibiotic": 1
       },
       "asset": "building_clinic",
       "container_asset": "cabinet",
@@ -326,6 +343,44 @@
     "sleep_heal_per_minute": 0.02,
     "healing_threshold": 20.0,
     "warning_threshold": 20.0
+  },
+  "wounds": {
+    "max": 12,
+    "dress_factor": 0.18,
+    "suture_factor": 0.05,
+    "cleaned_factor": 0.30,
+    "sutured_factor": 0.85,
+    "infection_damage_per_minute": 0.025,
+    "bandage_heal": 12.0,
+    "hit_chance": {
+      "none": 0.30,
+      "scratch": 0.48,
+      "laceration": 0.16,
+      "bite": 0.06
+    },
+    "kinds": {
+      "scratch": {
+        "name": "抓伤",
+        "bleed": 0.008,
+        "infection": 0.05,
+        "incubation_minutes": 480.0,
+        "heal_minutes": 600.0
+      },
+      "laceration": {
+        "name": "撕裂伤",
+        "bleed": 0.022,
+        "infection": 0.18,
+        "incubation_minutes": 420.0,
+        "heal_minutes": 900.0
+      },
+      "bite": {
+        "name": "咬伤",
+        "bleed": 0.040,
+        "infection": 0.62,
+        "incubation_minutes": 300.0,
+        "heal_minutes": 1500.0
+      }
+    }
   },
   "rest": {
     "hour_minutes": 60.0,

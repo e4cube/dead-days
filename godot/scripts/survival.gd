@@ -7,6 +7,7 @@ const GroundDrops=preload("res://scripts/ground_drops.gd")
 const DoorDamage=preload("res://scripts/door_damage.gd")
 const Crafting=preload("res://scripts/crafting.gd")
 const Goals=preload("res://scripts/goals.gd")
+const Wounds=preload("res://scripts/wounds.gd")
 ## Scene-independent authoritative state. UI never mutates inventory directly.
 var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/rules.json"))
 var state: Dictionary = {}
@@ -28,6 +29,7 @@ func start() -> void:
     add_base_state()
     add_site_state()
     add_goal_state()
+    Wounds.add_state(self)
     event("started", "第1天清晨，在街区外醒来。")
 
 func event(kind: String, message: String, mood: String = "平静", payload: Dictionary = {}) -> void:
@@ -380,6 +382,15 @@ func use_item(id: String) -> bool:
         return true
     if rule.get("kind", "") == "ammo":
         return Firearms.begin_reload(self)
+    # Medical items are a sequence, not three interchangeable buttons: the wound
+    # system decides whether this one is the right step and says why if it is not.
+    if Wounds.is_medical(id):
+        if not Wounds.medical_reason(self, id).is_empty():
+            return false
+        if not Wounds.use_medical(self, id):
+            return false
+        event("used", "使用了" + rule.name + "。", "平静", {"item": id})
+        return true
     # Materials and tools are never consumed by hand; they exist for crafting.
     if rule.get("kind", "") != "":
         return false
@@ -406,7 +417,7 @@ func valid(candidate: Variant) -> bool:
     for key in ["schema", "day", "minutes", "position", "stats", "inventory", "doors", "containers", "visited", "events"]:
         if not candidate.has(key):
             return false
-    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5 and candidate.schema != 6 and candidate.schema != 7) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
+    if (candidate.schema != 1 and candidate.schema != 2 and candidate.schema != 3 and candidate.schema != 4 and candidate.schema != 5 and candidate.schema != 6 and candidate.schema != 7 and candidate.schema != 8) or not number(candidate.day, 1, 1000000) or candidate.day != floor(candidate.day):
         return false
     if not (candidate.minutes is float or candidate.minutes is int) or not is_finite(candidate.minutes) or candidate.minutes < 0 or candidate.minutes >= 1440:
         return false
@@ -426,6 +437,7 @@ func valid(candidate: Variant) -> bool:
         return false
     if not GroundDrops.valid(self,candidate): return false
     if not DoorDamage.valid(self,candidate): return false
+    if int(candidate.schema) >= 8 and not Wounds.valid(self,candidate): return false
     if candidate.has("world_revision") and not integer(candidate.world_revision,0,rules.world_revision):
         return false
     if not Firearms.valid(self,candidate):
@@ -556,6 +568,11 @@ func restore(candidate: Dictionary) -> void:
     if state.schema == 6 or missing_goals:
         add_goal_state()
         event("migrated", "小目标已接入；据点、物资与已完成工事完整保留。", "平静")
+    # Wounds arrive as schema 8. An older save starts clean instead of inventing
+    # injuries it never recorded: the body is as sound as the save claimed.
+    if int(state.schema) <= 7 or not state.get("wounds") is Array:
+        Wounds.add_state(self)
+        event("migrated", "伤势、流血与感染已接入；旧存档从无伤开始。", "平静")
     for zombie in state.zombies:
         if not zombie.has("appearance"):
             zombie.appearance="civilian"
@@ -606,13 +623,19 @@ func damage_zombie(zombie: Dictionary, amount: float) -> bool:
         event("killed", "用" + rules.weapons[state.combat.equipped].name + "击倒了一只僵尸。", "疲惫", {"zombie": zombie.id})
     return true
 
-func damage_player(amount: float, attacker: String) -> bool:
+## `wounding` is opt-in because only teeth and fingernails leave a wound that
+## keeps bleeding: a test fixture, a fall or a starving body does not.
+func damage_player(amount: float, attacker: String, wounding: bool = false) -> bool:
     if state.stats.health <= 0 or state.combat.hurt_cd > 0 or amount <= 0:
         return false
     var previous: float = state.stats.health
     state.stats.health = maxf(0, previous - amount)
     state.combat.hurt_cd = rules.combat.hurt_immunity
     event("injured", "被僵尸击中，损失 %.0f 点生命。" % (previous - state.stats.health), "恐惧", {"attacker": attacker, "damage": previous - state.stats.health})
+    if wounding and state.stats.health > 0:
+        var kind: String = Wounds.roll_hit(self)
+        if Wounds.KINDS.has(kind):
+            Wounds.hit(self, kind, attacker)
     if previous >= 25 and state.stats.health < 25 and state.stats.health > 0:
         event("near_death", "伤势危重，必须摆脱追击并寻找医疗物资。", "绝望")
     if state.stats.health <= 0:

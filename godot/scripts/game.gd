@@ -14,6 +14,7 @@ const GroundVisual=preload("res://scripts/ground_drops_visual.gd")
 const Quality=preload("res://scripts/quality.gd")
 const Crafting=preload("res://scripts/crafting.gd")
 const Goals=preload("res://scripts/goals.gd")
+const Wounds=preload("res://scripts/wounds.gd")
 var audio=preload("res://scripts/game_audio.gd").new()
 var model = Model.new()
 var slots = Slots.new()
@@ -898,6 +899,10 @@ func refresh_hud(force: bool = false) -> void:
     var hud_line := "DEAD DAYS / 第%d天 %s%s\n生命 %.0f  饱腹 %.0f  饮水 %.0f  体力 %.0f  负重 %.1f/%.1f kg  %s" % [model.state.day, Timeline.clock(model), rest_text, model.state.stats.health, model.state.stats.hunger, model.state.stats.thirst, model.state.stats.stamina, model.weight(), model.rules.capacity, model.rules.weapons[model.state.combat.equipped].name]
     if model.state.combat.equipped=="pistol":
         hud_line+="\n弹匣 %d/%d · 备用 %d · F装填 / U卸弹 · 装填 %.1f秒"%[Model.Firearms.loaded(model),model.rules.weapons.pistol.magazine,model.state.inventory.get("ammo_9mm",0),model.state.firearms.reload_left]
+    # A wound is the one thing a top-down view cannot show on the body, so it has
+    # to be written down: what it is, how it was treated, whether it still bleeds.
+    if Wounds.count(model) > 0:
+        hud_line += "\n伤势：" + Wounds.summary(model)
     if hud_line != hud_text_cache:
         hud_text_cache = hud_line
         hud.text = hud_line
@@ -1025,6 +1030,10 @@ func item_action_reason(id: String) -> String:
         return ""
     if kind == "tool":
         return "工具：修门或加固时自动使用，不消耗"
+    if kind == "medical":
+        # The reason comes from the wound itself, so a foggy player is told
+        # "先消毒再缝合" rather than "无法使用".
+        return Wounds.medical_reason(model, id)
     if kind == "material":
         return "材料：只能在据点制作时消耗"
     if rule.has("stat"):
@@ -1034,7 +1043,20 @@ func item_action_reason(id: String) -> String:
 
 func use(id: String) -> void:
     if model.use_item(id):
-        last_notice = ("已装备：" if model.rules.items[id].get("kind", "") == "weapon" else "使用成功：") + model.rules.items[id].name
+        if Wounds.is_medical(id):
+            # 医疗用品的反馈是它做的事本身——"缠上绷带，血流慢了下来"，
+            # 而不是"使用成功：绷带"。动作事件紧跟在通用的 used 之前。
+            last_notice = ""
+            var events: Array = model.state.events
+            for i in range(events.size() - 1, maxi(-1, events.size() - 4), -1):
+                var kind: String = str(events[i].kind)
+                if kind.begins_with("wound_") or kind == "cured":
+                    last_notice = str(events[i].text)
+                    break
+            if last_notice.is_empty():
+                last_notice = "使用成功：" + model.rules.items[id].name
+        else:
+            last_notice = ("已装备：" if model.rules.items[id].get("kind", "") == "weapon" else "使用成功：") + model.rules.items[id].name
         if id=="ammo_9mm":
             last_notice="关闭背包后继续装填。"
     else:

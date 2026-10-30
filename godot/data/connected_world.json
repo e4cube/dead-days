@@ -80,7 +80,8 @@
       "contents": {
         "food": 1,
         "water": 1,
-        "bandage": 1
+        "bandage": 1,
+        "antiseptic": 1
       },
       "capacity": 6.0,
       "introduced_revision": 3
@@ -203,7 +204,8 @@
         "food": 2,
         "water": 2,
         "bandage": 2,
-        "ammo_9mm": 8
+        "ammo_9mm": 8,
+        "suture_kit": 1
       },
       "capacity": 8.0,
       "introduced_revision": 3
@@ -256,7 +258,9 @@
       "contents": {
         "pistol": 1,
         "ammo_9mm": 18,
-        "bandage": 3
+        "bandage": 3,
+        "antiseptic": 1,
+        "antibiotic": 1
       },
       "capacity": 10.0,
       "introduced_revision": 3

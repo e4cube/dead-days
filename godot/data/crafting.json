@@ -41,6 +41,16 @@
       "note": "把布条裁成可用绷带。"
     },
     {
+      "id": "make_suture_kit",
+      "name": "缝制缝合包",
+      "target": "item",
+      "requires_base": true,
+      "minutes": 25.0,
+      "inputs": {"cloth": 2, "metal_scrap": 1},
+      "outputs": {"suture_kit": 1},
+      "note": "把布条拆成线，用铁片磨出一根弯针。到这一步，血才真正止得住。"
+    },
+    {
       "id": "install_villa_gate",
       "name": "安装院子门",
       "target": "site",

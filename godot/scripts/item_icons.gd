@@ -9,6 +9,9 @@ const COLORS := {
 	"food": Color("c8a45c"),
 	"water": Color("6fa8c8"),
 	"bandage": Color("e8e2d4"),
+	"antiseptic": Color("a7d8e8"),
+	"suture_kit": Color("cfd4d8"),
+	"antibiotic": Color("e8e0a0"),
 	"club": Color("9a7550"),
 	"pistol": Color("8a8f96"),
 	"ammo_9mm": Color("c9a227"),
@@ -56,6 +59,25 @@ static func draw(canvas: CanvasItem, id: String, origin: Vector2, box: float) ->
 				origin + Vector2(0.38, 0.76) * box,
 			]), base.darkened(0.25))
 			canvas.draw_rect(Rect2(origin + Vector2(0.18, 0.34) * box, Vector2(0.56, 0.13) * box), base.darkened(0.55), false, line)
+		"antiseptic":
+			# Screw-top bottle with a cross label: the only thing that makes a
+			# dirty wound survivable.
+			canvas.draw_rect(Rect2(origin + Vector2(0.34, 0.30) * box, Vector2(0.32, 0.50) * box), base.darkened(0.10))
+			canvas.draw_rect(Rect2(origin + Vector2(0.42, 0.20) * box, Vector2(0.16, 0.10) * box), base.lightened(0.25))
+			canvas.draw_rect(Rect2(origin + Vector2(0.46, 0.44) * box, Vector2(0.08, 0.22) * box), Color("8a2f2f"))
+			canvas.draw_rect(Rect2(origin + Vector2(0.39, 0.51) * box, Vector2(0.22, 0.08) * box), Color("8a2f2f"))
+			canvas.draw_rect(Rect2(origin + Vector2(0.34, 0.30) * box, Vector2(0.32, 0.50) * box), base.darkened(0.55), false, line)
+		"suture_kit":
+			# Curved needle with a trailing thread on a folded cloth.
+			canvas.draw_rect(Rect2(origin + Vector2(0.22, 0.56) * box, Vector2(0.56, 0.20) * box), base.darkened(0.20))
+			canvas.draw_arc(origin + Vector2(0.50, 0.44) * box, box * 0.20, 0.6, 3.6, 18, base.lightened(0.35), line * 1.4, true)
+			canvas.draw_line(origin + Vector2(0.50, 0.62) * box, origin + Vector2(0.30, 0.80) * box, base, line)
+			canvas.draw_rect(Rect2(origin + Vector2(0.22, 0.56) * box, Vector2(0.56, 0.20) * box), base.darkened(0.55), false, line)
+		"antibiotic":
+			# Two-tone capsule: half the only real cure for a bite.
+			canvas.draw_rect(Rect2(origin + Vector2(0.22, 0.40) * box, Vector2(0.56, 0.20) * box), base)
+			canvas.draw_rect(Rect2(origin + Vector2(0.22, 0.40) * box, Vector2(0.28, 0.20) * box), base.darkened(0.35))
+			canvas.draw_rect(Rect2(origin + Vector2(0.22, 0.40) * box, Vector2(0.56, 0.20) * box), base.darkened(0.55), false, line)
 		"ammo_9mm":
 			# Two upright cartridges with brass cases and copper tips.
 			for offset in [0.32, 0.56]:

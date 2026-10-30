@@ -55,10 +55,14 @@ func run() -> void:
     for mesh in game.clinic_details.get_meta("medicine_boxes"):
         check(not mesh.visible,"empty medicine stock removes visible supply boxes")
     # Explicit damage fixture; healing itself uses the production item/key transaction.
-    game.model.damage_player(30,"clinic_test_fixture")
+    # 绷带现在只处理伤口，所以 fixture 必须真的留下伤口（第三个参数是 opt-in）。
+    game.model.damage_player(30,"clinic_test_fixture",true)
     var wounded: float = game.model.state.stats.health
+    check(game.model.state.wounds.size()>=1,"the fixture left a wound to treat")
     key(KEY_3)
-    check(game.model.state.stats.health==minf(100,wounded+25) and game.model.state.inventory.bandage==2,"bandage heals and is consumed")
+    var heal: float = float(game.model.rules.wounds.bandage_heal)
+    check(game.model.state.stats.health==minf(100,wounded+heal) and game.model.state.inventory.bandage==2,"bandage dresses the wound, heals a little and is consumed")
+    check(bool(game.model.state.wounds[0].dressed),"the wound records the dressing")
     key(KEY_B)
     check(game.panel.visible and game.storage_container=="clinic","clinic uses existing real storage panel")
     game.storage_buttons.bandage.store.pressed.emit()

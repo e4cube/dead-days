@@ -213,7 +213,9 @@ func tick(delta: float) -> void:
                 if bash_near and barrier.id==committed_door:
                     game.hit_door(committed_door,record.id)
             elif in_reach and visible_target:
-                game.model.damage_player(rule.attack_damage, record.id)
+                # Teeth and nails are the only thing in this world that leaves a
+                # wound behind, so the flag is passed here and nowhere else.
+                game.model.damage_player(rule.attack_damage, record.id, true)
                 voice("snarl")
             record.attack_door=""
             record.attack_cd = rule.attack_cooldown

@@ -9,7 +9,7 @@ func check(value: bool, message: String) -> void:
 func _initialize() -> void:
     var model = Model.new()
     model.start()
-    check(model.state.schema==7 and model.valid(model.state),"new schema validates")
+    check(model.state.schema==8 and model.valid(model.state),"new schema validates")
     var original: Dictionary = model.state.containers.home.duplicate(true)
     model.state.inventory={"water":5}
     check(model.loot("home_fridge")==0 and model.state.containers.home_fridge.water==2,"full backpack leaves supplies")
@@ -46,7 +46,7 @@ func _initialize() -> void:
     file.close()
     var bytes := FileAccess.get_file_as_bytes(path)
     check(Store.new(directory+"/old").load_latest(loaded),"schema3 furniture migration loads")
-    check(loaded.state.schema==7 and loaded.state.containers.home==old.containers.home and loaded.state.inventory==JSON.parse_string(JSON.stringify(old.inventory)),"migration preserves existing stock and carried items")
+    check(loaded.state.schema==8 and loaded.state.containers.home==old.containers.home and loaded.state.inventory==JSON.parse_string(JSON.stringify(old.inventory)),"migration preserves existing stock and carried items")
     check(loaded.state.containers.home_fridge.water==2 and FileAccess.get_file_as_bytes(path)==bytes,"migration adds fridge in memory without rewriting source")
     loaded.state.inventory={}
     loaded.loot("home_fridge")

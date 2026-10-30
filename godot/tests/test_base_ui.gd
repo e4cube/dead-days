@@ -50,9 +50,12 @@ func run() -> void:
     game.open_craft()
     check(game.expedition.is_open() and game.expedition.kind == "craft", "base panel opens indoors too")
     var indoor := craft_buttons()
-    check(indoor.size() == 2, "only the indoor recipes are listed away from the door")
+    check(indoor.size() == 3, "only the indoor recipes are listed away from the door")
     check(indoor[0].disabled, "cooking is blocked without ingredients and says why")
     check(indoor[0].tooltip_text == "材料不足：罐头 0/1", "blocked cooking explains the missing ingredient")
+    # The suture kit is the answer to bleeding, so it belongs with the indoor work.
+    check(indoor[2].disabled, "a suture kit needs cloth and scrap you do not have yet")
+    check(indoor[2].tooltip_text.find("布条") >= 0, "the blocked suture kit names its materials")
     game.expedition.close()
     print("BASE_UI_OK" if failures == 0 else "BASE_UI_FAILED")
     game.queue_free()

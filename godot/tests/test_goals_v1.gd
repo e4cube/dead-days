@@ -57,7 +57,7 @@ func _initialize() -> void:
 
 func fresh() -> void:
     var model = world()
-    check(model.state.schema == 7, "objectives bring the save to schema 7")
+    check(model.state.schema == 8, "objectives bring the save to schema 8")
     check(Goals.definitions().size() == 4, "four objectives are authored")
     check(model.state.goals.done.is_empty(), "nothing starts completed")
     check(float(model.state.goals.farthest) == 0.0, "a new game has not walked anywhere yet")
@@ -66,7 +66,7 @@ func fresh() -> void:
     check("小目标" in text and "[ ] 储备饮水" in text, "the journal lists unfinished objectives")
     check(not "[完成]" in text, "no objective claims to be done at the start")
     var plain = street()
-    check(plain.state.schema == 7 and plain.state.goals.done.is_empty(), "the street scene carries objectives too")
+    check(plain.state.schema == 8 and plain.state.goals.done.is_empty(), "the street scene carries objectives too")
     check(plain.valid(plain.state), "a street save with objectives validates")
 
 ## Water only counts once it is actually inside a container belonging to the base:
@@ -156,7 +156,7 @@ func migration() -> void:
     model.state = keep
     var loaded = World.new()
     check(Store.new(directory).load_latest(loaded), "the legacy snapshot loads")
-    check(loaded.state.schema == 7, "loading upgrades to schema 7")
+    check(loaded.state.schema == 8, "loading upgrades to schema 8")
     check(loaded.state.goals.done.is_empty(), "migration starts with no objective finished")
     check(loaded.valid(loaded.state), "the migrated state validates")
     # Same rule as the villa works: presence decides, never the version alone.
