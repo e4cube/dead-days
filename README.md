@@ -15,12 +15,46 @@
 
 ## 跑起来
 
+**最省事：双击根目录的 `play.bat`**（里面写着 Godot 的路径，换机器只改那一行）。
+
+命令行等价写法：
+
 ```powershell
-& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --editor --import --quit
+# 第一次跑、或改过资源后：先让 Godot 建好 .godot 导入缓存（只输出日志，不开窗口）
+& 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --headless --path godot --import --quit
+# 开游戏（主场景是 res://locations/integrated_world.tscn，整图）
 & 'D:\GameDev\Godot_v4.7.2-stable_win64.exe' --path godot
 ```
 
-或双击根目录 `play.bat`。WASD 移动、Shift 跑步、空格攻击、E 交互、B 存取、I 背包、J 日志、F3 画质、F5 存档。
+需要的是 **Godot 4.7**（本机在 `D:\GameDev\Godot_v4.7.2-stable_win64.exe`）。存档在 `%APPDATA%\Godot\app_userdata\Dead Days\saves\`，三个槽位各自独立。
+
+网页版：`python tools/build_web_fixed.py` 重新出包到 `web/`，用任意静态服务器打开 `web/index.html`（单线程模板，不需要 COOP/COEP）。**注意 `web/` 是构建产物，里面的包不含新增玩法，改完代码要重新跑这条命令。**
+
+### 操作
+
+| 按键 | 功能 |
+| --- | --- |
+| WASD / 方向键 | 移动 |
+| Shift | 奔跑（耗体力，噪音更大） |
+| 空格 | 攻击 |
+| E | 交互：开门 / 搜刮容器 / 拿取地上的物资 |
+| B | 存取（身体容器与柜子之间搬东西） |
+| I / J | 背包 / 生存日志 |
+| Tab | 地图（滚轮缩放、拖动平移、可加备注标记） |
+| C | 据点制作（门口修门/加固，屋内烹饪/裁制绷带/缝制缝合包） |
+| G | 把当前所在的屋子设为据点 |
+| 1 / 2 / 3 | 吃罐头 / 喝水 / 包扎（绷带只处理伤口，没伤不给用） |
+| 4 / 5 | 装备木棍 / 手枪 |
+| F / U | 装填 / 卸弹（手枪） |
+| R / T | 床边短休一小时 / 夜间睡到黎明 |
+| Q / V | 左右旋转视角（室内同理）；鼠标滚轮缩放 |
+| L | 屋内照明开关 |
+| M | 静音 |
+| F3 | 画质档位 |
+| F5 | 存档 |
+| Esc | 保存并回主菜单 |
+
+**新手上手顺序**：进屋子搜柜子拿到木棍 → 按 4 装备 → 出门去诊所（街对面）拿绷带和消毒酒精 → 再往东走市集。**被抓伤会一直流血**，按 3 包扎，再找酒精消毒；被咬伤五小时内必须消毒，否则只能靠抗生素。
 
 ## 版本记录
 
