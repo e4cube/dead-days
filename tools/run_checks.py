@@ -98,6 +98,9 @@ def main():
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_material_library_v1.gd'], 'MATERIAL_LIBRARY_V1_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_street_art.gd'], 'STREET_ART_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_visual_integration.gd'], 'VISUAL_INTEGRATION_OK')
+        # Every GLB surface that owns an albedo map must hold a real, non-zero
+        # texture. A 0x0 import renders as the magenta checkerboard.
+        run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/probe_materials.gd'], 'MATERIAL_TEXTURES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_threats.gd'], 'THREATS_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_time.gd'], 'TIME_RULES_OK')
         run([args.godot, '--headless', '--path', 'godot', '--script', 'res://tests/test_rest_safety.gd'], 'REST_SAFETY_OK')

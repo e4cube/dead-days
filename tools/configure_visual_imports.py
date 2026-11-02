@@ -1,5 +1,12 @@
 """Keep embedded GLB maps in compressed imported scenes, not hundreds of extracted files.
 Only relocates newly generated, Git-untracked PNGs bearing a known GLB prefix.
+
+Mode 2 (PortableCompressedTexture2D) is what keeps the maps inside the .scn.
+It is NOT the cause of the magenta checkerboard: that comes from
+godot/compress_web_assets.gd re-saving these .scn files in place with
+FLAG_COMPRESS, which drops the portable texture payload while leaving the .md5
+stamp valid, so the importer never rebuilds them. That script now deletes the
+stamp afterwards; tests/probe_materials.gd catches any recurrence.
 """
 from pathlib import Path
 import shutil,subprocess
